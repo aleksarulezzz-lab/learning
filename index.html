@@ -1,0 +1,771 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Звездочёт — онлайн-школа для детей</title>
+<meta name="description" content="Звездочёт: математика, китайский и английский в одном месте. Ребёнок занимается, а на звёздной карте загораются новые звёзды.">
+<meta property="og:title" content="Звездочёт — онлайн-школа для детей">
+<meta property="og:description" content="Математика, китайский и английский. Каждый урок зажигает звезду на карте ученика.">
+<meta property="og:image" content="https://aleksarulezzz.ru/zvezdochet/og.png">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#1b1446">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f3f0ff; --bg2:#e9f3ff;
+  --card:rgba(255,255,255,.78); --card-solid:#fff; --line:rgba(87,70,180,.12);
+  --ink:#231a52; --muted:#6f6a90; --soft:#a49fc4;
+  --violet:#7b5cff; --violet2:#a98bff; --night:#1b1446; --night2:#2d2170;
+  --math:#2fa4ff; --math2:#7fd3ff; --math-bg:#e5f4ff;
+  --zh:#ff6a5b; --zh2:#ffb36b; --zh-bg:#fff0ea;
+  --en:#22c08a; --en2:#9be7b5; --en-bg:#e6faf1;
+  --gold:#ffbf2f; --ok:#22c08a; --bad:#ff5b6e;
+  --r:24px; --shadow:0 10px 30px rgba(60,40,160,.10),0 2px 6px rgba(60,40,160,.06);
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%}
+body{font-family:Nunito,system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--ink);
+  background:radial-gradient(1200px 600px at 10% -10%,#e2d9ff 0,transparent 60%),radial-gradient(900px 500px at 110% 10%,#d7ecff 0,transparent 60%),var(--bg);
+  -webkit-font-smoothing:antialiased;overflow-x:hidden;background-attachment:fixed}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+h1,h2,h3,p{margin:0}
+.hidden{display:none!important}
+
+/* ===== layout ===== */
+.app{display:grid;grid-template-columns:88px 1fr;min-height:100vh}
+.side{position:sticky;top:0;height:100vh;display:flex;flex-direction:column;align-items:center;gap:6px;padding:18px 10px;
+  background:rgba(255,255,255,.55);backdrop-filter:blur(14px);border-right:1px solid var(--line)}
+.logo{width:52px;height:52px;border-radius:16px;display:grid;place-items:center;margin-bottom:14px;
+  background:linear-gradient(135deg,#8c6bff,#4e7bff);box-shadow:0 8px 20px rgba(110,80,255,.35)}
+.logo svg{width:30px;height:30px}
+.nav{display:flex;flex-direction:column;gap:6px;width:100%}
+.nav button{display:flex;flex-direction:column;align-items:center;gap:3px;padding:10px 4px;border-radius:16px;font-size:12px;font-weight:800;color:var(--muted);transition:.2s}
+.nav button .ic{font-size:22px;line-height:1}
+.nav button:hover{background:rgba(123,92,255,.08);color:var(--ink)}
+.nav button.on{background:#fff;color:var(--violet);box-shadow:var(--shadow)}
+.side .spacer{flex:1}
+main{padding:22px 28px 40px;max-width:1280px;width:100%;margin:0 auto}
+
+/* ===== top ===== */
+.top{display:flex;align-items:center;gap:16px;margin-bottom:22px}
+.ava{width:68px;height:68px;border-radius:50%;display:grid;place-items:center;font-size:38px;flex:none;
+  background:linear-gradient(140deg,#fff,#efe8ff);box-shadow:0 0 0 4px #fff,0 8px 22px rgba(90,60,200,.2);cursor:pointer}
+.hello h1{font-size:30px;font-weight:900;letter-spacing:-.4px}
+.hello p{color:var(--muted);font-weight:700;margin-top:2px}
+.top .grow{flex:1}
+.pill{display:flex;align-items:center;gap:8px;padding:10px 16px;border-radius:999px;background:var(--card);box-shadow:var(--shadow);font-weight:800}
+.pill .n{font-size:18px}
+
+/* ===== cards ===== */
+.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:18px}
+.card{background:var(--card);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.9);border-radius:var(--r);box-shadow:var(--shadow);padding:20px;position:relative;overflow:hidden}
+.card h3{font-size:18px;font-weight:900;display:flex;align-items:center;gap:8px}
+.muted{color:var(--muted);font-weight:700}
+.c-hero{grid-column:span 6;min-height:240px;color:#fff;padding:26px;background:linear-gradient(135deg,var(--night) 0%,var(--night2) 60%,#4a2fa8 100%);border:0}
+.c-prog{grid-column:span 3}
+.c-lvl{grid-column:span 3;background:linear-gradient(160deg,#efe9ff,#dccfff);border:0}
+.c-subj{grid-column:span 4;cursor:pointer;transition:transform .2s,box-shadow .2s}
+.c-subj:hover{transform:translateY(-4px);box-shadow:0 18px 40px rgba(60,40,160,.16)}
+.c-plan{grid-column:span 5}
+.c-star{grid-column:span 3;background:linear-gradient(160deg,#241a5e,#3b2a8f);color:#fff;border:0}
+.c-coll{grid-column:span 4}
+.c-map{grid-column:span 7;background:linear-gradient(160deg,var(--night),#2a1f6b);color:#fff;border:0;cursor:pointer;min-height:230px}
+.c-game{grid-column:span 5;background:linear-gradient(135deg,#2b2378,#5b3cc4);color:#fff;border:0}
+
+/* hero banner */
+.slides{position:relative;height:100%}
+.slide{position:absolute;inset:0;display:flex;flex-direction:column;gap:10px;opacity:0;transform:translateX(20px);transition:.5s;pointer-events:none}
+.slide>:not(.hero-art){max-width:54%;position:relative}
+.slide.on{opacity:1;transform:none;pointer-events:auto}
+.tag{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:800;opacity:.85}
+.slide h2{font-size:34px;line-height:1.05;font-weight:900;letter-spacing:-.5px}
+.slide p{opacity:.85;font-weight:700;font-size:15px}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:12px 20px;border-radius:999px;font-weight:900;background:#fff;color:var(--ink);box-shadow:0 6px 16px rgba(0,0,0,.15);transition:transform .15s;width:max-content}
+.btn:hover{transform:scale(1.04)}
+.btn.v{background:var(--violet);color:#fff}
+.btn.ghost{background:rgba(255,255,255,.14);color:#fff;box-shadow:none}
+.dots{position:absolute;bottom:0;left:0;display:flex;gap:6px}
+.dots i{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.35);cursor:pointer}
+.dots i.on{background:#fff;width:22px;border-radius:5px}
+.hero-art{position:absolute;right:-26px;top:-26px;bottom:-26px;width:46%;height:calc(100% + 52px);pointer-events:none}
+.sky i{position:absolute;width:2px;height:2px;border-radius:50%;background:#fff;animation:tw 3s infinite ease-in-out}
+@keyframes tw{50%{opacity:.2}}
+
+/* progress ring */
+.ringrow{display:flex;align-items:center;gap:14px;margin-top:14px}
+.ring{width:104px;height:104px;flex:none;position:relative}
+.ring svg{transform:rotate(-90deg)}
+.ring b{position:absolute;inset:0;display:grid;place-items:center;font-size:24px;font-weight:900}
+.streak{margin-top:14px;padding:12px 14px;border-radius:16px;background:linear-gradient(90deg,#fff3dc,#ffe9d6);display:flex;align-items:center;gap:10px;font-weight:800}
+.streak .f{font-size:26px}
+.streak small{display:block;color:var(--muted);font-weight:700}
+
+/* level */
+.lvlname{font-size:26px;font-weight:900;margin:16px 0 6px}
+.bar{height:12px;border-radius:9px;background:rgba(255,255,255,.7);overflow:hidden}
+.bar i{display:block;height:100%;border-radius:9px;background:linear-gradient(90deg,var(--violet),#b28cff);transition:width .8s}
+.planet{position:absolute;right:-6px;top:-6px;width:96px;height:96px}
+
+/* subject card */
+.subj-head{display:flex;align-items:center;gap:10px}
+.subj-head .ico{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;font-size:24px;font-weight:900;color:#fff}
+.subj-head h3{font-size:22px;flex:1}
+.go{width:34px;height:34px;border-radius:50%;background:#fff;display:grid;place-items:center;box-shadow:var(--shadow);font-weight:900}
+.subj-body{display:flex;gap:14px;margin-top:14px;align-items:stretch}
+.subj-art{width:120px;flex:none;border-radius:18px;display:grid;place-items:center;font-size:54px;position:relative;overflow:hidden}
+.topics{flex:1;display:flex;flex-direction:column;gap:6px;justify-content:center}
+.topic{display:flex;align-items:center;justify-content:space-between;gap:8px;font-weight:800;font-size:15px;padding:6px 0;border-bottom:1px dashed var(--line)}
+.topic:last-child{border:0}
+.chk{width:22px;height:22px;border-radius:50%;border:2px solid #cfc8ea;flex:none;display:grid;place-items:center;font-size:12px;color:#fff}
+.chk.on{border:0}
+.subj-foot{margin-top:12px;display:flex;justify-content:space-between;align-items:center;font-size:13px}
+.minibar{flex:1;height:8px;border-radius:6px;background:rgba(0,0,0,.06);margin-right:10px;overflow:hidden}
+.minibar i{display:block;height:100%;border-radius:6px}
+.math .ico,.math .chk.on,.math .minibar i{background:linear-gradient(135deg,var(--math),#4f7bff)}
+.math .subj-art{background:linear-gradient(140deg,var(--math-bg),#cfe9ff)}
+.zh .ico,.zh .chk.on,.zh .minibar i{background:linear-gradient(135deg,var(--zh),var(--zh2))}
+.zh .subj-art{background:linear-gradient(140deg,var(--zh-bg),#ffe0cf)}
+.en .ico,.en .chk.on,.en .minibar i{background:linear-gradient(135deg,var(--en),#4fd1c5)}
+.en .subj-art{background:linear-gradient(140deg,var(--en-bg),#c9f3df)}
+
+/* plan */
+.plan{display:flex;flex-direction:column;gap:10px;margin-top:14px}
+.task{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:16px;background:rgba(123,92,255,.06);font-weight:800;cursor:pointer}
+.task .box{width:24px;height:24px;border-radius:8px;border:2px solid #c9c0f0;display:grid;place-items:center;flex:none;color:#fff;font-size:14px}
+.task.done .box{background:var(--violet);border-color:var(--violet)}
+.task.done .t{color:var(--muted);text-decoration:line-through}
+.task .t{flex:1}
+.task .xp{font-size:14px;color:#9a7b00;background:#fff4cf;padding:3px 9px;border-radius:999px;white-space:nowrap}
+
+/* my star */
+.starbox{display:flex;gap:10px;align-items:center;margin-top:8px}
+.mystar{width:120px;height:120px;flex:none}
+.mystar .glow{animation:pulse 2.6s ease-in-out infinite;transform-origin:60px 60px}
+@keyframes pulse{50%{transform:scale(1.08);opacity:.8}}
+
+/* collection */
+.coll{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}
+.badge{aspect-ratio:1;border-radius:14px;background:linear-gradient(140deg,#f3efff,#e8e2ff);display:grid;place-items:center;font-size:26px;position:relative}
+.badge.lock{filter:grayscale(1);opacity:.35}
+
+/* mini map card */
+.c-map .preview{position:absolute;inset:0}
+.c-map .over{position:relative;z-index:1;display:flex;flex-direction:column;gap:8px;max-width:60%}
+.c-map h3{font-size:22px}
+
+/* game card */
+.cat{position:absolute;right:16px;bottom:-6px;font-size:84px;filter:drop-shadow(0 8px 18px rgba(0,0,0,.3))}
+
+/* ===== screens ===== */
+.screen-title{display:flex;align-items:center;gap:14px;margin-bottom:18px}
+.screen-title h1{font-size:30px;font-weight:900}
+.back{width:44px;height:44px;border-radius:50%;background:#fff;box-shadow:var(--shadow);font-size:20px;font-weight:900;display:grid;place-items:center}
+
+/* map */
+.mapwrap{position:relative;border-radius:28px;overflow:hidden;background:radial-gradient(800px 600px at 50% 50%,#2c2280 0,#140f3a 70%);height:calc(100vh - 140px);min-height:520px;box-shadow:var(--shadow);touch-action:none}
+.mapwrap svg{width:100%;height:100%;display:block;cursor:grab}
+.mapwrap svg:active{cursor:grabbing}
+.mapctl{position:absolute;right:14px;top:14px;display:flex;flex-direction:column;gap:8px;z-index:2}
+.mapctl button{width:42px;height:42px;border-radius:14px;background:rgba(255,255,255,.14);color:#fff;font-size:22px;font-weight:900;backdrop-filter:blur(6px)}
+.legend{position:absolute;left:14px;top:14px;display:flex;flex-direction:column;gap:6px;z-index:2}
+.legend span{display:flex;align-items:center;gap:8px;color:#fff;font-weight:800;font-size:13px;background:rgba(255,255,255,.1);padding:6px 12px;border-radius:999px;backdrop-filter:blur(6px)}
+.legend i{width:10px;height:10px;border-radius:50%}
+.node{cursor:pointer}
+.node .halo{opacity:0}
+.node.done .halo{opacity:.5}
+.node.cur .halo{opacity:.8;animation:halo 1.6s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+@keyframes halo{50%{transform:scale(1.5);opacity:.2}}
+.lit{stroke-dasharray:8 10;animation:flow 1.2s linear infinite}
+@keyframes flow{to{stroke-dashoffset:-18}}
+.panel{position:absolute;left:14px;right:14px;bottom:14px;z-index:3;background:rgba(255,255,255,.96);border-radius:22px;padding:16px 18px;display:flex;align-items:center;gap:14px;box-shadow:0 10px 30px rgba(0,0,0,.3);transform:translateY(140%);transition:.3s}
+.panel.on{transform:none}
+.panel .pi{width:54px;height:54px;border-radius:16px;display:grid;place-items:center;font-size:28px;flex:none;color:#fff}
+.panel .pt{flex:1}
+.panel .pt b{font-size:17px}
+.panel .pt p{color:var(--muted);font-weight:700;font-size:14px}
+.routes{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:18px}
+.route{padding:16px}
+.route .next{margin-top:8px;font-weight:800}
+
+/* subject picker / iframe */
+.frame{position:fixed;inset:0;z-index:50;background:#fff;display:flex;flex-direction:column}
+.framebar{display:flex;align-items:center;gap:12px;padding:10px 14px;background:linear-gradient(90deg,var(--night),var(--night2));color:#fff}
+.framebar b{font-size:17px;flex:1}
+.framebar button{padding:8px 14px;border-radius:999px;background:rgba(255,255,255,.14);color:#fff;font-weight:800}
+.frame iframe{flex:1;border:0;width:100%}
+
+/* english */
+.units{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:16px}
+.unit{padding:18px}
+.unit .ue{font-size:40px}
+.unit h3{margin-top:6px}
+.lessons{display:flex;gap:8px;margin-top:12px}
+.lesson{flex:1;padding:10px 6px;border-radius:14px;background:var(--en-bg);font-weight:800;font-size:12.5px;text-align:center;line-height:1.25}
+.lesson .s{display:block;font-size:14px;letter-spacing:1px;margin-top:3px;color:#f5a700}
+.lesson.lock{opacity:.45;cursor:not-allowed;background:#f1f0f6}
+.lesson:not(.lock):hover{background:#cff5e3}
+
+/* quiz */
+.quiz{max-width:720px;margin:0 auto}
+.qtop{display:flex;align-items:center;gap:12px;margin-bottom:22px}
+.qbar{flex:1;height:14px;border-radius:9px;background:#e4e0f5;overflow:hidden}
+.qbar i{display:block;height:100%;background:linear-gradient(90deg,var(--en),#4fd1c5);transition:width .4s}
+.qcard{text-align:center;padding:28px 22px}
+.qcard .ask{font-size:16px;color:var(--muted);font-weight:800}
+.qcard .big{font-size:84px;line-height:1.1;margin:10px 0}
+.qcard .word{font-size:40px;font-weight:900;margin:8px 0}
+.say{display:inline-flex;align-items:center;gap:8px;margin:6px auto;padding:10px 18px;border-radius:999px;background:var(--en-bg);font-weight:900;color:#127a57}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:20px}
+.opt{padding:18px 12px;border-radius:18px;background:#fff;border:2px solid #e6e2f7;font-size:20px;font-weight:900;transition:.15s;min-height:66px}
+.opt.emo{font-size:48px;padding:12px}
+.opt:hover{border-color:var(--violet2);transform:translateY(-2px)}
+.opt.ok{background:#dff8ec;border-color:var(--ok)}
+.opt.bad{background:#ffe3e7;border-color:var(--bad);animation:shake .3s}
+@keyframes shake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.letters{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:16px}
+.letter{width:52px;height:56px;border-radius:14px;background:#fff;border:2px solid #e6e2f7;font-size:26px;font-weight:900}
+.letter.used{opacity:.2;pointer-events:none}
+.slots{display:flex;justify-content:center;gap:6px;margin-top:10px;min-height:60px}
+.slot{width:44px;height:54px;border-bottom:4px solid #cfc8ea;font-size:30px;font-weight:900;display:grid;place-items:center}
+.fc{display:flex;flex-direction:column;align-items:center}
+.fc .ru{font-size:22px;color:var(--muted);font-weight:800}
+.result{text-align:center;padding:34px 22px}
+.result .stars{font-size:62px;letter-spacing:6px;margin:10px 0}
+.toast{position:fixed;left:50%;top:18px;transform:translate(-50%,-250%);z-index:80;background:var(--night);color:#fff;padding:12px 20px;border-radius:999px;font-weight:800;transition:.35s;box-shadow:0 10px 30px rgba(0,0,0,.3)}
+.toast.on{transform:translate(-50%,0)}
+
+/* game */
+.gamebox{position:relative;height:440px;border-radius:24px;background:radial-gradient(600px 400px at 50% 40%,#3a2b95,#140f3a);overflow:hidden;touch-action:manipulation}
+.gstar{position:absolute;width:56px;height:56px;margin:-28px;border-radius:50%;display:grid;place-items:center;font-weight:900;font-size:20px;color:var(--night);background:radial-gradient(circle,#fff 0,#ffe27a 60%,#ffbf2f 100%);box-shadow:0 0 18px rgba(255,220,120,.8);transition:.2s}
+.gstar.hit{background:radial-gradient(circle,#fff,#9be7ff);box-shadow:0 0 26px #8fdcff;transform:scale(.8)}
+.gstar.miss{animation:shake .3s}
+.gamebox svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+
+/* onboarding */
+.modal{position:fixed;inset:0;z-index:90;background:rgba(20,15,58,.6);backdrop-filter:blur(6px);display:grid;place-items:center;padding:16px}
+.modal .card{max-width:520px;width:100%;text-align:center;background:#fff;padding:28px}
+.avas{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:18px 0}
+.avas button{font-size:40px;padding:10px;border-radius:18px;background:#f4f1ff;border:3px solid transparent}
+.avas button.on{border-color:var(--violet);background:#ebe4ff}
+.parents .card{margin-bottom:16px}
+.parents p{margin-top:8px;line-height:1.5;font-weight:600}
+.parents ul{margin:8px 0 0;padding-left:20px;line-height:1.6;font-weight:600}
+
+/* bottom nav on phones */
+.bnav{display:none}
+@media (max-width:1100px){
+  .c-hero{grid-column:span 12}.c-prog,.c-lvl{grid-column:span 6}
+  .c-subj{grid-column:span 12}.c-plan{grid-column:span 7}.c-star{grid-column:span 5}
+  .c-coll{grid-column:span 5}.c-map{grid-column:span 7}.c-game{grid-column:span 12}
+}
+@media (max-width:760px){
+  .app{grid-template-columns:1fr}
+  .side{display:none}
+  main{padding:16px 16px 100px}
+  .bnav{display:flex;position:fixed;left:10px;right:10px;bottom:10px;z-index:40;background:rgba(255,255,255,.92);backdrop-filter:blur(14px);border-radius:22px;box-shadow:0 10px 30px rgba(60,40,160,.2);padding:6px;justify-content:space-around}
+  .bnav button{display:flex;flex-direction:column;align-items:center;font-size:11px;font-weight:800;color:var(--muted);padding:6px 8px;border-radius:14px}
+  .bnav button .ic{font-size:22px}
+  .bnav button.on{color:var(--violet);background:#f1ecff}
+  .grid{gap:14px}
+  .c-prog,.c-lvl,.c-plan,.c-star,.c-coll,.c-map{grid-column:span 12}
+  .hello h1{font-size:23px}.ava{width:54px;height:54px;font-size:30px}
+  .top .pill{display:none}
+  .c-hero{min-height:300px}
+  .slide>:not(.hero-art){max-width:100%}
+  .slide h2{font-size:28px}
+  .hero-art{opacity:.35;width:70%}
+  .routes{grid-template-columns:1fr}
+  .opts{grid-template-columns:1fr 1fr}
+  .qcard .big{font-size:64px}
+  .letter{width:44px;height:50px;font-size:22px}
+  .slot{width:34px}
+  .mapwrap{height:calc(100vh - 200px)}
+  .screen-title h1{font-size:24px}
+  .panel{padding:12px;gap:10px}.panel .pi{width:44px;height:44px;font-size:22px}.panel .pt b{font-size:15px}.panel .pt p{font-size:13px}.panel .btn{padding:10px 14px}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="side">
+    <div class="logo" title="Звездочёт"><svg viewBox="0 0 24 24" fill="#fff"><path d="M12 2l2.6 6.3L21 9l-5 4.4L17.5 20 12 16.6 6.5 20 8 13.4 3 9l6.4-.7z"/></svg></div>
+    <nav class="nav" id="nav"></nav>
+    <div class="spacer"></div>
+    <nav class="nav"><button data-go="parents"><span class="ic">👨‍👩‍👧</span>Родителям</button></nav>
+  </aside>
+  <main id="main"></main>
+</div>
+<nav class="bnav" id="bnav"></nav>
+<div class="toast" id="toast"></div>
+
+<script>
+'use strict';
+/* ====================== настройки ====================== */
+const BRAND='Звездочёт';
+// Пути к тренажёрам на том же домене (aleksarulezzz.ru). Общий домен = общий localStorage,
+// поэтому карта видит прогресс по математике и китайскому без серверов.
+const MATH_URL='../olympiad-math-trainer/';
+const ZH_URL='../chineese/';
+
+/* ====================== хранилище ====================== */
+const S={get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},
+         set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+const HUB_KEY='zv-hub-v1', EN_KEY='zv-english-v1';
+let hub=S.get(HUB_KEY,{avatar:null,game:{best:null,plays:{}},seen:[]});
+let en=S.get(EN_KEY,{units:{},xp:0,days:{}});
+const saveHub=()=>S.set(HUB_KEY,hub), saveEn=()=>S.set(EN_KEY,en);
+const today=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const rnd=n=>Math.floor(Math.random()*n);
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=rnd(i+1);[a[i],a[j]]=[a[j],a[i]]}return a};
+const plural=(n,a,b,c)=>{n=Math.abs(n)%100;const m=n%10;return n>10&&n<20?c:m>1&&m<5?b:m===1?a:c};
+
+/* ====================== чтение прогресса тренажёров ====================== */
+function readMath(){
+  let key='ol5progress_guest';
+  try{const a=S.get('ol5account',null);if(a&&a.id)key='ol5progress_'+a.id}catch(e){}
+  const p=S.get(key,{})||{};
+  const days={};const d30=(p.v30&&p.v30.days)||{};
+  for(const k in d30){const x=d30[k]||{};days[k]=(x.ind||0)+(x.ast||0)}
+  const topics=Object.keys(p.byTopic||{}).filter(t=>(p.byTopic[t].correct||0)>0).length;
+  return {xp:p.xp||0,solved:p.correct||0,total:p.total||0,topics,days};
+}
+function readZh(){
+  const s=S.get('hanzi-hero-v1',{})||{};
+  const words=Object.values(s.words||{}).filter(w=>w&&(w.box||0)>=1).length;
+  const days={};for(const k in (s.days||{})){const x=s.days[k]||{};days[k]=(x.correct||0)}
+  return {xp:s.xp||0,words,days,streak:s.streak||0};
+}
+function enStats(){
+  let lessons=0,stars=0,unitsDone=0,perfect=0;
+  for(const u of UNITS){const r=en.units[u.id]||[];let all=true;
+    for(let i=0;i<3;i++){if(r[i]){lessons++;stars+=r[i];if(r[i]===3)perfect++}else all=false}
+    if(all)unitsDone++}
+  const days={};for(const k in en.days)days[k]=en.days[k].lessons||0;
+  return {xp:en.xp||0,lessons,stars,unitsDone,perfect,days};
+}
+
+/* ====================== английский: банк ====================== */
+const UNITS=[
+ {id:'animals',e:'🐱',ru:'Животные',tpl:['I have a ___.','У меня есть …'],w:[['cat','🐱','кошка'],['dog','🐶','собака'],['fox','🦊','лиса'],['bear','🐻','медведь'],['rabbit','🐰','кролик'],['frog','🐸','лягушка'],['lion','🦁','лев'],['mouse','🐭','мышь']]},
+ {id:'colors',e:'🎨',ru:'Цвета',tpl:['The ball is ___.','Мяч …'],w:[['red','🔴','красный'],['blue','🔵','синий'],['green','🟢','зелёный'],['yellow','🟡','жёлтый'],['orange','🟠','оранжевый'],['purple','🟣','фиолетовый'],['black','⚫','чёрный'],['white','⚪','белый']]},
+ {id:'numbers',e:'🔢',ru:'Числа',tpl:['I can see ___ stars.','Я вижу … звёзд(ы)'],w:[['one','1️⃣','один'],['two','2️⃣','два'],['three','3️⃣','три'],['four','4️⃣','четыре'],['five','5️⃣','пять'],['six','6️⃣','шесть'],['seven','7️⃣','семь'],['eight','8️⃣','восемь']]},
+ {id:'food',e:'🍎',ru:'Еда',tpl:['I like ___.','Я люблю …'],w:[['apple','🍎','яблоко'],['banana','🍌','банан'],['milk','🥛','молоко'],['bread','🍞','хлеб'],['cake','🍰','торт'],['egg','🥚','яйцо'],['cheese','🧀','сыр'],['juice','🧃','сок']]},
+ {id:'family',e:'👨‍👩‍👧',ru:'Семья',tpl:['This is my ___.','Это мой / моя …'],w:[['mother','👩','мама'],['father','👨','папа'],['sister','👧','сестра'],['brother','👦','брат'],['baby','👶','малыш'],['grandma','👵','бабушка'],['grandpa','👴','дедушка'],['family','👨‍👩‍👧','семья']]},
+ {id:'school',e:'🎒',ru:'Школа',tpl:['This is a ___.','Это …'],w:[['book','📕','книга'],['pen','🖊️','ручка'],['pencil','✏️','карандаш'],['bag','🎒','рюкзак'],['ruler','📏','линейка'],['chair','🪑','стул'],['clock','⏰','часы'],['teacher','🧑‍🏫','учитель']]},
+ {id:'body',e:'🙂',ru:'Тело',tpl:['This is my ___.','Это мой / моя …'],w:[['eye','👁️','глаз'],['ear','👂','ухо'],['nose','👃','нос'],['mouth','👄','рот'],['hand','✋','рука'],['foot','🦶','стопа'],['leg','🦵','нога'],['tooth','🦷','зуб']]},
+ {id:'nature',e:'🌤️',ru:'Природа',tpl:['I can see the ___.','Я вижу …'],w:[['sun','☀️','солнце'],['rain','🌧️','дождь'],['snow','❄️','снег'],['cloud','☁️','облако'],['tree','🌳','дерево'],['flower','🌸','цветок'],['star','⭐','звезда'],['moon','🌙','луна']]},
+ {id:'home',e:'🏠',ru:'Дом',tpl:['This is my ___.','Это мой / моя …'],w:[['house','🏠','дом'],['door','🚪','дверь'],['window','🪟','окно'],['bed','🛏️','кровать'],['lamp','💡','лампа'],['sofa','🛋️','диван'],['key','🔑','ключ'],['bath','🛁','ванна']]},
+ {id:'transport',e:'🚀',ru:'Транспорт',tpl:['I go by ___.','Я еду на …'],w:[['car','🚗','машина'],['bus','🚌','автобус'],['train','🚆','поезд'],['plane','✈️','самолёт'],['ship','🚢','корабль'],['bike','🚲','велосипед'],['rocket','🚀','ракета'],['taxi','🚕','такси']]},
+ {id:'clothes',e:'👕',ru:'Одежда',tpl:['I put on my ___.','Я надеваю …'],w:[['cap','🧢','кепка'],['dress','👗','платье'],['T-shirt','👕','футболка'],['shoes','👟','кроссовки'],['socks','🧦','носки'],['coat','🧥','пальто'],['scarf','🧣','шарф'],['gloves','🧤','перчатки']]},
+ {id:'actions',e:'🏃',ru:'Действия',tpl:['I can ___.','Я умею …'],w:[['run','🏃','бегать'],['swim','🏊','плавать'],['jump','🤸','прыгать'],['sing','🎤','петь'],['dance','💃','танцевать'],['read','📖','читать'],['sleep','😴','спать'],['draw','🎨','рисовать']]}
+];
+const LESSONS=['Знакомство','Тренировка','Испытание'];
+
+/* ====================== уровни и награды ====================== */
+const LEVELS=[[0,'Юнга'],[100,'Наблюдатель'],[300,'Исследователь'],[700,'Штурман'],[1500,'Звездочёт'],[3000,'Астроном'],[6000,'Капитан галактики'],[10000,'Хранитель звёзд']];
+function totalXp(m,z,e){return (m.xp||0)+(z.xp||0)+(e.xp||0)+(hub.xp||0)}
+function levelOf(xp){let i=0;while(i+1<LEVELS.length&&xp>=LEVELS[i+1][0])i++;
+  const cur=LEVELS[i][0],nxt=LEVELS[i+1]?LEVELS[i+1][0]:null;return {i,name:LEVELS[i][1],cur,nxt,toNext:nxt?nxt-xp:0,pct:nxt?(xp-cur)/(nxt-cur):1}}
+function allDays(m,z,e){const s=new Set();for(const o of [m.days,z.days,e.days])for(const k in o)if(o[k]>0)s.add(k);
+  for(const k in (hub.game.plays||{}))s.add(k);return s}
+function streakOf(days){let n=0;const d=new Date();
+  const key=x=>x.getFullYear()+'-'+String(x.getMonth()+1).padStart(2,'0')+'-'+String(x.getDate()).padStart(2,'0');
+  if(!days.has(key(d)))d.setDate(d.getDate()-1);
+  while(days.has(key(d))){n++;d.setDate(d.getDate()-1)}return n}
+const BADGES=[
+ ['🌱','Первая задача по математике',x=>x.m.solved>=1],['🧮','10 решённых задач',x=>x.m.solved>=10],['📐','50 решённых задач',x=>x.m.solved>=50],['🏆','100 решённых задач',x=>x.m.solved>=100],
+ ['🏮','Первое китайское слово',x=>x.z.words>=1],['🐉','10 китайских слов',x=>x.z.words>=10],['🎎','30 китайских слов',x=>x.z.words>=30],['🏯','100 китайских слов',x=>x.z.words>=100],
+ ['💬','Первый урок английского',x=>x.e.lessons>=1],['⭐','Урок на три звезды',x=>x.e.perfect>=1],['🗺️','Пройдена тема английского',x=>x.e.unitsDone>=1],['👑','6 тем английского',x=>x.e.unitsDone>=6],
+ ['🔥','3 дня подряд',x=>x.streak>=3],['☄️','7 дней подряд',x=>x.streak>=7],['🌋','14 дней подряд',x=>x.streak>=14],['🌌','30 дней подряд',x=>x.streak>=30],
+ ['🪐','Все три предмета за один день',x=>x.allToday],['🚀','Уровень «Исследователь»',x=>x.lv.i>=2],['🛰️','Уровень «Звездочёт»',x=>x.lv.i>=4],['🌟','Уровень «Астроном»',x=>x.lv.i>=5],
+ ['🎯','Сыграть в «Созвездие»',x=>Object.keys(hub.game.plays||{}).length>0],['⚡','Созвездие быстрее 15 секунд',x=>hub.game.best!=null&&hub.game.best<15],['💎','1000 звёздных очков',x=>x.xp>=1000],['🌠','Пройден весь английский',x=>x.e.unitsDone>=UNITS.length]
+];
+function snapshot(){const m=readMath(),z=readZh(),e=enStats();const xp=totalXp(m,z,e);const days=allDays(m,z,e);
+  const t=today();const allToday=(m.days[t]||0)>0&&(z.days[t]||0)>0&&(e.days[t]||0)>0;
+  const x={m,z,e,xp,lv:levelOf(xp),streak:streakOf(days),allToday};x.badges=BADGES.map(b=>b[2](x));return x}
+
+/* ====================== карта: узлы маршрута ====================== */
+const MATH_STEPS=[1,5,10,20,35,50,75,100,150,200,300,500];
+const ZH_STEPS=[1,5,10,20,30,45,60,80,100,130,160,200];
+function routeNodes(x){
+  const mk=(vals,cur,label)=>{let firstOpen=-1;return vals.map((v,i)=>{const done=cur>=v;if(!done&&firstOpen<0)firstOpen=i;
+    return {v,done,cur:!done&&firstOpen===i,label:label(v),left:Math.max(0,v-cur)}})};
+  const math=mk(MATH_STEPS,x.m.solved,v=>v+' '+plural(v,'задача','задачи','задач'));
+  const zh=mk(ZH_STEPS,x.z.words,v=>v+' '+plural(v,'слово','слова','слов'));
+  let open=-1;const eng=UNITS.map((u,i)=>{const r=en.units[u.id]||[];const done=r.filter(Boolean).length===3;
+    if(!done&&open<0)open=i;return {u,done,cur:!done&&open===i,stars:r.reduce((a,b)=>a+(b||0),0),label:u.ru}});
+  return {math,zh,eng};
+}
+const ARMS=[
+ {k:'math',name:'Планета Чисел',color:'#4fb6ff',glow:'#9bdcff',icon:'∑',base:-Math.PI/2},
+ {k:'zh',name:'Планета Иероглифов',color:'#ff7a5c',glow:'#ffc38f',icon:'中',base:-Math.PI/2+2*Math.PI/3},
+ {k:'eng',name:'Планета Слов',color:'#2fd39a',glow:'#a6f0c6',icon:'Aa',base:-Math.PI/2+4*Math.PI/3}
+];
+// Узлы ставим вдоль спирали на равном расстоянии друг от друга (по длине дуги).
+const SPIRAL=(()=>{const N=600,T=1.9,r0=170,r1=690;const pts=[[0,r0,0]];let L=0;
+  for(let j=1;j<=N;j++){const th=T*j/N,r=r0+(r1-r0)*j/N,pth=T*(j-1)/N,pr=r0+(r1-r0)*(j-1)/N;
+    L+=Math.hypot(r*Math.cos(th)-pr*Math.cos(pth),r*Math.sin(th)-pr*Math.sin(pth));pts.push([th,r,L])}return pts})();
+function armPos(arm,i,n){const total=SPIRAL[SPIRAL.length-1][2];const want=Math.min(1,i/(n-1+1.1))*total;
+  let j=0;while(j<SPIRAL.length-1&&SPIRAL[j][2]<want)j++;const [th,r]=SPIRAL[j];const a=arm.base+0.2+th;return [500+r*Math.cos(a),500+r*Math.sin(a)]}
+
+function mapSVG(x,{mini=false}={}){
+  const R=routeNodes(x);let s='';
+  // фон: случайные, но стабильные звёзды
+  let seed=7;const rr=()=>(seed=(seed*16807)%2147483647)/2147483647;
+  for(let i=0;i<(mini?70:180);i++){const cx=-400+rr()*1800,cy=-400+rr()*1800,r=rr()*1.6+.3;
+    s+=`<circle cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="${r.toFixed(2)}" fill="#fff" opacity="${(.25+rr()*.6).toFixed(2)}"${mini?'':` style="animation:tw ${(2+rr()*4).toFixed(1)}s ${(rr()*3).toFixed(1)}s infinite"`}/>`}
+  s+=`<circle cx="500" cy="500" r="420" fill="none" stroke="rgba(255,255,255,.04)" stroke-width="140"/><circle cx="500" cy="500" r="660" fill="none" stroke="rgba(255,255,255,.03)" stroke-width="90"/>`;
+  for(const arm of ARMS){
+    const nodes=R[arm.k];const n=nodes.length;const pts=nodes.map((_,i)=>armPos(arm,i,n));
+    const all=[[500,500],...pts];
+    const path=all.map((p,i)=>(i?'L':'M')+p[0].toFixed(1)+' '+p[1].toFixed(1)).join(' ');
+    s+=`<path d="${path}" fill="none" stroke="rgba(255,255,255,.16)" stroke-width="3" stroke-dasharray="2 9" stroke-linecap="round"/>`;
+    let lastDone=0;nodes.forEach((nd,i)=>{if(nd.done)lastDone=i+1});
+    if(lastDone>0){const lp=all.slice(0,lastDone+1).map((p,i)=>(i?'L':'M')+p[0].toFixed(1)+' '+p[1].toFixed(1)).join(' ');
+      s+=`<path d="${lp}" fill="none" stroke="${arm.glow}" stroke-width="8" opacity=".25" stroke-linecap="round" stroke-linejoin="round"/>`;
+      s+=`<path d="${lp}" fill="none" stroke="${arm.glow}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="${mini?'':'lit'}"/>`}
+    // планета на конце рукава
+    const end=armPos(arm,n-1+1.1,n);
+    s+=`<g class="node" data-arm="${arm.k}" data-i="planet"><circle cx="${end[0]}" cy="${end[1]}" r="${mini?34:40}" fill="${arm.color}" opacity=".18"/>
+      <circle cx="${end[0]}" cy="${end[1]}" r="${mini?24:28}" fill="url(#pl-${arm.k})"/>
+      <ellipse cx="${end[0]}" cy="${end[1]}" rx="${mini?38:44}" ry="9" fill="none" stroke="${arm.glow}" stroke-width="3" opacity=".7" transform="rotate(-20 ${end[0]} ${end[1]})"/>
+      <text x="${end[0]}" y="${end[1]+8}" text-anchor="middle" font-size="${mini?20:22}" font-weight="900" fill="#fff">${arm.icon}</text>
+      ${mini?'':`<text x="${end[0]}" y="${end[1]+72}" text-anchor="middle" font-size="24" font-weight="900" fill="#fff">${arm.name}</text>`}</g>`;
+    nodes.forEach((nd,i)=>{const [cx,cy]=pts[i];const st=nd.done?'done':nd.cur?'cur':'lock';
+      const fill=nd.done?arm.glow:nd.cur?'#fff':'rgba(255,255,255,.18)';
+      s+=`<g class="node ${st}" data-arm="${arm.k}" data-i="${i}">
+        <circle class="halo" cx="${cx}" cy="${cy}" r="${mini?22:30}" fill="${arm.glow}" opacity="${nd.done?.5:nd.cur?.8:0}"/>
+        <path d="${starPath(cx,cy,(nd.done?15:nd.cur?13:9)*(mini?1:1.45),(nd.done?6.5:nd.cur?5.6:4)*(mini?1:1.45))}" fill="${fill}" ${nd.cur?`stroke="${arm.glow}" stroke-width="2"`:''}/>
+        ${mini?'':`<text x="${cx}" y="${cy+44}" text-anchor="middle" font-size="18" font-weight="800" fill="${nd.done||nd.cur?'#fff':'rgba(255,255,255,.4)'}">${esc(nd.label)}</text>`}
+        ${(!mini&&arm.k==='eng'&&nd.stars)?`<text x="${cx}" y="${cy-30}" text-anchor="middle" font-size="18" fill="#ffd66b">${'★'.repeat(Math.min(3,Math.ceil(nd.stars/3)))}</text>`:''}
+      </g>`});
+  }
+  // центр — ученик
+  s+=`<g class="node" data-arm="home"><circle cx="500" cy="500" r="64" fill="url(#sun)"/><circle cx="500" cy="500" r="46" fill="#fff"/>
+      <text x="500" y="517" text-anchor="middle" font-size="48">${hub.avatar||'🦊'}</text>
+      ${mini?'':`<text x="500" y="418" text-anchor="middle" font-size="22" font-weight="900" fill="#fff">Ты здесь · ${esc(x.lv.name)}</text>`}</g>`;
+  const defs=`<defs><radialGradient id="sun"><stop offset=".55" stop-color="#ffe9a8" stop-opacity=".9"/><stop offset="1" stop-color="#ffbf2f" stop-opacity="0"/></radialGradient>
+   ${ARMS.map(a=>`<radialGradient id="pl-${a.k}" cx=".35" cy=".35"><stop offset="0" stop-color="#fff"/><stop offset=".35" stop-color="${a.glow}"/><stop offset="1" stop-color="${a.color}"/></radialGradient>`).join('')}</defs>`;
+  return defs+s;
+}
+function starPath(cx,cy,R,r){let d='';for(let i=0;i<10;i++){const a=-Math.PI/2+i*Math.PI/5;const rad=i%2?r:R;d+=(i?'L':'M')+(cx+rad*Math.cos(a)).toFixed(1)+' '+(cy+rad*Math.sin(a)).toFixed(1)}return d+'Z'}
+
+/* ====================== навигация ====================== */
+const NAV=[['home','🏠','Главная'],['map','🗺️','Карта'],['subjects','📚','Предметы'],['collection','💎','Коллекция'],['game','🎮','Игры']];
+let route='home';
+function renderNav(){
+  const h=NAV.map(([k,i,t])=>`<button data-go="${k}" class="${route===k?'on':''}"><span class="ic">${i}</span>${t}</button>`).join('');
+  document.getElementById('nav').innerHTML=h;
+  document.getElementById('bnav').innerHTML=h;
+  document.querySelectorAll('.side nav:last-of-type button').forEach(b=>b.classList.toggle('on',route==='parents'));
+}
+document.addEventListener('click',e=>{const b=e.target.closest('[data-go]');if(b){e.preventDefault();go(b.dataset.go)}});
+function go(r,arg){route=r;renderNav();const M=document.getElementById('main');window.scrollTo(0,0);
+  ({home:renderHome,map:renderMap,subjects:renderSubjects,collection:renderCollection,game:renderGame,parents:renderParents,english:renderEnglish}[r]||renderHome)(M,arg);
+  try{history.replaceState(null,'','#'+r)}catch(e){}
+}
+function toast(t){const el=document.getElementById('toast');el.textContent=t;el.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>el.classList.remove('on'),2200)}
+
+/* ====================== открыть предмет ====================== */
+function openSubject(k){
+  if(k==='en'){go('english');return}
+  const url=k==='math'?MATH_URL:ZH_URL,title=k==='math'?'🧮 Математика':'🏮 Китайский';
+  const f=document.createElement('div');f.className='frame';
+  f.innerHTML=`<div class="framebar"><button id="fback">← ${BRAND}</button><b>${title}</b><button id="fmap">🗺️ Моя карта</button></div><iframe src="${url}" title="${title}" allow="microphone; autoplay"></iframe>`;
+  document.body.appendChild(f);document.body.style.overflow='hidden';
+  const close=to=>{f.remove();document.body.style.overflow='';const before=hub.lastXp||0;go(to);celebrateIfGrew()};
+  f.querySelector('#fback').onclick=()=>close('home');f.querySelector('#fmap').onclick=()=>close('map');
+}
+function celebrateIfGrew(){const x=snapshot();const was=hub.seen||[];const now=x.badges.map((b,i)=>b?i:-1).filter(i=>i>=0);
+  const fresh=now.filter(i=>!was.includes(i));if(fresh.length){toast('Новая находка: '+BADGES[fresh[0]][0]+' '+BADGES[fresh[0]][1]);hub.seen=now;saveHub()}}
+
+/* ====================== главная ====================== */
+const SLIDES=[
+ {tag:'🧮 Тема недели',h:'Тайны чисел',p:'Логика, хитрые задачи и олимпиадные загадки. Каждая решённая задача — новая звезда на карте.',btn:'Решать',k:'math',art:'math'},
+ {tag:'🏮 Иероглиф недели',h:'Путешествие в Китай',p:'Учим слова, тоны и иероглифы. Дракон ждёт тебя на Планете Иероглифов!',btn:'Учить',k:'zh',art:'zh'},
+ {tag:'💬 Новая планета',h:'Hello, English!',p:'12 тем: животные, цвета, еда, космос и ракеты. Слушай, выбирай и собирай слова.',btn:'Начать',k:'en',art:'en'}
+];
+function heroArt(k){
+  const c={math:['#4fb6ff','#9bdcff','∑ π ÷'],zh:['#ff7a5c','#ffc38f','中 学 山'],en:['#2fd39a','#a6f0c6','A b C']}[k];
+  return `<svg class="hero-art" viewBox="0 0 300 260" preserveAspectRatio="xMidYMid slice"><defs><radialGradient id="ha${k}" cx=".35" cy=".35"><stop offset="0" stop-color="#fff"/><stop offset=".3" stop-color="${c[1]}"/><stop offset="1" stop-color="${c[0]}"/></radialGradient></defs>
+   <circle cx="180" cy="130" r="92" fill="${c[0]}" opacity=".18"/><circle cx="180" cy="130" r="68" fill="url(#ha${k})"/>
+   <ellipse cx="180" cy="130" rx="118" ry="24" fill="none" stroke="${c[1]}" stroke-width="6" opacity=".7" transform="rotate(-18 180 130)"/>
+   <text x="180" y="145" text-anchor="middle" font-size="40" font-weight="900" fill="#fff" font-family="Nunito">${c[2]}</text>
+   <circle cx="62" cy="52" r="10" fill="#ffe27a"/><circle cx="270" cy="230" r="6" fill="#fff" opacity=".7"/><circle cx="40" cy="210" r="4" fill="#fff"/>
+   <path d="${starPath(270,40,14,6)}" fill="#ffe27a"/><path d="${starPath(90,230,9,4)}" fill="#fff" opacity=".8"/></svg>`;
+}
+let slideTimer;
+function renderHome(M){
+  const x=snapshot();if(!hub.seen||!hub.seen.length){hub.seen=x.badges.map((b,i)=>b?i:-1).filter(i=>i>=0);saveHub()}
+  const t=today();const mt=x.m.days[t]||0,zt=x.z.days[t]||0,et=x.e.days[t]||0;
+  const plan=[
+    {t:'Реши 5 задач по математике',d:Math.min(mt,5)+' из 5',done:mt>=5,xp:50,k:'math'},
+    {t:'Повтори 10 китайских слов',d:Math.min(zt,10)+' из 10',done:zt>=10,xp:40,k:'zh'},
+    {t:'Пройди урок английского',d:Math.min(et,1)+' из 1',done:et>=1,xp:40,k:'en'}];
+  const doneN=plan.filter(p=>p.done).length;const pct=Math.round(((Math.min(mt,5)/5)+(Math.min(zt,10)/10)+Math.min(et,1))/3*100);
+  const C=2*Math.PI*44;
+  const greet=['Сегодня откроем новые звёзды?','Куда полетим сегодня?','Карта ждёт новых открытий!'][new Date().getDay()%3];
+  const subj=(k,name,ic,art,topics,foot,pctv)=>`<div class="card c-subj ${k}" data-subj="${k}">
+     <div class="subj-head"><div class="ico">${ic}</div><h3>${name}</h3><div class="go">›</div></div>
+     <div class="subj-body"><div class="subj-art">${art}</div><div class="topics">${topics.map(([n,on])=>`<div class="topic">${n}<span class="chk ${on?'on':''}">${on?'✓':''}</span></div>`).join('')}</div></div>
+     <div class="subj-foot"><div class="minibar"><i style="width:${Math.round(pctv*100)}%"></i></div><span class="muted">${foot}</span></div></div>`;
+  const nm=MATH_STEPS.find(v=>v>x.m.solved),nz=ZH_STEPS.find(v=>v>x.z.words);
+  const enNext=UNITS.find(u=>(en.units[u.id]||[]).filter(Boolean).length<3);
+  M.innerHTML=`
+  <div class="top">
+    <div class="ava" data-go="parents" title="Сменить героя" id="avaBtn">${hub.avatar||'🦊'}</div>
+    <div class="hello"><h1>Привет, ${BRAND}! 👋</h1><p>${greet}</p></div>
+    <div class="grow"></div>
+    <div class="pill" title="Звёздные очки"><span class="n">⭐</span>${x.xp}</div>
+    <div class="pill" title="Дней подряд"><span class="n">🔥</span>${x.streak}</div>
+  </div>
+  <div class="grid">
+    <div class="card c-hero"><div class="sky" id="sky"></div>
+      <div class="slides">${SLIDES.map((s,i)=>`<div class="slide ${i===0?'on':''}">${heroArt(s.art)}<span class="tag">${s.tag}</span><h2>${s.h}</h2><p>${s.p}</p><button class="btn" data-subj="${s.k}">▶ ${s.btn}</button></div>`).join('')}
+      <div class="dots">${SLIDES.map((_,i)=>`<i data-dot="${i}" class="${i===0?'on':''}"></i>`).join('')}</div></div></div>
+    <div class="card c-prog"><h3>Мой день</h3>
+      <div class="ringrow"><div class="ring"><svg width="104" height="104"><circle cx="52" cy="52" r="44" fill="none" stroke="#ece8fb" stroke-width="12"/>
+        <circle cx="52" cy="52" r="44" fill="none" stroke="url(#rg)" stroke-width="12" stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${C*(1-pct/100)}" style="transition:stroke-dashoffset 1s"/>
+        <defs><linearGradient id="rg"><stop offset="0" stop-color="#7b5cff"/><stop offset="1" stop-color="#4fb6ff"/></linearGradient></defs></svg><b>${pct}%</b></div>
+        <div><b style="font-size:20px">${doneN} из 3</b><div class="muted">${plural(doneN,'дело','дела','дел')} на сегодня</div></div></div>
+      <div class="streak"><span class="f">🔥</span><div>${x.streak} ${plural(x.streak,'день','дня','дней')} подряд<small>${x.streak?'Так держать!':'Начни серию сегодня'}</small></div></div></div>
+    <div class="card c-lvl"><svg class="planet" viewBox="0 0 100 100"><defs><radialGradient id="pg" cx=".35" cy=".35"><stop offset="0" stop-color="#fff"/><stop offset=".4" stop-color="#b9a2ff"/><stop offset="1" stop-color="#6a4cf0"/></radialGradient></defs><circle cx="50" cy="50" r="28" fill="url(#pg)"/><ellipse cx="50" cy="52" rx="46" ry="10" fill="none" stroke="#ffbf6b" stroke-width="5" transform="rotate(-18 50 50)"/></svg>
+      <h3>📶 Мой уровень</h3><div class="lvlname">${x.lv.name}</div>
+      <div class="muted" style="margin-bottom:10px">${x.lv.nxt?`<b style="color:var(--ink)">${x.lv.toNext}</b> ⭐ до уровня «${LEVELS[x.lv.i+1][1]}»`:'Высший уровень!'}</div>
+      <div class="bar"><i style="width:${Math.round(x.lv.pct*100)}%"></i></div>
+      <div class="muted" style="display:flex;gap:12px;flex-wrap:wrap;margin-top:14px;font-size:13px"><span>∑ ${x.m.xp}</span><span>中 ${x.z.xp}</span><span>Aa ${x.e.xp}</span>${hub.xp?`<span>🎮 ${hub.xp}</span>`:''}</div></div>
+
+    ${subj('math','Математика','∑','🧮',[['Задачи',x.m.solved>=5],['Логика',x.m.topics>=3],['Олимпиады',x.m.solved>=50]],nm?`до звезды: ${nm-x.m.solved}`:'все звёзды!',x.m.solved/500)}
+    ${subj('zh','Китайский','中','🏮',[['Слова',x.z.words>=10],['Тоны',x.z.words>=30],['Иероглифы',x.z.words>=60]],nz?`до звезды: ${nz-x.z.words}`:'все звёзды!',x.z.words/200)}
+    ${subj('en','Английский','Aa','🦁',[['Слова',x.e.lessons>=1],['Слушаем',x.e.lessons>=6],['Фразы',x.e.unitsDone>=3]],enNext?`тема: ${enNext.ru}`:'все темы!',x.e.lessons/(UNITS.length*3))}
+
+    <div class="card c-plan"><h3>📅 План на сегодня</h3><div class="plan">${plan.map(p=>`<div class="task ${p.done?'done':''}" data-subj="${p.k}"><span class="box">${p.done?'✓':''}</span><span class="t">${p.t}</span><span class="muted" style="font-size:13px">${p.d}</span><span class="xp">+${p.xp} ⭐</span></div>`).join('')}</div></div>
+    <div class="card c-star"><h3>✨ Моя звезда</h3><div class="starbox">${myStar(x.lv.i,x.lv.pct)}<div><b style="font-size:18px">${x.lv.i<2?'Растёт!':x.lv.i<5?'Сияет!':'Сверхновая!'}</b><p style="opacity:.8;font-weight:700;font-size:13px;margin-top:4px">Занимайся, и твоя звезда станет больше и ярче.</p></div></div></div>
+    <div class="card c-coll"><h3 style="justify-content:space-between">💎 Коллекция <button class="go" data-go="collection">›</button></h3>
+      <div class="coll">${BADGES.slice(0,8).map((b,i)=>`<div class="badge ${x.badges[i]?'':'lock'}" title="${esc(b[1])}">${b[0]}</div>`).join('')}</div>
+      <p class="muted" style="text-align:center;margin-top:10px;font-size:14px">${x.badges.filter(Boolean).length} из ${BADGES.length} находок</p></div>
+
+    <div class="card c-map" data-go="map"><svg class="preview" viewBox="-200 -200 1400 1400" preserveAspectRatio="xMidYMid meet" style="left:auto;right:-4%;width:52%">${mapSVG(x,{mini:true})}</svg>
+      <div class="over"><span class="tag">🗺️ Карта ученика</span><h3>Мой звёздный путь</h3><p style="opacity:.85;font-weight:700">Зажжено звёзд: <b>${countLit(x)}</b>. Каждое занятие прокладывает маршрут к новым планетам.</p><button class="btn" data-go="map">Открыть карту</button></div></div>
+    <div class="card c-game"><span class="tag">🎮 Мини-игра</span><h3 style="font-size:24px;margin:8px 0 6px">Собери созвездие</h3><p style="opacity:.85;font-weight:700;max-width:60%">Нажимай на звёзды по порядку — от 1 до 9. Тренирует внимание и скорость.</p>
+      <button class="btn" data-go="game" style="margin-top:14px">Играть</button><div class="cat">🧑‍🚀</div></div>
+  </div>`;
+  // небо
+  const sky=M.querySelector('#sky');for(let i=0;i<40;i++){const s=document.createElement('i');s.style.left=rnd(100)+'%';s.style.top=rnd(100)+'%';s.style.animationDelay=(Math.random()*3)+'s';sky.appendChild(s)}
+  // слайды
+  let cur=0;const sl=[...M.querySelectorAll('.slide')],dt=[...M.querySelectorAll('[data-dot]')];
+  const show=i=>{cur=i;sl.forEach((s,j)=>s.classList.toggle('on',j===i));dt.forEach((s,j)=>s.classList.toggle('on',j===i))};
+  dt.forEach((d,i)=>d.onclick=()=>{show(i);clearInterval(slideTimer)});
+  clearInterval(slideTimer);slideTimer=setInterval(()=>{if(!document.body.contains(sl[0]))return clearInterval(slideTimer);show((cur+1)%sl.length)},6000);
+  M.querySelectorAll('[data-subj]').forEach(el=>el.addEventListener('click',e=>{e.stopPropagation();openSubject(el.dataset.subj)}));
+}
+function countLit(x){const R=routeNodes(x);return R.math.filter(n=>n.done).length+R.zh.filter(n=>n.done).length+R.eng.filter(n=>n.done).length}
+function myStar(i,p){const R=26+i*4+p*4;return `<svg class="mystar" viewBox="0 0 120 120"><defs><radialGradient id="msg"><stop offset="0" stop-color="#fff6c8"/><stop offset="1" stop-color="#ffbf2f" stop-opacity="0"/></radialGradient></defs>
+  <circle class="glow" cx="60" cy="60" r="${Math.min(58,R+18)}" fill="url(#msg)"/><path d="${starPath(60,60,R,R*.45)}" fill="#ffd54a" stroke="#fff3b0" stroke-width="2"/>
+  <circle cx="54" cy="56" r="2.6" fill="#3b2a8f"/><circle cx="66" cy="56" r="2.6" fill="#3b2a8f"/><path d="M54 64 q6 5 12 0" stroke="#3b2a8f" stroke-width="2.2" fill="none" stroke-linecap="round"/></svg>`}
+
+/* ====================== карта ====================== */
+function renderMap(M){
+  const x=snapshot();const R=routeNodes(x);
+  const nm=R.math.find(n=>n.cur),nz=R.zh.find(n=>n.cur),ne=R.eng.find(n=>n.cur);
+  M.innerHTML=`<div class="screen-title"><button class="back" data-go="home">←</button><h1>Моя звёздная карта</h1></div>
+  <div class="mapwrap" id="mapwrap">
+    <div class="legend"><span><i style="background:#4fb6ff"></i>Математика · ${R.math.filter(n=>n.done).length}/${R.math.length}</span><span><i style="background:#ff7a5c"></i>Китайский · ${R.zh.filter(n=>n.done).length}/${R.zh.length}</span><span><i style="background:#2fd39a"></i>Английский · ${R.eng.filter(n=>n.done).length}/${R.eng.length}</span></div>
+    <div class="mapctl"><button id="zin" aria-label="Приблизить">+</button><button id="zout" aria-label="Отдалить">−</button><button id="zfit" aria-label="Вся карта">⤢</button></div>
+    <svg id="mapsvg" viewBox="-260 -260 1520 1520"><g id="vp">${mapSVG(x)}</g></svg>
+    <div class="panel" id="panel"></div>
+  </div>
+  <div class="routes">
+    ${routeCard('math','Математика','∑',nm?`Следующая звезда: <b>${nm.label}</b> — осталось ${nm.left}`:'Все звёзды зажжены!')}
+    ${routeCard('zh','Китайский','中',nz?`Следующая звезда: <b>${nz.label}</b> — осталось ${nz.left}`:'Все звёзды зажжены!')}
+    ${routeCard('en','Английский','Aa',ne?`Следующая звезда: тема <b>${ne.u.ru}</b>`:'Все звёзды зажжены!')}
+  </div>`;
+  M.querySelectorAll('[data-subj]').forEach(el=>el.addEventListener('click',()=>openSubject(el.dataset.subj)));
+  // pan & zoom
+  const svg=M.querySelector('#mapsvg');let vb=[-260,-260,1520,1520];
+  const fit=()=>{const r=svg.getBoundingClientRect();const asp=r.width/r.height;if(asp>1){const w=1520*asp;vb=[500-w/2,-260,w,1520]}else{const h=1520/asp;vb=[-260,500-h/2,1520,h]}apply()};
+  const apply=()=>svg.setAttribute('viewBox',vb.map(v=>v.toFixed(1)).join(' '));
+  const zoom=(k,cx,cy)=>{const nw=Math.min(3200,Math.max(300,vb[2]*k));const f=nw/vb[2];if(cx==null){cx=vb[0]+vb[2]/2;cy=vb[1]+vb[3]/2}
+    vb=[cx-(cx-vb[0])*f,cy-(cy-vb[1])*f,vb[2]*f,vb[3]*f];apply()};
+  fit();if(svg.getBoundingClientRect().width<600)zoom(.68);
+  M.querySelector('#zin').onclick=()=>zoom(.75);M.querySelector('#zout').onclick=()=>zoom(1.33);M.querySelector('#zfit').onclick=fit;
+  const toSvg=(ex,ey)=>{const r=svg.getBoundingClientRect();return [vb[0]+(ex-r.left)/r.width*vb[2],vb[1]+(ey-r.top)/r.height*vb[3]]};
+  svg.addEventListener('wheel',e=>{e.preventDefault();const [cx,cy]=toSvg(e.clientX,e.clientY);zoom(e.deltaY>0?1.12:.89,cx,cy)},{passive:false});
+  const pts=new Map();let moved=0,pinch0=null;
+  svg.addEventListener('pointerdown',e=>{pts.set(e.pointerId,[e.clientX,e.clientY]);moved=0;svg.setPointerCapture&&svg.setPointerCapture(e.pointerId)});
+  svg.addEventListener('pointermove',e=>{if(!pts.has(e.pointerId))return;const prev=pts.get(e.pointerId);pts.set(e.pointerId,[e.clientX,e.clientY]);
+    const r=svg.getBoundingClientRect();
+    if(pts.size===1){const dx=(e.clientX-prev[0])/r.width*vb[2],dy=(e.clientY-prev[1])/r.height*vb[3];moved+=Math.abs(e.clientX-prev[0])+Math.abs(e.clientY-prev[1]);vb[0]-=dx;vb[1]-=dy;apply()}
+    else if(pts.size===2){const [a,b]=[...pts.values()];const d=Math.hypot(a[0]-b[0],a[1]-b[1]);moved+=10;if(pinch0){const [cx,cy]=toSvg((a[0]+b[0])/2,(a[1]+b[1])/2);zoom(pinch0/d,cx,cy)}pinch0=d}});
+  const up=e=>{pts.delete(e.pointerId);if(pts.size<2)pinch0=null};
+  svg.addEventListener('pointerup',e=>{const wasMoved=moved>6;up(e);if(wasMoved)return;
+    const el=document.elementFromPoint(e.clientX,e.clientY);const g=el&&el.closest&&el.closest('.node');if(g)nodeInfo(g.dataset.arm,g.dataset.i,x,R)});
+  svg.addEventListener('pointercancel',up);
+  window.onresize=()=>{if(route==='map')fit()};
+}
+function routeCard(k,name,ic,txt){return `<div class="card route c-subj ${k}" data-subj="${k}" style="grid-column:auto"><div class="subj-head"><div class="ico">${ic}</div><h3>${name}</h3><div class="go">›</div></div><p class="next muted">${txt}</p></div>`}
+function nodeInfo(arm,i,x,R){
+  const P=document.getElementById('panel');const A=ARMS.find(a=>a.k===arm);let ic,t,d,btn='',k={math:'math',zh:'zh',eng:'en'}[arm];
+  if(arm==='home'){ic=hub.avatar||'🦊';t='Это ты!';d=`Уровень «${x.lv.name}», ${x.xp} ⭐. Зажжено звёзд: ${countLit(x)}.`;P.innerHTML=`<div class="pi" style="background:#ffd54a">${ic}</div><div class="pt"><b>${t}</b><p>${d}</p></div>`;P.classList.add('on');return}
+  if(i==='planet'){ic=A.icon;t=A.name;d='Пройди все звёзды на этом пути, чтобы долететь до планеты.'}
+  else{const nd=R[arm][+i];ic=nd.done?'⭐':nd.cur?'✨':'🔒';
+    if(arm==='eng'){t='Тема «'+nd.u.ru+'» '+nd.u.e;d=nd.done?`Пройдена! Звёзд за уроки: ${nd.stars} из 9.`:nd.cur?'Следующая цель: пройди 3 урока этой темы.':'Откроется после предыдущих тем.'}
+    else{const what=arm==='math'?'решённых задач':'выученных слов';t=nd.label;d=nd.done?'Звезда зажжена! 🎉':nd.cur?`Следующая цель. Осталось ${nd.left} ${what}.`:`Откроется, когда наберёшь ${nd.v} ${what}.`}}
+  btn=`<button class="btn v" id="pgo">Заниматься</button>`;
+  P.innerHTML=`<div class="pi" style="background:linear-gradient(135deg,${A.color},${A.glow});font-weight:900">${ic}</div><div class="pt"><b>${esc(t)}</b><p>${esc(d)}</p></div>${btn}`;
+  P.classList.add('on');P.querySelector('#pgo').onclick=()=>openSubject(k);
+}
+
+/* ====================== предметы ====================== */
+function renderSubjects(M){
+  const x=snapshot();
+  M.innerHTML=`<div class="screen-title"><h1>Чем займёмся сегодня?</h1></div><div class="grid">
+   ${bigSubj('math','Математика','∑','🧮','Олимпиадные и школьные задачи, логика, контрольные с оценкой.',`${x.m.solved} ${plural(x.m.solved,'задача решена','задачи решены','задач решено')}`)}
+   ${bigSubj('zh','Китайский','中','🏮','Слова, тоны, иероглифы и истории с драконом.',`${x.z.words} ${plural(x.z.words,'слово выучено','слова выучено','слов выучено')}`)}
+   ${bigSubj('en','Английский','Aa','🦁','12 тем: слушаем, выбираем картинки, собираем слова и фразы.',`${x.e.lessons} из ${UNITS.length*3} уроков`)}
+  </div>`;
+  M.querySelectorAll('[data-subj]').forEach(el=>el.onclick=()=>openSubject(el.dataset.subj));
+}
+function bigSubj(k,n,ic,art,desc,stat){return `<div class="card c-subj ${k}" data-subj="${k}"><div class="subj-head"><div class="ico">${ic}</div><h3>${n}</h3><div class="go">›</div></div>
+  <div class="subj-art" style="width:100%;height:150px;margin:14px 0;font-size:80px">${art}</div><p class="muted">${desc}</p><p style="margin-top:10px;font-weight:900">${stat}</p></div>`}
+
+/* ====================== коллекция ====================== */
+function renderCollection(M){const x=snapshot();hub.seen=x.badges.map((b,i)=>b?i:-1).filter(i=>i>=0);saveHub();
+  M.innerHTML=`<div class="screen-title"><button class="back" data-go="home">←</button><h1>Моя коллекция</h1></div>
+  <p class="muted" style="margin-bottom:16px">Собрано ${x.badges.filter(Boolean).length} из ${BADGES.length}. Находки появляются за решённые задачи, слова, уроки и дни подряд.</p>
+  <div class="units">${BADGES.map((b,i)=>`<div class="card" style="display:flex;gap:14px;align-items:center;padding:16px"><div class="badge ${x.badges[i]?'':'lock'}" style="width:62px;font-size:32px">${b[0]}</div><div><b>${esc(b[1])}</b><div class="muted" style="font-size:13px">${x.badges[i]?'Получено ✓':'Ещё не найдено'}</div></div></div>`).join('')}</div>`}
+
+/* ====================== родителям ====================== */
+const AVAS=['🦊','🐼','🐱','🐰','🦉','🐲','🤖','👽','🐧','🦄','🐯','🐨'];
+function renderParents(M){
+  M.innerHTML=`<div class="screen-title"><button class="back" data-go="home">←</button><h1>Родителям</h1></div><div class="parents">
+  <div class="card"><h3>🦸 Герой ученика</h3><p>Ребёнок выбирает героя вместо фото и имени.</p><div class="avas" style="grid-template-columns:repeat(6,1fr)">${AVAS.map(a=>`<button data-ava="${a}" class="${hub.avatar===a?'on':''}">${a}</button>`).join('')}</div></div>
+  <div class="card"><h3>📚 Как устроен ${BRAND}</h3><ul>
+    <li><b>Математика</b> — олимпиадный тренажёр и «Школа на шаг вперёд»: задачи, контрольные, будильник на занятие.</li>
+    <li><b>Китайский</b> — слова, тоны, иероглифы, интервальные повторения.</li>
+    <li><b>Английский</b> — 12 тем по 3 урока: знакомство, тренировка, испытание. Слова озвучивает браузер.</li>
+    <li><b>Карта ученика</b> — три звёздных пути. Звёзды загораются за решённые задачи, выученные слова и пройденные темы.</li></ul></div>
+  <div class="card"><h3>🔒 Приватность</h3><p>${BRAND} не собирает персональные данные: нет регистрации, имён и фото. Весь прогресс хранится только в этом браузере на этом устройстве. Если очистить данные браузера, прогресс пропадёт.</p></div>
+  <div class="card"><h3>🧹 Сбросить</h3><p>Сбросить прогресс по английскому и мини-игре (математика и китайский не затрагиваются).</p><button class="btn v" id="reset" style="margin-top:12px">Сбросить</button><span id="rs" class="muted" style="margin-left:10px"></span></div>
+  </div>`;
+  M.querySelectorAll('[data-ava]').forEach(b=>b.onclick=()=>{hub.avatar=b.dataset.ava;saveHub();renderParents(M);toast('Герой выбран '+hub.avatar)});
+  const r=M.querySelector('#reset');r.onclick=()=>{if(r.dataset.c){en={units:{},xp:0,days:{}};saveEn();hub.game={best:null,plays:{}};hub.xp=0;saveHub();M.querySelector('#rs').textContent='Готово';delete r.dataset.c;r.textContent='Сбросить'}else{r.dataset.c=1;r.textContent='Точно сбросить?'}};
+}
+
+/* ====================== английский ====================== */
+let voice=null;
+function pickVoice(){try{const vs=speechSynthesis.getVoices();voice=vs.find(v=>/en[-_]GB/i.test(v.lang))||vs.find(v=>/^en/i.test(v.lang))||null}catch(e){}}
+try{speechSynthesis.onvoiceschanged=pickVoice;pickVoice()}catch(e){}
+function say(t){try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang=voice?voice.lang:'en-GB';if(voice)u.voice=voice;u.rate=.85;speechSynthesis.speak(u)}catch(e){}}
+function renderEnglish(M){
+  const x=enStats();
+  M.innerHTML=`<div class="screen-title"><button class="back" data-go="subjects">←</button><h1>Английский 🦁</h1></div>
+  <p class="muted" style="margin-bottom:16px">Пройдено уроков: ${x.lessons} из ${UNITS.length*3} · звёзд ${x.stars}. Каждая тема — звезда на Планете Слов.</p>
+  <div class="units">${UNITS.map((u,ui)=>{const r=en.units[u.id]||[];const prevDone=ui===0||(en.units[UNITS[ui-1].id]||[]).filter(Boolean).length>=1;
+    return `<div class="card unit en"><div class="ue">${u.e}</div><h3>${u.ru}</h3><p class="muted" style="font-size:13px">${u.w.slice(0,4).map(w=>w[0]).join(', ')}…</p>
+    <div class="lessons">${LESSONS.map((l,i)=>{const open=prevDone&&(i===0||r[i-1]);return `<button class="lesson ${open?'':'lock'}" ${open?`data-les="${ui}:${i}"`:''}>${open?'':'🔒 '}${l}<span class="s">${r[i]?'★'.repeat(r[i])+'☆'.repeat(3-r[i]):'☆☆☆'}</span></button>`}).join('')}</div></div>`}).join('')}</div>`;
+  M.querySelectorAll('[data-les]').forEach(b=>b.onclick=()=>{const [u,l]=b.dataset.les.split(':').map(Number);startLesson(M,u,l)});
+}
+function makeQuestions(u,l){
+  const W=u.w,qs=[];const others=w=>shuffle(W.filter(o=>o!==w));
+  const opts=(w,n=4)=>shuffle([w,...others(w).slice(0,n-1)]);
+  const pool=shuffle(W);
+  if(l===0){pool.forEach(w=>qs.push({type:'card',w}));shuffle(W).slice(0,6).forEach((w,i)=>qs.push(i%2?{type:'pic2word',w,o:opts(w)}:{type:'hear2pic',w,o:opts(w)}))}
+  else if(l===1){const kinds=['hear2pic','pic2word','word2ru','hear2word'];pool.forEach((w,i)=>qs.push({type:kinds[i%4],w,o:opts(w)}));shuffle(W).slice(0,2).forEach(w=>qs.push({type:'pic2word',w,o:opts(w)}))}
+  else{const p=pool;qs.push({type:'spell',w:p[0]},{type:'spell',w:p[1]},{type:'spell',w:p[2]});
+    [p[3],p[4],p[5]].forEach(w=>qs.push({type:'phrase',w,o:opts(w)}));qs.push({type:'ru2word',w:p[6],o:opts(p[6])},{type:'hear2pic',w:p[7],o:opts(p[7])});
+    return shuffle(qs)}
+  return qs;
+}
+function startLesson(M,ui,l){
+  const u=UNITS[ui];const qs=makeQuestions(u,l);let i=0,mistakes=0,correct=0,locked=false;
+  const scored=qs.filter(q=>q.type!=='card').length;
+  const next=()=>{i++;locked=false;i<qs.length?draw():finish()};
+  const answer=(btn,ok,w)=>{if(locked)return;if(ok){locked=true;btn.classList.add('ok');correct++;say(w[0]);setTimeout(next,850)}else{btn.classList.add('bad');mistakes++;setTimeout(()=>btn.classList.remove('bad'),400)}};
+  function draw(){const q=qs[i];const w=q.w;let body='';
+    const optBtns=(kind)=>`<div class="opts">${q.o.map((o,j)=>`<button class="opt ${kind==='emo'?'emo':''}" data-o="${j}">${kind==='emo'?o[1]:kind==='ru'?o[2]:esc(o[0])}</button>`).join('')}</div>`;
+    const sayBtn=`<button class="say" id="sayb">🔊 Послушать</button>`;
+    switch(q.type){
+      case 'card':body=`<div class="fc"><div class="ask">Новое слово</div><div class="big">${w[1]}</div><div class="word">${esc(w[0])}</div><div class="ru">${w[2]}</div>${sayBtn}<button class="btn v" id="nextb" style="margin:18px auto 0">Дальше →</button></div>`;break;
+      case 'hear2pic':body=`<div class="ask">Послушай и выбери картинку</div><div class="big">🎧</div>${sayBtn}${optBtns('emo')}`;break;
+      case 'hear2word':body=`<div class="ask">Послушай и выбери слово</div><div class="big">🎧</div>${sayBtn}${optBtns('en')}`;break;
+      case 'pic2word':body=`<div class="ask">Как это по-английски?</div><div class="big">${w[1]}</div>${optBtns('en')}`;break;
+      case 'word2ru':body=`<div class="ask">Что значит это слово?</div><div class="word">${esc(w[0])}</div>${sayBtn}${optBtns('ru')}`;break;
+      case 'ru2word':body=`<div class="ask">Переведи на английский</div><div class="word">${w[2]}</div>${optBtns('en')}`;break;
+      case 'phrase':{const [en1,ru1]=u.tpl;body=`<div class="ask">Вставь слово во фразу · <span style="font-weight:700">${ru1}</span></div><div class="big">${w[1]}</div><div class="word" style="font-size:30px">${esc(en1).replace('___','<span style="color:var(--en)">____</span>')}</div>${optBtns('en')}`;break}
+      case 'spell':{const letters=shuffle([...w[0].toLowerCase().replace(/[^a-z]/g,'')]);body=`<div class="ask">Собери слово из букв · ${w[2]}</div><div class="big">${w[1]}</div>${sayBtn}<div class="slots" id="slots">${letters.map(()=>'<div class="slot"></div>').join('')}</div><div class="letters">${letters.map((c,j)=>`<button class="letter" data-l="${j}">${c}</button>`).join('')}</div><button class="say" id="undo" style="margin-top:14px">⌫ Стереть</button>`;q.letters=letters;break}
+    }
+    M.innerHTML=`<div class="quiz"><div class="qtop"><button class="back" id="qx">✕</button><div class="qbar"><i style="width:${i/qs.length*100}%"></i></div><b>${u.e}</b></div><div class="card qcard">${body}</div></div>`;
+    M.querySelector('#qx').onclick=()=>renderEnglish(M);
+    const sb=M.querySelector('#sayb');if(sb)sb.onclick=()=>say(q.type==='phrase'?u.tpl[0].replace('___',w[0]):w[0]);
+    if(['card','hear2pic','hear2word','word2ru'].includes(q.type))setTimeout(()=>say(w[0]),250);
+    if(q.type==='card')M.querySelector('#nextb').onclick=next;
+    M.querySelectorAll('[data-o]').forEach(b=>b.onclick=()=>answer(b,q.o[+b.dataset.o]===w,w));
+    if(q.type==='spell'){const target=w[0].toLowerCase().replace(/[^a-z]/g,'');let typed=[];const slots=[...M.querySelectorAll('.slot')];
+      const upd=()=>slots.forEach((s,j)=>s.textContent=typed[j]!=null?q.letters[typed[j]]:'');
+      M.querySelectorAll('[data-l]').forEach(b=>b.onclick=()=>{if(locked)return;typed.push(+b.dataset.l);b.classList.add('used');upd();
+        if(typed.length===target.length){const got=typed.map(j=>q.letters[j]).join('');
+          if(got===target){locked=true;correct++;slots.forEach(s=>s.style.borderColor='var(--ok)');say(w[0]);setTimeout(next,900)}
+          else{mistakes++;M.querySelector('#slots').animate([{transform:'translateX(-6px)'},{transform:'translateX(6px)'},{transform:'none'}],{duration:300});
+            setTimeout(()=>{typed=[];M.querySelectorAll('.letter').forEach(x=>x.classList.remove('used'));upd()},450)}}});
+      M.querySelector('#undo').onclick=()=>{const j=typed.pop();if(j!=null)M.querySelector(`[data-l="${j}"]`).classList.remove('used');upd()}}
+  }
+  function finish(){
+    const stars=mistakes===0?3:mistakes<=2?2:1;const r=en.units[u.id]||[0,0,0];const prev=r[l]||0;r[l]=Math.max(prev,stars);en.units[u.id]=r;
+    const gain=correct*5+(stars===3?20:stars===2?10:5);en.xp=(en.xp||0)+gain;const t=today();en.days[t]=en.days[t]||{lessons:0,correct:0};en.days[t].lessons++;en.days[t].correct+=correct;saveEn();
+    M.innerHTML=`<div class="quiz"><div class="card result"><div class="ask muted">${u.ru} · ${LESSONS[l]}</div><div class="stars">${'⭐'.repeat(stars)}${'<span style="opacity:.2">⭐</span>'.repeat(3-stars)}</div>
+      <h2 style="font-size:28px;font-weight:900">${stars===3?'Блестяще!':stars===2?'Отлично!':'Хорошо, идём дальше!'}</h2>
+      <p class="muted" style="margin-top:8px">Верно: ${correct} из ${scored} · ошибок: ${mistakes} · +${gain} ⭐</p>
+      <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:20px"><button class="btn v" id="again">Ещё раз</button><button class="btn" id="tolist">К темам</button><button class="btn" data-go="map">🗺️ На карту</button></div></div></div>`;
+    M.querySelector('#again').onclick=()=>startLesson(M,ui,l);M.querySelector('#tolist').onclick=()=>renderEnglish(M);celebrateIfGrew();
+  }
+  draw();
+}
+
+/* ====================== мини-игра ====================== */
+function renderGame(M){
+  M.innerHTML=`<div class="screen-title"><button class="back" data-go="home">←</button><h1>Собери созвездие</h1></div>
+  <div class="card" style="margin-bottom:14px;display:flex;gap:14px;align-items:center;flex-wrap:wrap"><b style="flex:1;min-width:220px">Нажимай на звёзды по порядку от 1 до 9. Ошибка добавляет 2 секунды.</b><span class="pill">⏱ <span id="gt">0.0</span> с</span><span class="pill">🏆 ${hub.game.best!=null?hub.game.best.toFixed(1)+' с':'—'}</span><button class="btn v" id="gs">Старт</button></div>
+  <div class="gamebox" id="gb"><svg id="gl"></svg></div>`;
+  const gb=M.querySelector('#gb'),gl=M.querySelector('#gl');let t0=0,timer=null,need=1,pen=0,pts=[];
+  const start=()=>{gb.querySelectorAll('.gstar').forEach(s=>s.remove());gl.innerHTML='';need=1;pen=0;pts=[];
+    const W=gb.clientWidth,H=gb.clientHeight;const placed=[];
+    for(let n=1;n<=9;n++){let x,y,tries=0;do{x=40+Math.random()*(W-80);y=40+Math.random()*(H-80);tries++}while(placed.some(p=>Math.hypot(p[0]-x,p[1]-y)<80)&&tries<200);placed.push([x,y]);
+      const s=document.createElement('button');s.className='gstar';s.textContent=n;s.style.left=x+'px';s.style.top=y+'px';s.onclick=()=>tap(s,n,x,y);gb.appendChild(s)}
+    t0=performance.now();clearInterval(timer);timer=setInterval(()=>{const el=M.querySelector('#gt');if(!el)return clearInterval(timer);el.textContent=((performance.now()-t0)/1000+pen).toFixed(1)},100)};
+  const tap=(s,n,x,y)=>{if(n!==need){pen+=2;s.classList.add('miss');setTimeout(()=>s.classList.remove('miss'),300);return}
+    s.classList.add('hit');pts.push([x,y]);if(pts.length>1){const a=pts[pts.length-2];gl.innerHTML+=`<line x1="${a[0]}" y1="${a[1]}" x2="${x}" y2="${y}" stroke="#9be7ff" stroke-width="3" stroke-linecap="round" opacity=".8"/>`}
+    need++;if(need>9){clearInterval(timer);const sec=(performance.now()-t0)/1000+pen;const best=hub.game.best==null||sec<hub.game.best;if(best)hub.game.best=sec;
+      const t=today();hub.game.plays=hub.game.plays||{};hub.game.plays[t]=(hub.game.plays[t]||0)+1;if(hub.game.plays[t]<=3)hub.xp=(hub.xp||0)+5;saveHub();
+      toast((best?'Новый рекорд! ':'Готово! ')+sec.toFixed(1)+' с'+(hub.game.plays[t]<=3?' · +5 ⭐':''));celebrateIfGrew();setTimeout(()=>renderGame(M),1600)}};
+  M.querySelector('#gs').onclick=start;
+}
+
+/* ====================== старт ====================== */
+const ROUTES=['home','map','subjects','collection','game','parents','english'];
+function onboarding(){
+  if(hub.avatar)return;
+  const m=document.createElement('div');m.className='modal';
+  m.innerHTML=`<div class="card"><div style="font-size:54px">🌌</div><h2 style="font-size:28px;font-weight:900;margin-top:6px">Добро пожаловать в ${BRAND}!</h2>
+   <p class="muted" style="margin-top:8px">Выбери героя, который полетит с тобой по звёздной карте.</p>
+   <div class="avas">${AVAS.slice(0,8).map(a=>`<button data-a="${a}">${a}</button>`).join('')}</div><button class="btn v" id="okA" style="margin:0 auto">Полетели! 🚀</button></div>`;
+  document.body.appendChild(m);let pick='🦊';
+  m.querySelectorAll('[data-a]').forEach(b=>b.onclick=()=>{pick=b.dataset.a;m.querySelectorAll('[data-a]').forEach(x=>x.classList.toggle('on',x===b))});
+  m.querySelector('[data-a]').classList.add('on');
+  m.querySelector('#okA').onclick=()=>{hub.avatar=pick;saveHub();m.remove();go(route)};
+}
+window.addEventListener('hashchange',()=>{const h=location.hash.slice(1);if(h&&h!==route&&ROUTES.includes(h))go(h)});
+window.addEventListener('storage',()=>{if(['home','map'].includes(route))go(route)});
+const start=(location.hash||'').slice(1);go(ROUTES.includes(start)?start:'home');
+onboarding();
+if('serviceWorker' in navigator&&location.protocol==='https:')navigator.serviceWorker.register('sw.js').catch(()=>{});
+</script>
+</body>
+</html>

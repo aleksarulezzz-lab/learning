@@ -9,7 +9,7 @@
 <meta property="og:description" content="Математика, китайский и английский. Каждый урок зажигает звезду на карте ученика.">
 <meta property="og:image" content="https://aleksarulezzz.ru/learning/og.png">
 <meta property="og:type" content="website">
-<meta name="theme-color" content="#1b1446">
+<meta name="theme-color" content="#120d3a">
 <link rel="canonical" href="https://aleksarulezzz.ru/learning/">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icons/icon-192.png">
@@ -292,128 +292,154 @@ main{padding:22px 28px 40px;max-width:1280px;width:100%;margin:0 auto}
 }
 
 /* ===================================================================
-   Жидкое стекло и внутреннее свечение
-   Стекло: полупрозрачная заливка + размытие фона + светлая кромка сверху
-   + блик. Свечение: внутренние тени (inset) цвета предмета/ночи.
-   Всё на CSS, без картинок и скриптов, чтобы на телефоне было быстро.
+   Ночная тема: тёмное жидкое стекло, неоновые кромки, свечение изнутри
+   Всё на CSS: без картинок и скриптов, чтобы на телефоне было быстро.
    =================================================================== */
 :root{
-  --glass:linear-gradient(160deg,rgba(255,255,255,.80) 0%,rgba(255,255,255,.58) 55%,rgba(246,242,255,.62) 100%);
-  --glass-sheen:radial-gradient(120% 70% at 0% 0%,rgba(255,255,255,.95) 0,rgba(255,255,255,0) 52%);
-  --glass-rim:inset 0 1px 0 rgba(255,255,255,.95),inset 0 0 0 1px rgba(255,255,255,.55),inset 0 -1px 0 rgba(123,92,255,.10);
-  --glass-glow:inset 0 0 28px rgba(255,255,255,.55),inset 0 -26px 44px -30px rgba(123,92,255,.30);
-  --night-glow:inset 0 1px 0 rgba(255,255,255,.22),inset 0 0 0 1px rgba(255,255,255,.07),inset 0 0 70px rgba(150,120,255,.32),inset 0 -50px 90px -50px rgba(110,200,255,.40);
-  --blur:blur(18px) saturate(170%);
+  --bg:#0c0a2a; --ink:#f3f0ff; --muted:#b9b1e3; --soft:#8a82b8; --line:rgba(190,170,255,.16);
+  --card:rgba(40,30,110,.5);
+  --neon:#b9a2ff; --lime:#d4ff5c; --lime2:#9ae22a;
+  --glass:linear-gradient(160deg,rgba(78,60,190,.42) 0%,rgba(36,26,104,.46) 55%,rgba(22,16,70,.55) 100%);
+  --sheen:radial-gradient(120% 60% at 0% 0%,rgba(255,255,255,.14) 0,rgba(255,255,255,0) 50%);
+  --rim:inset 0 1px 0 rgba(255,255,255,.22),inset 0 0 0 1px rgba(185,162,255,.28);
+  --halo:0 0 0 1px rgba(150,120,255,.25),0 0 28px rgba(130,100,255,.30),0 18px 40px rgba(5,2,30,.55);
+  --inglow:inset 0 0 40px rgba(140,110,255,.22),inset 0 -40px 70px -40px rgba(120,190,255,.35);
+  --blur:blur(18px) saturate(160%);
+  --shadow:0 0 0 1px rgba(150,120,255,.22),0 0 22px rgba(130,100,255,.25),0 12px 30px rgba(5,2,30,.5);
 }
+html{background:#0c0a2a}
+body{color:var(--ink);background:
+  radial-gradient(900px 600px at 8% -5%,rgba(124,80,255,.45) 0,transparent 60%),
+  radial-gradient(800px 520px at 105% 10%,rgba(40,140,255,.35) 0,transparent 60%),
+  radial-gradient(700px 500px at 70% 110%,rgba(220,70,200,.28) 0,transparent 60%),
+  linear-gradient(180deg,#120d3a,#0a0824);background-attachment:fixed}
+/* звёздная пыль на фоне */
+body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.7;
+  background-image:
+    radial-gradient(1.4px 1.4px at 20px 30px,#fff,transparent),
+    radial-gradient(1px 1px at 120px 80px,#cfc4ff,transparent),
+    radial-gradient(1.6px 1.6px at 200px 160px,#fff,transparent),
+    radial-gradient(1px 1px at 60px 200px,#a9d8ff,transparent),
+    radial-gradient(1.2px 1.2px at 170px 20px,#fff,transparent);
+  background-size:240px 240px}
+.muted{color:var(--muted)}
 
-/* цветные «туманности» за стеклом: стеклу нужно, что преломлять */
-body::before{content:"";position:fixed;inset:-10%;z-index:-1;pointer-events:none;
-  background:
-    radial-gradient(38% 30% at 82% 72%,rgba(255,170,200,.30),transparent 70%),
-    radial-gradient(34% 28% at 12% 78%,rgba(130,230,200,.26),transparent 70%),
-    radial-gradient(40% 32% at 55% 35%,rgba(170,150,255,.22),transparent 70%)}
+/* --- карточки: тёмное стекло с неоновой кромкой --- */
+.card{background:var(--sheen),var(--glass);-webkit-backdrop-filter:var(--blur);backdrop-filter:var(--blur);
+  border:1px solid rgba(190,170,255,.32);box-shadow:var(--halo),var(--rim),var(--inglow)}
+.c-subj:hover{transform:translateY(-4px);box-shadow:0 0 0 1px rgba(190,170,255,.5),0 0 40px rgba(150,120,255,.5),0 22px 44px rgba(5,2,30,.6),var(--rim),var(--inglow)}
+.c-subj.math{border-color:rgba(90,190,255,.55);box-shadow:0 0 0 1px rgba(80,180,255,.25),0 0 30px rgba(60,170,255,.35),0 18px 40px rgba(5,2,30,.55),var(--rim),inset 0 0 40px rgba(60,170,255,.16),inset 0 -50px 70px -40px rgba(60,170,255,.45)}
+.c-subj.zh{border-color:rgba(255,140,110,.55);box-shadow:0 0 0 1px rgba(255,120,90,.25),0 0 30px rgba(255,110,90,.32),0 18px 40px rgba(5,2,30,.55),var(--rim),inset 0 0 40px rgba(255,120,90,.14),inset 0 -50px 70px -40px rgba(255,120,90,.42)}
+.c-subj.en{border-color:rgba(70,230,160,.55);box-shadow:0 0 0 1px rgba(60,220,150,.25),0 0 30px rgba(50,220,150,.32),0 18px 40px rgba(5,2,30,.55),var(--rim),inset 0 0 40px rgba(50,220,150,.14),inset 0 -50px 70px -40px rgba(50,220,150,.42)}
+.c-hero{border:1px solid rgba(190,170,255,.4);background:radial-gradient(55% 80% at 80% 50%,rgba(90,170,255,.55),transparent 65%),radial-gradient(60% 70% at 0% 100%,rgba(190,90,255,.45),transparent 70%),linear-gradient(135deg,#1d1460 0%,#2e1f86 60%,#5434c4 100%);box-shadow:var(--halo),var(--rim),inset 0 0 80px rgba(150,120,255,.35)}
+.c-lvl{border:1px solid rgba(190,170,255,.4);background:var(--sheen),radial-gradient(90% 80% at 100% 0%,rgba(200,120,255,.45),transparent 60%),linear-gradient(160deg,rgba(100,70,220,.55),rgba(40,28,120,.6))}
+.c-star{border:1px solid rgba(255,214,110,.4);background:radial-gradient(55% 60% at 28% 58%,rgba(255,206,90,.42),transparent 70%),linear-gradient(160deg,#241a5e,#3b2a8f);box-shadow:0 0 0 1px rgba(255,200,90,.2),0 0 30px rgba(255,190,80,.28),0 18px 40px rgba(5,2,30,.55),var(--rim),inset 0 0 60px rgba(255,200,90,.16)}
+.c-map{border:1px solid rgba(120,190,255,.4);background:radial-gradient(50% 70% at 75% 60%,rgba(90,150,255,.45),transparent 70%),linear-gradient(160deg,#16104a,#2a1f6b)}
+.c-game{border:1px solid rgba(255,150,240,.42);background:radial-gradient(45% 70% at 88% 85%,rgba(255,130,230,.48),transparent 70%),linear-gradient(135deg,#2b2378,#5b3cc4);box-shadow:0 0 0 1px rgba(255,130,230,.2),0 0 30px rgba(255,120,220,.28),0 18px 40px rgba(5,2,30,.55),var(--rim),inset 0 0 60px rgba(255,140,230,.18)}
+.cat{filter:drop-shadow(0 8px 18px rgba(0,0,0,.4)) drop-shadow(0 0 26px rgba(255,170,255,.6))}
+.mystar{filter:drop-shadow(0 0 24px rgba(255,214,110,.65))}
+.planet{filter:drop-shadow(0 0 18px rgba(190,140,255,.75))}
+.hero-art{filter:drop-shadow(0 0 30px rgba(110,190,255,.55))}
+.c-map .preview{filter:drop-shadow(0 0 8px rgba(150,200,255,.5))}
 
-/* --- светлые карточки --- */
-.card{background:var(--glass-sheen),var(--glass);-webkit-backdrop-filter:var(--blur);backdrop-filter:var(--blur);
-  border:1px solid rgba(255,255,255,.75);box-shadow:var(--shadow),var(--glass-rim),var(--glass-glow)}
-.c-subj:hover{box-shadow:0 18px 40px rgba(60,40,160,.16),var(--glass-rim),var(--glass-glow)}
-.c-subj.math{box-shadow:var(--shadow),var(--glass-rim),inset 0 0 28px rgba(255,255,255,.55),inset 0 -30px 50px -32px rgba(47,164,255,.45)}
-.c-subj.zh{box-shadow:var(--shadow),var(--glass-rim),inset 0 0 28px rgba(255,255,255,.55),inset 0 -30px 50px -32px rgba(255,106,91,.40)}
-.c-subj.en{box-shadow:var(--shadow),var(--glass-rim),inset 0 0 28px rgba(255,255,255,.55),inset 0 -30px 50px -32px rgba(34,192,138,.42)}
-.c-lvl{background:var(--glass-sheen),radial-gradient(90% 80% at 100% 0%,rgba(190,160,255,.55),transparent 60%),linear-gradient(160deg,rgba(240,234,255,.85),rgba(214,200,255,.75));
-  box-shadow:var(--shadow),var(--glass-rim),inset 0 0 40px rgba(255,255,255,.6),inset 0 -36px 60px -34px rgba(123,92,255,.55)}
+/* --- картинки предметов: цветные светящиеся окна --- */
+.subj-art{border:1px solid rgba(255,255,255,.18)}
+.math .subj-art{background:radial-gradient(60% 55% at 50% 50%,rgba(130,210,255,.75) 0,rgba(60,150,255,.25) 55%,transparent 80%),linear-gradient(140deg,#123a8a,#0c1f5a);box-shadow:inset 0 1px 0 rgba(255,255,255,.35),inset 0 0 30px rgba(80,180,255,.55),0 0 22px rgba(60,170,255,.35)}
+.zh .subj-art{background:radial-gradient(60% 55% at 50% 50%,rgba(255,190,140,.75) 0,rgba(255,110,80,.28) 55%,transparent 80%),linear-gradient(140deg,#7a2235,#3e1236);box-shadow:inset 0 1px 0 rgba(255,255,255,.35),inset 0 0 30px rgba(255,120,90,.55),0 0 22px rgba(255,110,90,.32)}
+.en .subj-art{background:radial-gradient(60% 55% at 50% 50%,rgba(160,255,200,.7) 0,rgba(40,200,140,.28) 55%,transparent 80%),linear-gradient(140deg,#0f5a4c,#0b2e3a);box-shadow:inset 0 1px 0 rgba(255,255,255,.35),inset 0 0 30px rgba(60,230,160,.5),0 0 22px rgba(50,220,150,.32)}
+.subj-art{text-shadow:0 0 24px rgba(255,255,255,.55)}
 
-/* --- тёмные «ночные» карточки: свечение изнутри --- */
-.c-hero{background:radial-gradient(55% 75% at 82% 50%,rgba(110,170,255,.38),transparent 65%),radial-gradient(60% 60% at 0% 100%,rgba(170,110,255,.30),transparent 70%),linear-gradient(135deg,var(--night) 0%,var(--night2) 60%,#4a2fa8 100%);box-shadow:var(--shadow),var(--night-glow)}
-.c-star{background:radial-gradient(55% 55% at 30% 55%,rgba(255,214,110,.30),transparent 70%),linear-gradient(160deg,#241a5e,#3b2a8f);box-shadow:var(--shadow),var(--night-glow)}
-.c-map{background:radial-gradient(50% 70% at 75% 60%,rgba(120,150,255,.30),transparent 70%),linear-gradient(160deg,var(--night),#2a1f6b);box-shadow:var(--shadow),var(--night-glow)}
-.c-game{background:radial-gradient(45% 70% at 88% 85%,rgba(255,170,240,.32),transparent 70%),linear-gradient(135deg,#2b2378,#5b3cc4);box-shadow:var(--shadow),var(--night-glow)}
-.c-hero,.c-star,.c-map,.c-game,.c-lvl{border:0}
-.cat{filter:drop-shadow(0 8px 18px rgba(0,0,0,.3)) drop-shadow(0 0 22px rgba(255,190,255,.45))}
-.mystar{filter:drop-shadow(0 0 18px rgba(255,214,110,.45))}
-.planet{filter:drop-shadow(0 0 14px rgba(160,120,255,.55))}
+/* иконки, логотип, аватар — светящиеся «леденцы» */
+.subj-head .ico,.logo,.panel .pi{box-shadow:inset 0 1px 0 rgba(255,255,255,.6),inset 0 -6px 12px rgba(0,0,0,.2),0 0 18px rgba(150,120,255,.55)}
+.math .ico{box-shadow:inset 0 1px 0 rgba(255,255,255,.6),inset 0 -6px 12px rgba(0,0,0,.2),0 0 18px rgba(60,170,255,.7)}
+.zh .ico{box-shadow:inset 0 1px 0 rgba(255,255,255,.6),inset 0 -6px 12px rgba(0,0,0,.2),0 0 18px rgba(255,110,90,.65)}
+.en .ico{box-shadow:inset 0 1px 0 rgba(255,255,255,.6),inset 0 -6px 12px rgba(0,0,0,.2),0 0 18px rgba(50,220,150,.65)}
+.ava{background:radial-gradient(70% 60% at 35% 30%,#6c52e6,#2a1d7a);box-shadow:0 0 0 2px rgba(190,170,255,.7),0 0 26px rgba(150,120,255,.65),inset 0 0 18px rgba(200,180,255,.45)}
+.hello h1{text-shadow:0 0 24px rgba(170,140,255,.45)}
+.slide h2,.c-map h3,.c-game h3,.lvlname{text-shadow:0 0 22px rgba(190,170,255,.55)}
 
-/* --- картинки предметов: светятся изнутри --- */
-.subj-art{box-shadow:inset 0 2px 0 rgba(255,255,255,.95),inset 0 0 0 1px rgba(255,255,255,.7),inset 0 0 26px rgba(255,255,255,.75)}
-.math .subj-art{background:radial-gradient(60% 55% at 50% 45%,#fff 0,rgba(255,255,255,0) 70%),linear-gradient(140deg,var(--math-bg),#bfe2ff);box-shadow:inset 0 2px 0 #fff,inset 0 0 0 1px rgba(255,255,255,.7),inset 0 -18px 30px -12px rgba(47,164,255,.45)}
-.zh .subj-art{background:radial-gradient(60% 55% at 50% 45%,#fff 0,rgba(255,255,255,0) 70%),linear-gradient(140deg,var(--zh-bg),#ffd6c2);box-shadow:inset 0 2px 0 #fff,inset 0 0 0 1px rgba(255,255,255,.7),inset 0 -18px 30px -12px rgba(255,106,91,.40)}
-.en .subj-art{background:radial-gradient(60% 55% at 50% 45%,#fff 0,rgba(255,255,255,0) 70%),linear-gradient(140deg,var(--en-bg),#bff0d8);box-shadow:inset 0 2px 0 #fff,inset 0 0 0 1px rgba(255,255,255,.7),inset 0 -18px 30px -12px rgba(34,192,138,.45)}
-.math .subj-art{text-shadow:0 8px 22px rgba(47,164,255,.45)}
-.zh .subj-art{text-shadow:0 8px 22px rgba(255,106,91,.45)}
-.en .subj-art{text-shadow:0 8px 22px rgba(34,192,138,.45)}
-
-/* иконки предметов и логотип — «леденцы» */
-.subj-head .ico,.logo,.panel .pi{box-shadow:inset 0 1px 0 rgba(255,255,255,.65),inset 0 -6px 12px rgba(0,0,0,.14),inset 0 0 12px rgba(255,255,255,.25),0 6px 16px rgba(80,60,200,.25)}
-.math .ico{box-shadow:inset 0 1px 0 rgba(255,255,255,.65),inset 0 -6px 12px rgba(0,0,0,.14),0 6px 16px rgba(47,164,255,.40)}
-.zh .ico{box-shadow:inset 0 1px 0 rgba(255,255,255,.65),inset 0 -6px 12px rgba(0,0,0,.12),0 6px 16px rgba(255,106,91,.40)}
-.en .ico{box-shadow:inset 0 1px 0 rgba(255,255,255,.65),inset 0 -6px 12px rgba(0,0,0,.12),0 6px 16px rgba(34,192,138,.40)}
-.ava{background:radial-gradient(70% 60% at 35% 30%,#fff,#efe8ff);box-shadow:0 0 0 4px rgba(255,255,255,.9),0 8px 22px rgba(90,60,200,.2),inset 0 -8px 16px rgba(123,92,255,.22),inset 0 0 14px rgba(255,255,255,.9)}
-
-/* --- кнопки: жидкое стекло --- */
-.btn{position:relative;overflow:hidden;isolation:isolate;
-  background:linear-gradient(180deg,rgba(255,255,255,.98),rgba(238,233,255,.92));
-  box-shadow:0 8px 22px rgba(40,20,120,.22),inset 0 1px 0 #fff,inset 0 0 0 1px rgba(255,255,255,.6),inset 0 -4px 10px rgba(123,92,255,.20)}
-.btn::before{content:"";position:absolute;left:6%;right:6%;top:2px;height:48%;border-radius:999px;z-index:-1;pointer-events:none;
-  background:linear-gradient(180deg,rgba(255,255,255,.9),rgba(255,255,255,0))}
-.btn::after{content:"";position:absolute;top:0;bottom:0;left:-60%;width:40%;z-index:-1;pointer-events:none;transform:skewX(-20deg);
-  background:linear-gradient(90deg,transparent,rgba(255,255,255,.65),transparent);transition:left .6s ease}
+/* --- кнопки --- */
+.btn{position:relative;overflow:hidden;isolation:isolate;color:#1a1440;
+  background:linear-gradient(180deg,#e8ff8a,var(--lime) 45%,var(--lime2));
+  box-shadow:0 0 0 1px rgba(220,255,140,.55),0 0 26px rgba(190,255,80,.55),0 8px 20px rgba(5,2,30,.45),inset 0 1px 0 rgba(255,255,255,.8),inset 0 -5px 10px rgba(60,120,0,.3)}
+.btn::before{content:"";position:absolute;left:6%;right:6%;top:2px;height:46%;border-radius:999px;z-index:-1;pointer-events:none;background:linear-gradient(180deg,rgba(255,255,255,.75),rgba(255,255,255,0))}
+.btn::after{content:"";position:absolute;top:0;bottom:0;left:-60%;width:40%;z-index:-1;pointer-events:none;transform:skewX(-20deg);background:linear-gradient(90deg,transparent,rgba(255,255,255,.7),transparent);transition:left .6s ease}
+.btn:hover{transform:scale(1.04);box-shadow:0 0 0 1px rgba(220,255,140,.7),0 0 38px rgba(190,255,80,.75),0 8px 20px rgba(5,2,30,.45),inset 0 1px 0 rgba(255,255,255,.8),inset 0 -5px 10px rgba(60,120,0,.3)}
 .btn:hover::after{left:120%}
-.btn.v{background:linear-gradient(180deg,#9c84ff,#6a4af2);color:#fff;
-  box-shadow:0 10px 24px rgba(110,80,255,.42),inset 0 1px 0 rgba(255,255,255,.55),inset 0 0 0 1px rgba(255,255,255,.18),inset 0 -6px 14px rgba(40,10,140,.35),inset 0 0 18px rgba(210,190,255,.45)}
+.btn.v{color:#fff;background:linear-gradient(180deg,#a991ff,#7556ff 50%,#5a3ae6);
+  box-shadow:0 0 0 1px rgba(200,180,255,.55),0 0 26px rgba(140,110,255,.6),0 8px 20px rgba(5,2,30,.45),inset 0 1px 0 rgba(255,255,255,.55),inset 0 -6px 14px rgba(30,10,120,.4)}
 .btn.v::before{background:linear-gradient(180deg,rgba(255,255,255,.45),rgba(255,255,255,0))}
-.btn.ghost{background:rgba(255,255,255,.14);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.35),inset 0 0 0 1px rgba(255,255,255,.18),inset 0 0 16px rgba(255,255,255,.10)}
-.btn.ghost::before{background:linear-gradient(180deg,rgba(255,255,255,.22),rgba(255,255,255,0))}
+.btn.ghost{color:#fff;background:rgba(255,255,255,.1);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.3),inset 0 0 0 1px rgba(190,170,255,.4),0 0 16px rgba(150,120,255,.3)}
+.btn.ghost::before{background:linear-gradient(180deg,rgba(255,255,255,.2),rgba(255,255,255,0))}
 
-/* круглые и «таблеточные» элементы */
-.pill,.go,.back{background:linear-gradient(180deg,rgba(255,255,255,.92),rgba(244,240,255,.75));-webkit-backdrop-filter:var(--blur);backdrop-filter:var(--blur);
-  box-shadow:var(--shadow),inset 0 1px 0 #fff,inset 0 0 0 1px rgba(255,255,255,.6),inset 0 -3px 8px rgba(123,92,255,.14)}
-.mapctl button,.legend span,.framebar button{box-shadow:inset 0 1px 0 rgba(255,255,255,.3),inset 0 0 0 1px rgba(255,255,255,.12),inset 0 0 14px rgba(255,255,255,.08)}
-.side{background:linear-gradient(180deg,rgba(255,255,255,.62),rgba(255,255,255,.40));box-shadow:inset -1px 0 0 rgba(255,255,255,.8)}
-.nav button.on{background:linear-gradient(180deg,#fff,rgba(244,240,255,.85));box-shadow:var(--shadow),inset 0 1px 0 #fff,inset 0 -4px 10px rgba(123,92,255,.16)}
+/* круглые и «таблеточные» */
+.pill,.go,.back{color:var(--ink);background:linear-gradient(180deg,rgba(90,70,200,.55),rgba(40,30,110,.6));-webkit-backdrop-filter:var(--blur);backdrop-filter:var(--blur);
+  box-shadow:0 0 0 1px rgba(190,170,255,.4),0 0 16px rgba(140,110,255,.35),inset 0 1px 0 rgba(255,255,255,.25)}
+.mapctl button,.legend span,.framebar button{box-shadow:inset 0 1px 0 rgba(255,255,255,.3),inset 0 0 0 1px rgba(190,170,255,.3),0 0 12px rgba(140,110,255,.3)}
+
+/* боковое меню и нижняя панель */
+.side{background:linear-gradient(180deg,rgba(30,22,90,.75),rgba(16,12,52,.8));border-right:1px solid rgba(190,170,255,.2);box-shadow:inset -1px 0 0 rgba(255,255,255,.05),8px 0 30px rgba(5,2,30,.35)}
+.nav button{color:var(--muted)}
+.nav button:hover{background:rgba(160,130,255,.12);color:#fff}
+.nav button.on{color:#fff;background:linear-gradient(180deg,rgba(130,100,255,.55),rgba(80,55,200,.45));box-shadow:0 0 0 1px rgba(200,180,255,.55),0 0 22px rgba(140,110,255,.55),inset 0 1px 0 rgba(255,255,255,.3)}
 
 /* --- строки, значки, полоски --- */
-.task{background:linear-gradient(180deg,rgba(255,255,255,.70),rgba(240,235,255,.55));box-shadow:inset 0 1px 0 rgba(255,255,255,.95),inset 0 0 0 1px rgba(255,255,255,.5),inset 0 -8px 16px -10px rgba(123,92,255,.25)}
-.task.done .box,.chk.on{box-shadow:0 0 10px rgba(123,92,255,.45),inset 0 1px 0 rgba(255,255,255,.55)}
-.math .chk.on{box-shadow:0 0 10px rgba(47,164,255,.55),inset 0 1px 0 rgba(255,255,255,.55)}
-.zh .chk.on{box-shadow:0 0 10px rgba(255,106,91,.5),inset 0 1px 0 rgba(255,255,255,.55)}
-.en .chk.on{box-shadow:0 0 10px rgba(34,192,138,.5),inset 0 1px 0 rgba(255,255,255,.55)}
-.task .xp{box-shadow:inset 0 1px 0 #fff,inset 0 -3px 6px rgba(255,180,0,.22),0 0 10px rgba(255,191,47,.25)}
-.streak{box-shadow:inset 0 1px 0 rgba(255,255,255,.9),inset 0 0 0 1px rgba(255,255,255,.5),inset 0 -14px 24px -14px rgba(255,140,40,.45)}
-.badge{background:radial-gradient(60% 55% at 50% 40%,#fff,rgba(255,255,255,0) 75%),linear-gradient(140deg,#f3efff,#e2d9ff);
-  box-shadow:inset 0 1px 0 #fff,inset 0 0 0 1px rgba(255,255,255,.7),inset 0 -12px 22px -10px rgba(123,92,255,.40);text-shadow:0 4px 14px rgba(123,92,255,.35)}
-.badge.lock{box-shadow:inset 0 1px 0 #fff;text-shadow:none}
-.bar,.minibar,.qbar{box-shadow:inset 0 1px 3px rgba(60,40,160,.12)}
-.bar i,.minibar i,.qbar i{box-shadow:inset 0 1px 0 rgba(255,255,255,.55),0 0 10px rgba(123,92,255,.35)}
-.ring svg{filter:drop-shadow(0 0 6px rgba(123,92,255,.35))}
+.topic{border-bottom-color:rgba(190,170,255,.18)}
+.chk{border-color:rgba(190,170,255,.45)}
+.task{background:linear-gradient(180deg,rgba(110,85,230,.28),rgba(60,42,160,.24));box-shadow:inset 0 1px 0 rgba(255,255,255,.14),inset 0 0 0 1px rgba(190,170,255,.22)}
+.task .box{border-color:rgba(190,170,255,.55)}
+.task.done .box{background:var(--lime2);border-color:var(--lime);color:#1a1440;box-shadow:0 0 12px rgba(190,255,80,.6)}
+.chk.on{box-shadow:0 0 12px rgba(150,120,255,.6),inset 0 1px 0 rgba(255,255,255,.5)}
+.math .chk.on{box-shadow:0 0 12px rgba(60,170,255,.75)}
+.zh .chk.on{box-shadow:0 0 12px rgba(255,110,90,.7)}
+.en .chk.on{box-shadow:0 0 12px rgba(50,220,150,.7)}
+.task .xp{color:#ffe28a;background:rgba(255,190,47,.16);box-shadow:inset 0 0 0 1px rgba(255,200,80,.45),0 0 12px rgba(255,190,47,.3)}
+.streak{color:#fff;background:linear-gradient(90deg,rgba(255,140,60,.28),rgba(255,90,120,.22));box-shadow:inset 0 0 0 1px rgba(255,170,90,.45),inset 0 0 24px rgba(255,150,60,.25),0 0 18px rgba(255,140,60,.25)}
+.streak small{color:#ffd9b8}
+.badge{background:radial-gradient(60% 55% at 50% 45%,rgba(200,180,255,.45),transparent 75%),linear-gradient(140deg,rgba(90,70,200,.5),rgba(40,28,110,.55));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.25),inset 0 0 0 1px rgba(190,170,255,.4),inset 0 0 20px rgba(160,130,255,.35),0 0 14px rgba(140,110,255,.3);text-shadow:0 0 16px rgba(255,255,255,.6)}
+.badge.lock{background:rgba(255,255,255,.04);box-shadow:inset 0 0 0 1px rgba(190,170,255,.15);text-shadow:none;opacity:.3}
+.bar,.minibar,.qbar{background:rgba(255,255,255,.1);box-shadow:inset 0 1px 3px rgba(0,0,0,.35)}
+.bar i,.qbar i{box-shadow:0 0 12px rgba(160,130,255,.75),inset 0 1px 0 rgba(255,255,255,.5)}
+.math .minibar i{box-shadow:0 0 10px rgba(60,170,255,.8)}
+.zh .minibar i{box-shadow:0 0 10px rgba(255,110,90,.8)}
+.en .minibar i{box-shadow:0 0 10px rgba(50,220,150,.8)}
+.ring circle:first-child{stroke:rgba(255,255,255,.1)}
+.ring svg{filter:drop-shadow(0 0 8px rgba(160,130,255,.7))}
 
 /* --- английский и квиз --- */
-.lesson{box-shadow:inset 0 1px 0 rgba(255,255,255,.95),inset 0 -8px 14px -8px rgba(34,192,138,.35)}
-.lesson.lock{box-shadow:inset 0 1px 0 rgba(255,255,255,.9)}
-.opt,.letter{background:linear-gradient(180deg,rgba(255,255,255,.95),rgba(246,243,255,.85));box-shadow:0 4px 12px rgba(60,40,160,.08),inset 0 1px 0 #fff,inset 0 -6px 12px -6px rgba(123,92,255,.20)}
-.opt.ok{background:linear-gradient(180deg,#effdf6,#d3f6e5);box-shadow:0 0 18px rgba(34,192,138,.35),inset 0 1px 0 #fff,inset 0 -8px 16px -8px rgba(34,192,138,.45)}
-.opt.bad{background:linear-gradient(180deg,#fff2f4,#ffdde2);box-shadow:0 0 18px rgba(255,91,110,.3),inset 0 1px 0 #fff}
-.say{box-shadow:inset 0 1px 0 #fff,inset 0 -6px 12px -6px rgba(34,192,138,.45)}
+.lesson{color:var(--ink);background:linear-gradient(180deg,rgba(50,200,140,.25),rgba(20,110,90,.25));box-shadow:inset 0 1px 0 rgba(255,255,255,.18),inset 0 0 0 1px rgba(80,230,170,.35)}
+.lesson:not(.lock):hover{background:linear-gradient(180deg,rgba(50,220,150,.4),rgba(20,130,100,.35));box-shadow:inset 0 0 0 1px rgba(100,255,190,.6),0 0 16px rgba(50,220,150,.45)}
+.lesson.lock{background:rgba(255,255,255,.05);box-shadow:inset 0 0 0 1px rgba(190,170,255,.15)}
+.opt,.letter{color:var(--ink);background:linear-gradient(180deg,rgba(100,80,220,.4),rgba(45,32,125,.45));border:1px solid rgba(190,170,255,.35);box-shadow:inset 0 1px 0 rgba(255,255,255,.18),inset 0 0 18px rgba(150,120,255,.2)}
+.opt:hover{border-color:rgba(220,200,255,.8);box-shadow:0 0 18px rgba(150,120,255,.5),inset 0 1px 0 rgba(255,255,255,.2)}
+.opt.ok{background:linear-gradient(180deg,rgba(60,230,160,.45),rgba(20,130,100,.45));border-color:#5effb8;box-shadow:0 0 22px rgba(60,230,160,.6),inset 0 1px 0 rgba(255,255,255,.3)}
+.opt.bad{background:linear-gradient(180deg,rgba(255,90,120,.45),rgba(140,30,70,.45));border-color:#ff8aa0;box-shadow:0 0 22px rgba(255,90,120,.55)}
+.slot{border-bottom-color:rgba(190,170,255,.5)}
+.say{color:#b5ffd9;background:rgba(50,220,150,.18);box-shadow:inset 0 0 0 1px rgba(80,230,170,.45),0 0 14px rgba(50,220,150,.3)}
 
 /* --- карта, игра, окна --- */
-.mapwrap{box-shadow:var(--shadow),inset 0 0 120px rgba(130,100,255,.38),inset 0 1px 0 rgba(255,255,255,.2)}
-.gamebox{box-shadow:inset 0 0 100px rgba(150,120,255,.35),inset 0 1px 0 rgba(255,255,255,.2)}
-.panel{background:linear-gradient(180deg,rgba(255,255,255,.92),rgba(244,240,255,.80));-webkit-backdrop-filter:var(--blur);backdrop-filter:var(--blur);
-  box-shadow:0 10px 30px rgba(0,0,0,.3),inset 0 1px 0 #fff,inset 0 0 0 1px rgba(255,255,255,.6)}
-.modal .card{background:var(--glass-sheen),linear-gradient(160deg,rgba(255,255,255,.96),rgba(246,242,255,.92))}
-.toast{background:rgba(27,20,70,.82);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);box-shadow:0 10px 30px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.2),inset 0 0 20px rgba(150,120,255,.3)}
+.mapwrap{box-shadow:var(--halo),inset 0 0 140px rgba(130,100,255,.45),inset 0 0 0 1px rgba(190,170,255,.3)}
+.gamebox{box-shadow:0 0 0 1px rgba(190,170,255,.3),0 0 28px rgba(130,100,255,.3),inset 0 0 110px rgba(150,120,255,.4)}
+.panel{color:var(--ink);background:linear-gradient(180deg,rgba(70,52,180,.85),rgba(30,22,90,.88));-webkit-backdrop-filter:var(--blur);backdrop-filter:var(--blur);
+  box-shadow:0 0 0 1px rgba(190,170,255,.4),0 0 30px rgba(130,100,255,.4),inset 0 1px 0 rgba(255,255,255,.2)}
+.modal .card{background:var(--sheen),linear-gradient(160deg,#3a2a9a,#1c1458)}
+.avas button{background:rgba(255,255,255,.08);box-shadow:inset 0 0 0 1px rgba(190,170,255,.25)}
+.avas button.on{background:rgba(140,110,255,.35);border-color:var(--lime);box-shadow:0 0 18px rgba(190,255,80,.45)}
+.toast{background:rgba(40,28,120,.9);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);box-shadow:0 0 0 1px rgba(190,170,255,.4),0 0 26px rgba(130,100,255,.5)}
+.parents a{color:var(--lime)}
 
-/* телефоны: меньше размытия — экономим батарею и плавность прокрутки */
+/* телефоны: меньше размытия — плавная прокрутка и меньше расход батареи */
 @media (max-width:760px){
-  :root{--blur:blur(10px) saturate(150%)}
-  .bnav{background:linear-gradient(180deg,rgba(255,255,255,.88),rgba(244,240,255,.78));box-shadow:0 10px 30px rgba(60,40,160,.2),inset 0 1px 0 #fff,inset 0 0 0 1px rgba(255,255,255,.6)}
-  .bnav button.on{box-shadow:inset 0 1px 0 #fff,inset 0 -4px 10px rgba(123,92,255,.18)}
+  :root{--blur:blur(10px) saturate(140%)}
+  .bnav{background:linear-gradient(180deg,rgba(40,30,110,.88),rgba(20,15,62,.92));box-shadow:0 0 0 1px rgba(190,170,255,.35),0 0 26px rgba(130,100,255,.4),inset 0 1px 0 rgba(255,255,255,.18)}
+  .bnav button{color:var(--muted)}
+  .bnav button.on{color:#fff;background:rgba(130,100,255,.4);box-shadow:0 0 16px rgba(140,110,255,.5),inset 0 0 0 1px rgba(200,180,255,.5)}
 }
-/* если в системе включено «уменьшить прозрачность» — делаем плотные плашки */
 @media (prefers-reduced-transparency:reduce){
-  .card{-webkit-backdrop-filter:none;backdrop-filter:none}
-  .card:not(.c-hero):not(.c-star):not(.c-map):not(.c-game):not(.c-lvl){background:#fff}
-  body::before{display:none}
+  .card,.pill,.go,.back,.panel{-webkit-backdrop-filter:none;backdrop-filter:none}
+  .card:not(.c-hero):not(.c-star):not(.c-map):not(.c-game):not(.c-lvl){background:#22195e}
 }
 @media (prefers-reduced-motion:reduce){.btn::after{display:none}}
 </style>

@@ -10,6 +10,16 @@ yc config profile create zv >/dev/null 2>&1 || true
 yc config set service-account-key "$KEY"
 yc config set folder-id "$YC_FOLDER_ID"
 
+# Проверка: ключ и каталог (понятные ошибки вместо "Permission denied")
+SA_KEY_ID=$(jq -r .service_account_id "$KEY")
+echo "Ключ сервисного аккаунта: $(yc iam service-account get "$SA_KEY_ID" --format json 2>/dev/null | jq -r '.name + " (каталог " + .folder_id + ")"' || echo "не удалось прочитать")"
+if ! FOLDER=$(yc resource-manager folder get "$YC_FOLDER_ID" --format json 2>/dev/null); then
+  echo "::error::YC_FOLDER_ID не найден как каталог или нет доступа. Возможно, туда вписан ID облака, а не каталога."
+  exit 1
+fi
+echo "Каталог: $(jq -r .name <<<"$FOLDER")"
+echo "Роли в каталоге:"; yc resource-manager folder list-access-bindings "$YC_FOLDER_ID" --format json | jq -r '.[] | "  " + .role_id + " -> " + .subject.type + ":" + .subject.id'
+
 # 1. База (serverless, регион ru-central1 — данные в РФ)
 yc ydb database get zv-db >/dev/null 2>&1 || yc ydb database create zv-db --serverless
 DOCAPI=$(yc ydb database get zv-db --format json | jq -r .document_api_endpoint)

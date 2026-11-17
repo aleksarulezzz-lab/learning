@@ -157,7 +157,7 @@ main{padding:22px 28px 40px;max-width:1280px;width:100%;margin:0 auto}
 .badge.lock{filter:grayscale(1);opacity:.35}
 
 /* mini map card */
-.c-map .preview{position:absolute;inset:0}
+.c-map .preview{position:absolute;inset:0;-webkit-mask-image:linear-gradient(90deg,transparent 0,#000 35%);mask-image:linear-gradient(90deg,transparent 0,#000 35%)}
 .c-map .over{position:relative;z-index:1;display:flex;flex-direction:column;gap:8px;max-width:60%}
 .c-map h3{font-size:22px}
 
@@ -172,6 +172,9 @@ main{padding:22px 28px 40px;max-width:1280px;width:100%;margin:0 auto}
 /* map */
 .mapwrap{position:relative;border-radius:28px;overflow:hidden;background:radial-gradient(800px 600px at 50% 50%,#2c2280 0,#140f3a 70%);height:calc(100vh - 140px);min-height:520px;box-shadow:var(--shadow);touch-action:none}
 .mapwrap svg{width:100%;height:100%;display:block;cursor:grab}
+.compass{position:absolute;left:14px;bottom:14px;width:86px;height:86px;z-index:1;pointer-events:none;filter:drop-shadow(0 4px 12px rgba(0,0,0,.4))}
+.compass svg{cursor:default}
+@media (max-width:760px){.compass{width:60px;height:60px}}
 .mapwrap svg:active{cursor:grabbing}
 .mapctl{position:absolute;right:14px;top:14px;display:flex;flex-direction:column;gap:8px;z-index:2}
 .mapctl button{width:42px;height:42px;border-radius:14px;background:rgba(255,255,255,.14);color:#fff;font-size:22px;font-weight:900;backdrop-filter:blur(6px)}
@@ -180,7 +183,7 @@ main{padding:22px 28px 40px;max-width:1280px;width:100%;margin:0 auto}
 .legend i{width:10px;height:10px;border-radius:50%}
 .node{cursor:pointer}
 .node .halo{opacity:0}
-.node.done .halo{opacity:.5}
+.node.done .halo{opacity:.3}
 .node.cur .halo{opacity:.8;animation:halo 1.6s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
 @keyframes halo{50%{transform:scale(1.5);opacity:.2}}
 .lit{stroke-dasharray:8 10;animation:flow 1.2s linear infinite}
@@ -771,52 +774,180 @@ const ARMS=[
  {k:'eng',name:'Планета Слов',color:'#2fd39a',glow:'#a6f0c6',icon:'Aa',base:-Math.PI/2+4*Math.PI/3}
 ];
 // Узлы ставим вдоль спирали на равном расстоянии друг от друга (по длине дуги).
-const SPIRAL=(()=>{const N=600,T=1.9,r0=170,r1=690;const pts=[[0,r0,0]];let L=0;
+const SPIRAL=(()=>{const N=600,T=2.2,r0=190,r1=990;const pts=[[0,r0,0]];let L=0;
   for(let j=1;j<=N;j++){const th=T*j/N,r=r0+(r1-r0)*j/N,pth=T*(j-1)/N,pr=r0+(r1-r0)*(j-1)/N;
     L+=Math.hypot(r*Math.cos(th)-pr*Math.cos(pth),r*Math.sin(th)-pr*Math.sin(pth));pts.push([th,r,L])}return pts})();
 function armPos(arm,i,n){const total=SPIRAL[SPIRAL.length-1][2];const want=Math.min(1,i/(n-1+1.1))*total;
   let j=0;while(j<SPIRAL.length-1&&SPIRAL[j][2]<want)j++;const [th,r]=SPIRAL[j];const a=arm.base+0.2+th;return [500+r*Math.cos(a),500+r*Math.sin(a)]}
+// Точка спирали рукава по доле t (t>1 — продолжение спирали за планету, там тоже «местность»)
+function armAt(arm,t){const th=2.2*t,r=190+800*t,a=arm.base+0.2+th;return [500+r*Math.cos(a),500+r*Math.sin(a)]}
+
+// Местность у каждого пути: своя «страна» со своим рельефом
+const BIOMES={
+ math:{title:'Кристальные горы',land:['#2b6fc2','#173a86'],deep:'#0b1a4a',rim:'#8fd3ff',hi:'#c9ecff',deco:['crystal','mount','crater','crystal','mount','rock','lake','station']},
+ zh:{title:'Долина вулканов',land:['#b0465a','#5a1f4f'],deep:'#2e0b29',rim:'#ffb38a',hi:'#ffd9a8',deco:['volcano','crater','crater','dune','rock','volcano','lava','station']},
+ eng:{title:'Изумрудные холмы',land:['#2a9a72','#14524f'],deep:'#082c2e',rim:'#9ff0c6',hi:'#d9ffe9',deco:['hill','tree','mush','hill','lake','tree','crater','station']}
+};
 
 function mapSVG(x,{mini=false}={}){
   const R=routeNodes(x);let s='';
-  // фон: случайные, но стабильные звёзды
   let seed=7;const rr=()=>(seed=(seed*16807)%2147483647)/2147483647;
-  for(let i=0;i<(mini?70:180);i++){const cx=-400+rr()*1800,cy=-400+rr()*1800,r=rr()*1.6+.3;
-    s+=`<circle cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="${r.toFixed(2)}" fill="#fff" opacity="${(.25+rr()*.6).toFixed(2)}"${mini?'':` style="animation:tw ${(2+rr()*4).toFixed(1)}s ${(rr()*3).toFixed(1)}s infinite"`}/>`}
-  s+=`<circle cx="500" cy="500" r="420" fill="none" stroke="rgba(255,255,255,.04)" stroke-width="140"/><circle cx="500" cy="500" r="660" fill="none" stroke="rgba(255,255,255,.03)" stroke-width="90"/>`;
+  const f1=v=>v.toFixed(1);
+  // ---------- 1. туманности: цветные облака на весь фон ----------
+  const NEB=[['#7b5cff',-500,-450,900],['#ff5fa8',1550,-350,820],['#2fd3c0',1500,1450,900],['#4fb6ff',-550,1400,850],['#ffb347',500,-950,720],['#b06bff',500,1950,760],['#5d7bff',2050,500,760],['#ff7a5c',-1050,500,720]];
+  NEB.forEach(([c,cx,cy,r],i)=>{s+=`<circle cx="${cx}" cy="${cy}" r="${r}" fill="url(#neb${i})"/>`});
+  // ---------- 2. дальние звёзды ----------
+  for(let i=0;i<(mini?90:340);i++){const cx=-1300+rr()*3600,cy=-1300+rr()*3600,r=rr()*1.8+.4;
+    s+=`<circle cx="${f1(cx)}" cy="${f1(cy)}" r="${r.toFixed(2)}" fill="#fff" opacity="${(.3+rr()*.6).toFixed(2)}"${mini?'':` style="animation:tw ${(2+rr()*4).toFixed(1)}s ${(rr()*3).toFixed(1)}s infinite"`}/>`}
+  // ---------- 3. «материки» вдоль каждого пути ----------
+  const blob=(cx,cy,r,k)=>{const n=12;const p=[];for(let i=0;i<n;i++){const a=i/n*Math.PI*2,q=r*(.78+rr()*.4);p.push([cx+q*Math.cos(a),cy+q*Math.sin(a)])}
+    let d=`M${f1((p[0][0]+p[1][0])/2)} ${f1((p[0][1]+p[1][1])/2)}`;for(let i=1;i<=n;i++){const a=p[i%n],b=p[(i+1)%n];d+=`Q${f1(a[0])} ${f1(a[1])} ${f1((a[0]+b[0])/2)} ${f1((a[1]+b[1])/2)}`}return d+'Z'};
+  const blobs=[];
+  for(const arm of ARMS){for(let t=-.05;t<=1.55;t+=mini?.16:.09){const [px,py]=armAt(arm,t);const r=(mini?190:150)+t*230+rr()*90;
+      const cx=px+(rr()-.5)*120,cy=py+(rr()-.5)*120;blobs.push({arm,t,cx,cy,r,d:blob(cx,cy,r)})}}
+  blobs.sort((a,b)=>b.t-a.t);
+  // объём: тень под материком, «обрыв» (толщина), затем освещённая поверхность
+  s+=`<g fill="#05021a" opacity=".45" transform="translate(${mini?14:22} ${mini?30:52})">${blobs.map(b=>`<path d="${b.d}"/>`).join('')}</g>`;
+  s+=`<g transform="translate(0 ${mini?14:26})">${blobs.map(b=>`<path d="${b.d}" fill="${BIOMES[b.arm.k].deep}"/>`).join('')}</g>`;
+  s+=`<g>${blobs.map(b=>`<path d="${b.d}" fill="url(#land-${b.arm.k})"/>`).join('')}</g>`;
+  s+=`<clipPath id="landclip${mini?'m':''}">${blobs.map(b=>`<path d="${b.d}"/>`).join('')}</clipPath><rect x="-1400" y="-1400" width="3800" height="3800" fill="url(#sheen)" opacity=".55" clip-path="url(#landclip${mini?'m':''})"/>`;
+  // пыльные «рифы» между странами
+  if(!mini)for(const arm of ARMS){for(let t=.15;t<1.6;t+=.07){const [px,py]=armAt({base:arm.base-1.05},t);const r=2+rr()*5;
+    s+=`<circle cx="${f1(px+(rr()-.5)*70)}" cy="${f1(py+(rr()-.5)*70)}" r="${f1(r)}" fill="#c9bfff" opacity="${(.25+rr()*.45).toFixed(2)}"/>`}}
+
+  // ---------- 4. маршрут: точки, через которые декор не ставим ----------
+  const geo={};const busy=[[500,500,150]];
+  for(const arm of ARMS){const n=R[arm.k].length;const pts=R[arm.k].map((_,i)=>armPos(arm,i,n)),end=armAt(arm,1.045);
+    // дорога петляет: между остановками — сдвинутая вбок точка, через всё — плавная кривая
+    const C=[[500,500]];const stops=[[500,500],...pts,end];
+    for(let i=1;i<stops.length;i++){const a=stops[i-1],b=stops[i];const dx=b[0]-a[0],dy=b[1]-a[1],l=Math.hypot(dx,dy)||1;const w=(i%2?1:-1)*Math.min(42,l*.32);
+      C.push([(a[0]+b[0])/2-dy/l*w,(a[1]+b[1])/2+dx/l*w],b)}
+    const road=[];const idx=[0];
+    for(let i=0;i<C.length-1;i++){const p0=C[Math.max(0,i-1)],p1=C[i],p2=C[i+1],p3=C[Math.min(C.length-1,i+2)];
+      for(let k=0;k<8;k++){const t=k/8,t2=t*t,t3=t2*t;road.push([0,1].map(j=>.5*((2*p1[j])+(-p0[j]+p2[j])*t+(2*p0[j]-5*p1[j]+4*p2[j]-p3[j])*t2+(-p0[j]+3*p1[j]-3*p2[j]+p3[j])*t3)))}
+      if(i%2===1)idx.push(road.length)}
+    road.push(end);
+    geo[arm.k]={pts,end,road,idx};
+    road.forEach((p,i)=>{if(i%2===0)busy.push([p[0],p[1],mini?55:85])});
+    busy.push([end[0],end[1],mini?110:190])}
+  if(!mini)for(const arm of ARMS){const [px,py]=armAt(arm,1.32);for(const dx of [-150,0,150])busy.push([px+dx,py-10,70])}
+  const free=(px,py,r)=>busy.every(([bx,by,br])=>Math.hypot(px-bx,py-by)>br+r*.6);
+  // страна точки = верхний «материк», который её накрывает (как и видно на карте)
+  const nearArm=(px,py)=>{let top=null,near=null,bd=1e9;for(const b of blobs){const d=Math.hypot(px-b.cx,py-b.cy);
+    if(d<b.r*.8&&(!top||b.t<top.t))top=b;if(d-b.r<bd){bd=d-b.r;near=b}}return (top||near).arm};
+
+  // ---------- 5. рельеф: горы, кратеры, кристаллы, вулканы, холмы ----------
+  // объёмные детали: тень на земле, вершина с освещённой и теневой стороной, грань кристалла
+  const sh=(cx,cy,w)=>`<ellipse cx="${f1(cx+w*.15)}" cy="${f1(cy+w*.08)}" rx="${f1(w)}" ry="${f1(w*.22)}" fill="url(#shd)"/>`;
+  const peak=(x,y,w,h,B)=>`<path d="M${f1(x-w)} ${f1(y)}L${f1(x)} ${f1(y-h)}L${f1(x+w*.12)} ${f1(y)}Z" fill="url(#lit-${B.k})"/><path d="M${f1(x+w*.12)} ${f1(y)}L${f1(x)} ${f1(y-h)}L${f1(x+w)} ${f1(y)}Z" fill="${B.deep}"/>`+
+    `<path d="M${f1(x)} ${f1(y-h)}L${f1(x-w*.3)} ${f1(y-h*.7)}L${f1(x-w*.12)} ${f1(y-h*.74)}L${f1(x+w*.03)} ${f1(y-h*.66)}Z" fill="#fff"/><path d="M${f1(x)} ${f1(y-h)}L${f1(x+w*.03)} ${f1(y-h*.66)}L${f1(x+w*.16)} ${f1(y-h*.72)}L${f1(x+w*.3)} ${f1(y-h*.7)}Z" fill="${B.hi}" opacity=".75"/>`;
+  const shard=(x,y,w,h)=>`<path d="M${f1(x-w)} ${f1(y)}L${f1(x-w)} ${f1(y-h*.6)}L${f1(x)} ${f1(y-h)}L${f1(x)} ${f1(y)}Z" fill="#bfeaff"/><path d="M${f1(x)} ${f1(y)}L${f1(x)} ${f1(y-h)}L${f1(x+w)} ${f1(y-h*.6)}L${f1(x+w)} ${f1(y)}Z" fill="#3c8fe0"/><path d="M${f1(x-w*.6)} ${f1(y-h*.7)}L${f1(x-w*.6)} ${f1(y-h*.3)}" stroke="#fff" stroke-width="${f1(w*.25)}" stroke-linecap="round" opacity=".8"/>`;
+  const D={
+   crater:(cx,cy,z,B)=>`<g><ellipse cx="${cx}" cy="${cy}" rx="${32*z}" ry="${18*z}" fill="${B.land[0]}"/><ellipse cx="${cx}" cy="${cy+2*z}" rx="${25*z}" ry="${13*z}" fill="url(#crat-${B.k})"/></g>`,
+   mount:(cx,cy,z,B)=>sh(cx,cy,74*z)+peak(cx+26*z,cy,46*z,64*z,B)+peak(cx-18*z,cy,56*z,84*z,B),
+   crystal:(cx,cy,z,B)=>`<g><ellipse cx="${cx}" cy="${cy-20*z}" rx="${50*z}" ry="${40*z}" fill="url(#glow-${B.k})"/>${sh(cx,cy,40*z)}${shard(cx-26*z,cy,9*z,30*z)}${shard(cx+14*z,cy,11*z,46*z)}${shard(cx-8*z,cy,13*z,64*z)}</g>`,
+   volcano:(cx,cy,z,B)=>`<g><ellipse cx="${cx}" cy="${cy-62*z}" rx="${34*z}" ry="${34*z}" fill="url(#glow-zh)"/>${sh(cx,cy,80*z)}<path d="M${cx-76*z} ${cy}L${cx-16*z} ${cy-54*z}L${cx+4*z} ${cy-54*z}L${cx+8*z} ${cy}Z" fill="url(#lit-zh)"/><path d="M${cx+8*z} ${cy}L${cx+4*z} ${cy-54*z}L${cx+16*z} ${cy-54*z}L${cx+76*z} ${cy}Z" fill="${B.deep}"/><ellipse cx="${cx}" cy="${cy-54*z}" rx="${16*z}" ry="${5*z}" fill="#ffd36b"/><path d="M${cx-6*z} ${cy-50*z}Q${cx-14*z} ${cy-30*z} ${cx-8*z} ${cy-12*z}" fill="none" stroke="#ff9c4a" stroke-width="${5*z}" stroke-linecap="round"/><circle cx="${cx+6*z}" cy="${cy-76*z}" r="${4*z}" fill="#ffb15c"/></g>`,
+   dune:(cx,cy,z,B)=>`<path d="M${cx-60*z} ${cy}Q${cx-20*z} ${cy-34*z} ${cx+10*z} ${cy-12*z}Q${cx+36*z} ${cy-30*z} ${cx+64*z} ${cy}Z" fill="url(#hill-${B.k})" opacity=".8"/>`,
+   lava:(cx,cy,z,B)=>`<g><ellipse cx="${cx}" cy="${cy}" rx="${38*z}" ry="${16*z}" fill="url(#glow-zh)"/><ellipse cx="${cx}" cy="${cy}" rx="${20*z}" ry="${7*z}" fill="#ffb347"/><ellipse cx="${cx-5*z}" cy="${cy-2*z}" rx="${9*z}" ry="${2.5*z}" fill="#fff3c4"/></g>`,
+   hill:(cx,cy,z,B)=>sh(cx,cy,80*z)+`<path d="M${cx-78*z} ${cy}C${cx-60*z} ${cy-70*z} ${cx-10*z} ${cy-66*z} ${cx} ${cy-46*z}C${cx+16*z} ${cy-80*z} ${cx+66*z} ${cy-60*z} ${cx+78*z} ${cy}Z" fill="url(#hill-${B.k})"/>`,
+   tree:(cx,cy,z,B)=>sh(cx,cy,20*z)+`<path d="M${cx} ${cy}V${cy-24*z}" stroke="#0b2a26" stroke-width="${6*z}"/><path d="M${cx} ${cy-80*z}L${cx-22*z} ${cy-20*z}H${cx}Z" fill="#7cf0bc"/><path d="M${cx} ${cy-80*z}L${cx+22*z} ${cy-20*z}H${cx}Z" fill="#1f9a70"/>`,
+   mush:(cx,cy,z,B)=>`<g><ellipse cx="${cx}" cy="${cy-28*z}" rx="${30*z}" ry="${26*z}" fill="url(#glow-eng)"/>${sh(cx,cy,16*z)}<path d="M${cx} ${cy}V${cy-22*z}" stroke="#d9ffe9" stroke-width="${6*z}" stroke-linecap="round"/><path d="M${cx-19*z} ${cy-22*z}Q${cx} ${cy-50*z} ${cx+19*z} ${cy-22*z}Z" fill="url(#mushg)"/></g>`,
+   lake:(cx,cy,z,B)=>`<g><ellipse cx="${cx}" cy="${cy+3*z}" rx="${48*z}" ry="${19*z}" fill="${B.deep}"/><ellipse cx="${cx}" cy="${cy}" rx="${46*z}" ry="${17*z}" fill="url(#water)"/></g>`,
+   station:(cx,cy,z,B)=>sh(cx,cy,42*z)+`<path d="M${cx+14*z} ${cy-22*z}L${cx+30*z} ${cy-48*z}" stroke="#cfc8f5" stroke-width="${3*z}"/><circle cx="${cx+30*z}" cy="${cy-48*z}" r="${12*z}" fill="#ffd66b" opacity=".3"/><circle cx="${cx+30*z}" cy="${cy-48*z}" r="${5*z}" fill="#ffd66b"/><path d="M${cx-30*z} ${cy}A${30*z} ${28*z} 0 0 1 ${cx+30*z} ${cy}Z" fill="url(#dome)"/><rect x="${cx-7*z}" y="${cy-12*z}" width="${14*z}" height="${12*z}" rx="${3*z}" fill="#ffd66b" opacity=".85"/>`,
+   rock:(cx,cy,z,B)=>sh(cx,cy,20*z)+`<path d="M${cx-18*z} ${cy}L${cx-12*z} ${cy-16*z}L${cx+2*z} ${cy-22*z}L${cx+2*z} ${cy}Z" fill="${B.land[0]}"/><path d="M${cx+2*z} ${cy}L${cx+2*z} ${cy-22*z}L${cx+18*z} ${cy-8*z}L${cx+16*z} ${cy}Z" fill="${B.deep}"/>`
+  };
+  const decos=[];const tries=mini?500:5200;
+  const put=(px,py,z,kind,B,gap)=>{const rad=70*z;if(Math.hypot(px-500,py-500)>1600||!free(px,py,rad))return false;
+    if(decos.some(d=>Math.hypot(d[0]-px,d[1]-py)<(d[2]+rad)*gap))return false;decos.push([px,py,rad,kind,z,B]);return true};
+  for(let i=0;i<tries&&decos.length<(mini?50:520);i++){const px=-1100+rr()*3200,py=-1100+rr()*3200;
+    const z=(mini?1.05:.6)+rr()*(mini?.5:.55);const arm=nearArm(px,py);const B=Object.assign({k:arm.k},BIOMES[arm.k]);
+    const kind=B.deco[Math.floor(rr()*B.deco.length)];if(!put(px,py,z,kind,B,.7))continue;
+    // группы: лес, горный хребет, поле кристаллов
+    if(!mini&&['tree','mount','crystal','hill','volcano','mush'].includes(kind)){const m=2+Math.floor(rr()*3);
+      for(let j=0;j<m;j++){const a=rr()*Math.PI*2,d=(45+rr()*40)*z;put(px+Math.cos(a)*d,py+Math.sin(a)*d*.6,z*(.65+rr()*.35),kind,B,.35)}}}
+  decos.sort((a,b)=>a[1]-b[1]).forEach(([px,py,,kind,z,B])=>{s+=D[kind](f1(px)*1,f1(py)*1,z,B)});
+  // ---------- 6. маленькие луны и кометы ----------
+  if(!mini){const MOONS=[['#ffd36b',-80,40,26,1],['#c49bff',1110,170,20,0],['#7fe0ff',1040,980,30,1],['#ff9fbf',-60,980,18,0],['#9ff0c6',180,-260,16,0],['#ffbf8a',880,-240,22,1],['#b8c2ff',1300,640,24,0],['#ffd36b',-300,560,20,1]];
+    MOONS.forEach(([c,cx,cy,r,ring])=>{if(!free(cx,cy,r+20))return;s+=`<g><circle cx="${cx}" cy="${cy}" r="${r*2.2}" fill="${c}" opacity=".12"/><circle cx="${cx}" cy="${cy}" r="${r}" fill="${c}"/><circle cx="${cx-r*.3}" cy="${cy-r*.3}" r="${r*.55}" fill="#fff" opacity=".35"/><circle cx="${cx+r*.35}" cy="${cy+r*.2}" r="${r*.18}" fill="rgba(0,0,0,.2)"/>${ring?`<ellipse cx="${cx}" cy="${cy}" rx="${r*1.8}" ry="${r*.45}" fill="none" stroke="#fff" stroke-width="2.5" opacity=".5" transform="rotate(-18 ${cx} ${cy})"/>`:''}</g>`});
+    [[-180,-120,1],[1180,-40,-1],[1100,1180,1]].forEach(([cx,cy,dir])=>{s+=`<g opacity=".85"><path d="M${cx} ${cy}L${cx-150*dir} ${cy-70}" stroke="url(#tail)" stroke-width="6" stroke-linecap="round"/><circle cx="${cx}" cy="${cy}" r="7" fill="#fff"/><circle cx="${cx}" cy="${cy}" r="16" fill="#fff" opacity=".2"/></g>`});
+    // названия стран — как на настоящей карте
+    for(const arm of ARMS){const [px,py]=armAt(arm,1.32);s+=`<text x="${f1(px)}" y="${f1(py)}" text-anchor="middle" font-size="30" font-weight="900" letter-spacing="4" fill="${BIOMES[arm.k].hi}" opacity=".55" style="text-transform:uppercase">${BIOMES[arm.k].title}</text>`}}
+  // центральная площадка ученика
+  s+=`<circle cx="500" cy="500" r="128" fill="url(#home)"/><circle cx="500" cy="500" r="96" fill="none" stroke="rgba(255,233,168,.35)" stroke-width="3" stroke-dasharray="3 12"/>`;
+
+  // ---------- 7. дорожки ----------
   for(const arm of ARMS){
-    const nodes=R[arm.k];const n=nodes.length;const pts=nodes.map((_,i)=>armPos(arm,i,n));
-    const all=[[500,500],...pts];
-    const path=all.map((p,i)=>(i?'L':'M')+p[0].toFixed(1)+' '+p[1].toFixed(1)).join(' ');
-    s+=`<path d="${path}" fill="none" stroke="rgba(255,255,255,.16)" stroke-width="3" stroke-dasharray="2 9" stroke-linecap="round"/>`;
+    const nodes=R[arm.k];const {road,idx}=geo[arm.k];const B=BIOMES[arm.k];
+    const P=a=>a.map((p,i)=>(i?'L':'M')+f1(p[0])+' '+f1(p[1])).join(' ');const path=P(road);const k=mini?.8:1;
+    // дорога: тень, полотно, бортики, разметка
+    s+=`<path d="${path}" fill="none" stroke="#05021a" stroke-opacity=".5" stroke-width="${30*k}" stroke-linecap="round" stroke-linejoin="round" transform="translate(${4*k} ${10*k})"/>`;
+    s+=`<path d="${path}" fill="none" stroke="${B.deep}" stroke-width="${28*k}" stroke-linecap="round" stroke-linejoin="round" transform="translate(0 ${5*k})"/>`;
+    s+=`<path d="${path}" fill="none" stroke="${B.land[0]}" stroke-width="${26*k}" stroke-linecap="round" stroke-linejoin="round"/>`;
+    s+=`<path d="${path}" fill="none" stroke="#fff" stroke-opacity=".16" stroke-width="${10*k}" stroke-linecap="round" stroke-linejoin="round" transform="translate(${-2*k} ${-5*k})"/>`;
     let lastDone=0;nodes.forEach((nd,i)=>{if(nd.done)lastDone=i+1});
-    if(lastDone>0){const lp=all.slice(0,lastDone+1).map((p,i)=>(i?'L':'M')+p[0].toFixed(1)+' '+p[1].toFixed(1)).join(' ');
-      s+=`<path d="${lp}" fill="none" stroke="${arm.glow}" stroke-width="8" opacity=".25" stroke-linecap="round" stroke-linejoin="round"/>`;
-      s+=`<path d="${lp}" fill="none" stroke="${arm.glow}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="${mini?'':'lit'}"/>`}
-    // планета на конце рукава
-    const end=armPos(arm,n-1+1.1,n);
-    s+=`<g class="node" data-arm="${arm.k}" data-i="planet"><circle cx="${end[0]}" cy="${end[1]}" r="${mini?34:40}" fill="${arm.color}" opacity=".18"/>
-      <circle cx="${end[0]}" cy="${end[1]}" r="${mini?24:28}" fill="url(#pl-${arm.k})"/>
-      <ellipse cx="${end[0]}" cy="${end[1]}" rx="${mini?38:44}" ry="9" fill="none" stroke="${arm.glow}" stroke-width="3" opacity=".7" transform="rotate(-20 ${end[0]} ${end[1]})"/>
-      <text x="${end[0]}" y="${end[1]+8}" text-anchor="middle" font-size="${mini?20:22}" font-weight="900" fill="#fff">${arm.icon}</text>
-      ${mini?'':`<text x="${end[0]}" y="${end[1]+72}" text-anchor="middle" font-size="24" font-weight="900" fill="#fff">${arm.name}</text>`}</g>`;
+    if(lastDone>0){const lp=P(road.slice(0,idx[lastDone]+1));
+      s+=`<path d="${lp}" fill="none" stroke="${arm.glow}" stroke-width="${44*k}" opacity=".22" stroke-linecap="round" stroke-linejoin="round"/>`;
+      s+=`<path d="${lp}" fill="none" stroke="${arm.color}" stroke-width="${26*k}" stroke-linecap="round" stroke-linejoin="round"/>`;
+      s+=`<path d="${lp}" fill="none" stroke="#fff" stroke-opacity=".45" stroke-width="${9*k}" stroke-linecap="round" stroke-linejoin="round" transform="translate(${-2*k} ${-5*k})"/>`}
+  }
+  // ---------- 8. планеты и звёзды-остановки ----------
+  for(const arm of ARMS){
+    const nodes=R[arm.k];const pts=geo[arm.k].pts;const end=geo[arm.k].end;
+    s+=`<g class="node" data-arm="${arm.k}" data-i="planet"><circle cx="${end[0]}" cy="${end[1]}" r="${mini?60:84}" fill="url(#glow-${arm.k})"/>
+      ${(()=>{const W=mini?190:300;// объёмная планета предмета — общий рисунок с главной (planetSVG)
+        return planetSVG(arm.k==='eng'?'en':arm.k,{cls:'map-planet',moons:!mini}).replace('<svg ',`<svg x="${f1(end[0]-W*.5)}" y="${f1(end[1]-W*.54)}" width="${W}" height="${W}" `)})()}
+      ${mini?'':(()=>{const o={math:[0,140],zh:[0,-150],eng:[0,140]}[arm.k];return pill(end[0]+o[0],end[1]+o[1],arm.name,26,'rgba(20,12,60,.78)','#fff',arm.glow)})()}</g>`;
     nodes.forEach((nd,i)=>{const [cx,cy]=pts[i];const st=nd.done?'done':nd.cur?'cur':'lock';
-      const fill=nd.done?arm.glow:nd.cur?'#fff':'rgba(255,255,255,.18)';
+      const r=mini?(nd.cur?32:27):(nd.cur?44:nd.done?37:33);
+      const dx=cx-500,dy=cy-500,dl=Math.hypot(dx,dy)||1,ux=dx/dl,uy=dy/dl;
+      const topic=!!nd.u;const inner=topic?nd.u.e:String(nd.v);
+      const B=BIOMES[arm.k];
       s+=`<g class="node ${st}" data-arm="${arm.k}" data-i="${i}">
-        <circle class="halo" cx="${cx}" cy="${cy}" r="${mini?22:30}" fill="${arm.glow}" opacity="${nd.done?.5:nd.cur?.8:0}"/>
-        <path d="${starPath(cx,cy,(nd.done?15:nd.cur?13:9)*(mini?1:1.45),(nd.done?6.5:nd.cur?5.6:4)*(mini?1:1.45))}" fill="${fill}" ${nd.cur?`stroke="${arm.glow}" stroke-width="2"`:''}/>
-        ${mini?'':`<text x="${cx}" y="${cy+44}" text-anchor="middle" font-size="18" font-weight="800" fill="${nd.done||nd.cur?'#fff':'rgba(255,255,255,.4)'}">${esc(nd.label)}</text>`}
-        ${(!mini&&arm.k==='eng'&&nd.stars)?`<text x="${cx}" y="${cy-30}" text-anchor="middle" font-size="18" fill="#ffd66b">${'★'.repeat(Math.min(3,Math.ceil(nd.stars/3)))}</text>`:''}
+        ${mini?'':`<ellipse cx="${f1(cx+6)}" cy="${f1(cy+r*.62+22)}" rx="${r+26}" ry="${(r+26)*.42}" fill="url(#shd)"/><ellipse cx="${f1(cx)}" cy="${f1(cy+r*.5+12)}" rx="${r+20}" ry="${(r+20)*.44}" fill="${B.deep}"/><ellipse cx="${f1(cx)}" cy="${f1(cy+r*.5)}" rx="${r+20}" ry="${(r+20)*.44}" fill="url(#isl-${nd.done||nd.cur?arm.k+'-on':arm.k})"/>`}
+        <circle class="halo" cx="${cx}" cy="${cy}" r="${r+18}" fill="${arm.glow}"/>
+        <circle cx="${f1(cx)}" cy="${f1(cy)}" r="${r}" fill="${nd.done?`url(#pl-${arm.k})`:nd.cur?'url(#pearl)':'url(#lockball)'}" ${nd.cur?`stroke="${arm.glow}" stroke-width="4"`:''}/>
+        <circle cx="${f1(cx)}" cy="${f1(cy)}" r="${r}" fill="url(#term)"/>
+        <ellipse cx="${f1(cx-r*.32)}" cy="${f1(cy-r*.42)}" rx="${f1(r*.38)}" ry="${f1(r*.2)}" fill="#fff" opacity="${nd.done||nd.cur?.55:.18}" transform="rotate(-30 ${f1(cx-r*.32)} ${f1(cy-r*.42)})"/>
+        ${mini?`<path d="${starPath(cx,cy,r*.55,r*.24)}" fill="${nd.done?'#fff':nd.cur?arm.color:arm.glow}" opacity="${nd.done||nd.cur?1:.55}"/>`
+          :`<text x="${f1(cx)}" y="${f1(cy+(topic?12:10))}" text-anchor="middle" font-size="${topic?34:inner.length>2?27:32}" font-weight="900" fill="${nd.done?'#fff':nd.cur?arm.color:arm.glow}" ${nd.done||nd.cur||topic?'':'opacity=".8"'}${nd.done?' style="paint-order:stroke" stroke="rgba(10,6,40,.35)" stroke-width="4"':''}>${inner}</text>`}
+        ${(!mini&&nd.done)?`<path d="${starPath(cx+r*.72,cy-r*.72,13,5.5)}" fill="#ffd66b" stroke="#fff" stroke-width="1.5"/>`:''}
+        ${(!mini&&topic)?pill(cx+ux*(r+44),cy+uy*(r+30)+6,nd.label,22,nd.done||nd.cur?'rgba(20,12,60,.72)':'rgba(20,12,60,.5)',nd.done||nd.cur?'#fff':'rgba(255,255,255,.75)'):''}
+        ${(!mini&&topic&&nd.stars)?`<text x="${cx}" y="${cy-r-10}" text-anchor="middle" font-size="18" fill="#ffd66b">${'★'.repeat(Math.min(3,Math.ceil(nd.stars/3)))}</text>`:''}
+        ${(!mini&&nd.cur&&!topic)?(()=>{// подпись цели — сбоку от дорожки, наружу от центра, чтобы не наезжать на соседние звёзды
+          const pv=i?pts[i-1]:[500,500],nx=pts[i+1]||geo[arm.k].end;let tx=nx[0]-pv[0],ty=nx[1]-pv[1];const tl=Math.hypot(tx,ty)||1;let px=-ty/tl,py=tx/tl;
+          if(px*ux+py*uy<0){px=-px;py=-py}return pill(cx+px*(r+70),cy+py*(r+34)+6,'цель · ещё '+nd.left,22,arm.glow,'#1b1446')})():''}
       </g>`});
   }
   // центр — ученик
-  s+=`<g class="node" data-arm="home"><circle cx="500" cy="500" r="64" fill="url(#sun)"/><circle cx="500" cy="500" r="46" fill="#fff"/>
-      <text x="500" y="517" text-anchor="middle" font-size="48">${hub.avatar||'🦊'}</text>
-      ${mini?'':`<text x="500" y="418" text-anchor="middle" font-size="22" font-weight="900" fill="#fff">Ты здесь · ${esc(x.lv.name)}</text>`}</g>`;
+  s+=`<g class="node" data-arm="home"><circle cx="500" cy="500" r="${mini?90:76}" fill="url(#sun)"/><circle cx="500" cy="500" r="${mini?62:52}" fill="#fff" stroke="#ffd66b" stroke-width="4"/>
+      <text x="500" y="${mini?522:519}" text-anchor="middle" font-size="${mini?64:54}">${hub.avatar||'🦊'}</text>
+      ${mini?'':pill(500,405,'Ты здесь · '+x.lv.name,22,'#ffd66b','#1b1446')}</g>`;
   const defs=`<defs><radialGradient id="sun"><stop offset=".55" stop-color="#ffe9a8" stop-opacity=".9"/><stop offset="1" stop-color="#ffbf2f" stop-opacity="0"/></radialGradient>
-   ${ARMS.map(a=>`<radialGradient id="pl-${a.k}" cx=".35" cy=".35"><stop offset="0" stop-color="#fff"/><stop offset=".35" stop-color="${a.glow}"/><stop offset="1" stop-color="${a.color}"/></radialGradient>`).join('')}</defs>`;
-  return defs+s;
+   <radialGradient id="home"><stop offset="0" stop-color="#ffe9a8" stop-opacity=".35"/><stop offset=".7" stop-color="#ffbf2f" stop-opacity=".1"/><stop offset="1" stop-color="#ffbf2f" stop-opacity="0"/></radialGradient>
+   <linearGradient id="tail" x1="0" x2="1"><stop offset="0" stop-color="#fff" stop-opacity=".9"/><stop offset="1" stop-color="#9bdcff" stop-opacity="0"/></linearGradient>
+   ${NEB.map(([c],i)=>`<radialGradient id="neb${i}"><stop offset="0" stop-color="${c}" stop-opacity=".42"/><stop offset=".5" stop-color="${c}" stop-opacity=".14"/><stop offset="1" stop-color="${c}" stop-opacity="0"/></radialGradient>`).join('')}
+   ${ARMS.map(a=>{const B=BIOMES[a.k];return `<radialGradient id="pl-${a.k}" cx=".35" cy=".35"><stop offset="0" stop-color="#fff"/><stop offset=".35" stop-color="${a.glow}"/><stop offset="1" stop-color="${a.color}"/></radialGradient>
+     <radialGradient id="land-${a.k}" gradientUnits="userSpaceOnUse" cx="500" cy="500" r="1250"><stop offset="0" stop-color="${B.land[0]}"/><stop offset=".55" stop-color="${B.land[1]}"/><stop offset="1" stop-color="${B.deep}"/></radialGradient>
+     <linearGradient id="mnt-${a.k}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${B.rim}"/><stop offset=".55" stop-color="${B.land[0]}"/><stop offset="1" stop-color="${B.land[1]}"/></linearGradient>
+     <radialGradient id="glow-${a.k}"><stop offset="0" stop-color="${a.k==='zh'?'#ffb347':a.glow}" stop-opacity=".7"/><stop offset="1" stop-color="${a.glow}" stop-opacity="0"/></radialGradient>`}).join('')}</defs>`;
+  const defs2=`<defs><radialGradient id="shd"><stop offset="0" stop-color="#05021a" stop-opacity=".6"/><stop offset="1" stop-color="#05021a" stop-opacity="0"/></radialGradient>
+   <radialGradient id="term" cx=".3" cy=".25" r=".9"><stop offset=".45" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#0a0630" stop-opacity=".55"/></radialGradient>
+   <radialGradient id="pearl" cx=".35" cy=".3"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#ddd6ff"/></radialGradient>
+   <radialGradient id="lockball" cx=".35" cy=".3"><stop offset="0" stop-color="#4a3d96"/><stop offset="1" stop-color="#1a1247"/></radialGradient>
+   <radialGradient id="sheen" gradientUnits="userSpaceOnUse" cx="200" cy="100" r="1500"><stop offset="0" stop-color="#fff" stop-opacity=".35"/><stop offset=".6" stop-color="#fff" stop-opacity="0"/></radialGradient>
+   <radialGradient id="water" cx=".4" cy=".35"><stop offset="0" stop-color="#d4f7ff"/><stop offset=".45" stop-color="#5fd6ff"/><stop offset="1" stop-color="#1d6fb8"/></radialGradient>
+   <radialGradient id="dome" cx=".35" cy=".3"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#a99fe0"/></radialGradient>
+   <radialGradient id="mushg" cx=".35" cy=".3"><stop offset="0" stop-color="#ffd0ee"/><stop offset="1" stop-color="#e0459c"/></radialGradient>
+   ${ARMS.map(a=>{const B=BIOMES[a.k];return `<linearGradient id="lit-${a.k}" x1="0" y1="0" x2=".3" y2="1"><stop offset="0" stop-color="${B.hi}"/><stop offset=".5" stop-color="${B.land[0]}"/><stop offset="1" stop-color="${B.land[1]}"/></linearGradient>
+     <radialGradient id="hill-${a.k}" cx=".35" cy=".25" r=".8"><stop offset="0" stop-color="${B.hi}"/><stop offset=".45" stop-color="${B.land[0]}"/><stop offset="1" stop-color="${B.deep}"/></radialGradient>
+     <radialGradient id="crat-${a.k}" cx=".62" cy=".75" r=".7"><stop offset="0" stop-color="${B.rim}" stop-opacity=".9"/><stop offset=".5" stop-color="${B.land[1]}"/><stop offset="1" stop-color="${B.deep}"/></radialGradient>
+     <radialGradient id="isl-${a.k}" cx=".4" cy=".3"><stop offset="0" stop-color="${B.land[0]}"/><stop offset="1" stop-color="${B.land[1]}"/></radialGradient>
+     <radialGradient id="isl-${a.k}-on" cx=".4" cy=".3"><stop offset="0" stop-color="${B.hi}"/><stop offset=".6" stop-color="${a.color}"/><stop offset="1" stop-color="${B.land[1]}"/></radialGradient>`}).join('')}</defs>`;
+  return defs+defs2+s;
 }
+// Подпись в «таблетке»: крупно и читаемо на любом фоне
+function pill(cx,cy,t,fs,bg,fg,stroke){const w=String(t).length*fs*.6+fs*1.3,h=fs*1.7;
+  return `<g><rect x="${(cx-w/2).toFixed(1)}" y="${(cy-h/2-fs*.32).toFixed(1)}" width="${w.toFixed(1)}" height="${h.toFixed(1)}" rx="${(h/2).toFixed(1)}" fill="${bg}"${stroke?` stroke="${stroke}" stroke-width="2"`:''}/><text x="${cx.toFixed(1)}" y="${(cy+fs*.02).toFixed(1)}" text-anchor="middle" font-size="${fs}" font-weight="900" fill="${fg}">${esc(t)}</text></g>`}
 function starPath(cx,cy,R,r){let d='';for(let i=0;i<10;i++){const a=-Math.PI/2+i*Math.PI/5;const rad=i%2?r:R;d+=(i?'L':'M')+(cx+rad*Math.cos(a)).toFixed(1)+' '+(cy+rad*Math.sin(a)).toFixed(1)}return d+'Z'}
 
 /* ====================== навигация ====================== */
@@ -1006,7 +1137,7 @@ function renderHome(M){
       <div class="coll">${BADGES.slice(0,8).map((b,i)=>`<div class="badge ${x.badges[i]?'':'lock'}" title="${esc(b[1])}">${b[0]}</div>`).join('')}</div>
       <p class="muted" style="text-align:center;margin-top:10px;font-size:14px">${x.badges.filter(Boolean).length} из ${BADGES.length} находок</p></div>
 
-    <div class="card c-map" data-go="map"><svg class="preview" viewBox="-200 -200 1400 1400" preserveAspectRatio="xMidYMid meet" style="left:auto;right:-4%;width:52%">${mapSVG(x,{mini:true})}</svg>
+    <div class="card c-map" data-go="map"><svg class="preview" viewBox="-420 -420 1840 1840" preserveAspectRatio="xMidYMid meet" style="left:auto;right:-4%;width:52%">${mapSVG(x,{mini:true})}</svg>
       <div class="over"><span class="tag">🗺️ Карта ученика</span><h3>Мой звёздный путь</h3><p style="opacity:.85;font-weight:700">Зажжено звёзд: <b>${countLit(x)}</b>. Каждое занятие прокладывает маршрут к новым планетам.</p><button class="btn" data-go="map">Открыть карту</button></div></div>
     <div class="card c-game"><span class="tag">🎮 Мини-игра</span><h3 style="font-size:24px;margin:8px 0 6px">Собери созвездие</h3><p style="opacity:.85;font-weight:700;max-width:60%">Нажимай на звёзды по порядку — от 1 до 9. Тренирует внимание и скорость.</p>
       <button class="btn" data-go="game" style="margin-top:14px">Играть</button><div class="cat">🧑‍🚀</div></div>
@@ -1032,8 +1163,8 @@ function renderMap(M){
   M.innerHTML=`<div class="screen-title"><button class="back" data-go="home">←</button><h1>Моя звёздная карта</h1></div>
   <div class="mapwrap" id="mapwrap">
     <div class="legend"><span><i style="background:#4fb6ff"></i>Математика · ${R.math.filter(n=>n.done).length}/${R.math.length}</span><span><i style="background:#ff7a5c"></i>Китайский · ${R.zh.filter(n=>n.done).length}/${R.zh.length}</span><span><i style="background:#2fd39a"></i>Английский · ${R.eng.filter(n=>n.done).length}/${R.eng.length}</span></div>
-    <div class="mapctl"><button id="zin" aria-label="Приблизить">+</button><button id="zout" aria-label="Отдалить">−</button><button id="zfit" aria-label="Вся карта">⤢</button></div>
-    <svg id="mapsvg" viewBox="-260 -260 1520 1520"><g id="vp">${mapSVG(x)}</g></svg>
+    <div class="compass" aria-hidden="true"><svg viewBox="-50 -50 100 100"><circle r="44" fill="rgba(14,9,48,.55)" stroke="rgba(255,255,255,.35)" stroke-width="2"/><circle r="34" fill="none" stroke="rgba(255,255,255,.18)" stroke-width="1.5" stroke-dasharray="2 4"/><path d="M0-38L7 0L0 38L-7 0Z" fill="#fff" opacity=".85"/><path d="M0-38L7 0H-7Z" fill="#ff7a5c"/><path d="M-38 0L0-6L38 0L0 6Z" fill="#bfb4ff" opacity=".7"/><circle r="4" fill="#ffd66b"/><text y="-40" text-anchor="middle" font-size="11" font-weight="900" fill="#fff" dy="-1">С</text></svg></div><div class="mapctl"><button id="zin" aria-label="Приблизить">+</button><button id="zout" aria-label="Отдалить">−</button><button id="zfit" aria-label="Вся карта">⤢</button></div>
+    <svg id="mapsvg" viewBox="-620 -620 2240 2240"><g id="vp">${mapSVG(x)}</g></svg>
     <div class="panel" id="panel"></div>
   </div>
   <div class="routes">
@@ -1043,12 +1174,13 @@ function renderMap(M){
   </div>`;
   M.querySelectorAll('[data-subj]').forEach(el=>el.addEventListener('click',()=>openSubject(el.dataset.subj)));
   // pan & zoom
-  const svg=M.querySelector('#mapsvg');let vb=[-260,-260,1520,1520];
-  const fit=()=>{const r=svg.getBoundingClientRect();const asp=r.width/r.height;if(asp>1){const w=1520*asp;vb=[500-w/2,-260,w,1520]}else{const h=1520/asp;vb=[-260,500-h/2,1520,h]}apply()};
+  const svg=M.querySelector('#mapsvg');let vb=[-620,-620,2240,2240];
+  const fit=()=>{const r=svg.getBoundingClientRect();const asp=r.width/r.height;if(asp>1){const w=2240*asp;vb=[500-w/2,-620,w,2240]}else{const h=2240/asp;vb=[-620,500-h/2,2240,h]}apply()};
+  // как в играх: сначала показываем окрестности ученика крупно, ⤢ — вся карта целиком
   const apply=()=>svg.setAttribute('viewBox',vb.map(v=>v.toFixed(1)).join(' '));
-  const zoom=(k,cx,cy)=>{const nw=Math.min(3200,Math.max(300,vb[2]*k));const f=nw/vb[2];if(cx==null){cx=vb[0]+vb[2]/2;cy=vb[1]+vb[3]/2}
+  const zoom=(k,cx,cy)=>{const nw=Math.min(4600,Math.max(300,vb[2]*k));const f=nw/vb[2];if(cx==null){cx=vb[0]+vb[2]/2;cy=vb[1]+vb[3]/2}
     vb=[cx-(cx-vb[0])*f,cy-(cy-vb[1])*f,vb[2]*f,vb[3]*f];apply()};
-  fit();if(svg.getBoundingClientRect().width<600)zoom(.68);
+  const home=()=>{fit();zoom(svg.getBoundingClientRect().width<600?.42:.62)};home();
   M.querySelector('#zin').onclick=()=>zoom(.75);M.querySelector('#zout').onclick=()=>zoom(1.33);M.querySelector('#zfit').onclick=fit;
   const toSvg=(ex,ey)=>{const r=svg.getBoundingClientRect();return [vb[0]+(ex-r.left)/r.width*vb[2],vb[1]+(ey-r.top)/r.height*vb[3]]};
   svg.addEventListener('wheel',e=>{e.preventDefault();const [cx,cy]=toSvg(e.clientX,e.clientY);zoom(e.deltaY>0?1.12:.89,cx,cy)},{passive:false});

@@ -240,6 +240,9 @@ main{padding:22px 28px 40px;max-width:1280px;width:100%;margin:0 auto}
 .letter.wtile{width:auto;min-width:52px;padding:0 14px;font-size:22px}
 .unit.gram .ue{font-size:34px}
 
+.ennote{background:#fff8e1;border-radius:16px;padding:10px 14px;font-weight:700;font-size:14px;margin-bottom:12px;line-height:1.45}
+.linkbtn{color:var(--violet,#6a4cf0);font-weight:900;text-decoration:underline;padding:0;background:none;font-size:inherit}
+.entabs button em{font-style:normal;margin-left:6px;font-size:12px;color:var(--muted);font-weight:700}
 /* quiz */
 .quiz{max-width:720px;margin:0 auto}
 .qtop{display:flex;align-items:center;gap:12px;margin-bottom:22px}
@@ -673,7 +676,7 @@ function renderParents(M){
   <div class="card"><h3>📚 Как устроен ${BRAND}</h3><ul>
     <li><b>Математика</b> — олимпиадный тренажёр и «Школа на шаг вперёд»: задачи, контрольные, будильник на занятие.</li>
     <li><b>Китайский</b> — слова, тоны, иероглифы, интервальные повторения.</li>
-    <li><b>Английский</b> — программа начальной школы по методике репетитора: 36 лексических тем (от приветствий до стран и профессий) и 26 грамматических (to be, can, have got, Present Simple и Continuous, сравнения, Past Simple). Темы разделены по классам: 2, 3 и 4. В каждой теме 3 урока, слова и фразы озвучивает браузер.</li>
+    <li><b>Английский</b> — программа начальной школы по методике репетитора: 36 лексических тем (от приветствий до стран и профессий) и 26 грамматических (to be, can, have got, Present Simple и Continuous, сравнения, Past Simple). Темы разделены на три ступени (примерно 2, 3 и 4 класс). Ступень ребёнок выбирает по знаниям, а при первом входе может пройти проверку уровня из 12 вопросов. В каждой теме 3 урока, слова и фразы озвучивает браузер.</li>
     <li><b>Карта ученика</b> — три звёздных пути. Звёзды загораются за решённые задачи, выученные слова и пройденные темы.</li></ul></div>
   <div class="card"><h3>🔒 Приватность</h3><p>${BRAND} не собирает персональные данные: нет регистрации, имён и фото. Весь прогресс хранится только в этом браузере на этом устройстве. Если очистить данные браузера, прогресс пропадёт.</p></div>
   <div class="card"><h3>🧹 Сбросить</h3><p>Сбросить прогресс по английскому и мини-игре (математика и китайский не затрагиваются).</p><button class="btn v" id="reset" style="margin-top:12px">Сбросить</button><span id="rs" class="muted" style="margin-left:10px"></span></div>
@@ -688,20 +691,70 @@ function pickVoice(){try{const vs=speechSynthesis.getVoices();voice=vs.find(v=>/
 try{speechSynthesis.onvoiceschanged=pickVoice;pickVoice()}catch(e){}
 function say(t){try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang=voice?voice.lang:'en-GB';if(voice)u.voice=voice;u.rate=.85;speechSynthesis.speak(u)}catch(e){}}
 function renderEnglish(M){
-  const x=enStats();const g=en.grade||2,tab=en.tab||'lex';
+  const x=enStats();
+  if(!en.placed&&!x.lessons)return renderPlaceIntro(M);const g=en.grade||2,tab=en.tab||'lex';
   const list=UNITS.filter(u=>u.g===g&&u.kind===tab);
   const cnt=(gg,k)=>{const l=UNITS.filter(u=>u.g===gg&&(!k||u.kind===k));return l.filter(unitDone).length+'/'+l.length};
   M.innerHTML=`<div class="screen-title"><button class="back" data-go="subjects">←</button><h1>Английский 🦁</h1></div>
-  <p class="muted" style="margin-bottom:14px">Программа начальной школы: слова по темам и грамматика с правилами. Пройдено уроков: ${x.lessons} из ${UNITS.length*3} · звёзд ${x.stars}.</p>
-  <div class="entabs" role="tablist">${EN_GRADES.map(([n,t])=>`<button class="${g===n?'on':''}" data-grade="${n}">${t}<small>${cnt(n)}</small></button>`).join('')}</div>
+  <p class="muted" style="margin-bottom:10px">Программа начальной школы: слова по темам и грамматика с правилами. Пройдено уроков: ${x.lessons} из ${UNITS.length*3} · звёзд ${x.stars}.</p>
+  <div class="ennote">🧭 Ступень выбирай по тому, что уже знаешь, а не по классу в школе. Не знаешь, с чего начать? <button class="linkbtn" id="toPlace">Пройди проверку уровня</button> — это 12 вопросов.</div>
+  <div class="entabs" role="tablist">${EN_GRADES.map(([n,t,c])=>`<button class="${g===n?'on':''}" data-grade="${n}">${t}<em>${c}</em><small>${cnt(n)}</small></button>`).join('')}</div>
   <div class="entabs kind" role="tablist"><button class="${tab==='lex'?'on':''}" data-tab="lex">📖 Слова<small>${cnt(g,'lex')}</small></button><button class="${tab==='gram'?'on':''}" data-tab="gram">🧩 Грамматика<small>${cnt(g,'gram')}</small></button></div>
   <div class="units">${list.map((u,li)=>{const r=en.units[u.id]||[];const ui=UNITS.indexOf(u);const prevDone=li===0||r.some(Boolean)||(en.units[list[li-1].id]||[]).filter(Boolean).length>=1;
     const sub=u.kind==='gram'?(u.ex[0]?esc(u.ex[0][0]):''):u.w.slice(0,4).map(w=>esc(w[0])).join(', ')+'…';
     return `<div class="card unit en ${u.kind}"><div class="ue">${u.e}</div><h3>${esc(u.ru)}</h3><p class="muted" style="font-size:13px">${sub}</p>
     <div class="lessons">${lessonNames(u).map((l,i)=>{const open=prevDone&&(i===0||r[i-1]);return `<button class="lesson ${open?'':'lock'}" ${open?`data-les="${ui}:${i}"`:''}>${open?'':'🔒 '}${l}<span class="s">${r[i]?'★'.repeat(r[i])+'☆'.repeat(3-r[i]):'☆☆☆'}</span></button>`}).join('')}</div></div>`}).join('')}</div>`;
   M.querySelectorAll('[data-grade]').forEach(b=>b.onclick=()=>{en.grade=+b.dataset.grade;saveEn();renderEnglish(M)});
+  M.querySelector('#toPlace').onclick=()=>startPlacement(M);
   M.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{en.tab=b.dataset.tab;saveEn();renderEnglish(M)});
   M.querySelectorAll('[data-les]').forEach(b=>b.onclick=()=>{const [u,l]=b.dataset.les.split(':').map(Number);startLesson(M,u,l)});
+}
+
+/* ---------- проверка уровня: 12 вопросов, по 4 на ступень ---------- */
+function renderPlaceIntro(M){
+  M.innerHTML=`<div class="screen-title"><button class="back" data-go="subjects">←</button><h1>Английский 🦁</h1></div>
+  <div class="quiz"><div class="card result"><div style="font-size:64px">🧭</div><h2 style="font-size:26px;font-weight:900">С какой ступени начнём?</h2>
+  <p class="muted" style="margin:10px auto 0;max-width:460px">В английском три ступени. Они примерно совпадают с 2, 3 и 4 классом, но выбирать лучше по знаниям: кто-то учит язык с детского сада, а кто-то только начинает.</p>
+  <p class="muted" style="margin:8px auto 0;max-width:460px">Ответь на 12 вопросов, и мы подскажем ступень. Ошибаться не страшно: это не оценка.</p>
+  <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:20px"><button class="btn v" id="pgo">Пройти проверку</button><button class="btn" id="pskip">Начать с ступени 1</button></div></div></div>`;
+  M.querySelector('#pgo').onclick=()=>startPlacement(M);
+  M.querySelector('#pskip').onclick=()=>{en.placed=true;en.grade=2;saveEn();renderEnglish(M)};
+}
+function placementQuestions(){
+  const qs=[];
+  for(const [g] of EN_GRADES){
+    const lex=shuffle(UNITS.filter(u=>u.g===g&&u.kind==='lex')).slice(0,2);
+    for(const u of lex){const w=shuffle(u.w)[0];qs.push({g,type:'word',ask:'Как это по-английски?',show:w[1],ru:w[2],a:w[0],o:shuffle([w,...shuffle(u.w.filter(o=>o!==w)).slice(0,2)]).map(o=>o[0])})}
+    const gram=shuffle(UNITS.filter(u=>u.g===g&&u.kind==='gram')).slice(0,2);
+    for(const u of gram){const q=shuffle(u.q)[0];qs.push({g,type:'gram',ask:'Выбери верный вариант',s:q[0],ru:q[4],a:q[1],o:shuffle(q.slice(1,4).filter(Boolean))})}
+  }
+  return qs;
+}
+function startPlacement(M){
+  const qs=placementQuestions();let i=0;const right={2:0,3:0,4:0};
+  function draw(){const q=qs[i];
+    const top=q.type==='word'?`<div class="big">${q.show}</div><div class="ru" style="font-weight:800;color:var(--muted)">${esc(q.ru)}</div>`:`<div class="sent">${esc(q.s).replace('___','<span class="gap">____</span>')}</div><div class="muted" style="font-weight:700">${esc(q.ru)}</div>`;
+    M.innerHTML=`<div class="quiz"><div class="qtop"><button class="back" id="qx">✕</button><div class="qbar"><i style="width:${i/qs.length*100}%"></i></div><b>🧭</b></div>
+    <div class="card qcard"><div class="ask">Проверка уровня · ${i+1} из ${qs.length} · ${q.ask}</div>${top}
+    <div class="opts">${q.o.map((o,j)=>`<button class="opt" data-p="${j}">${esc(o)}</button>`).join('')}</div>
+    <button class="hint" id="pdk">🤷 Не знаю</button></div></div>`;
+    M.querySelector('#qx').onclick=()=>renderEnglish(M);
+    const go=ok=>{if(ok)right[q.g]++;i++;i<qs.length?draw():done()};
+    // без подсветки верного ответа: это проверка, а не урок
+    M.querySelectorAll('[data-p]').forEach(b=>b.onclick=()=>go(q.o[+b.dataset.p]===q.a));
+    M.querySelector('#pdk').onclick=()=>go(false);
+  }
+  function done(){
+    let rec=2;if(right[2]>=3){rec=3;if(right[3]>=3)rec=4}
+    const st=EN_GRADES.find(e=>e[0]===rec);en.placed=true;en.grade=rec;en.tab='lex';en.placement={date:today(),right};saveEn();
+    const total=right[2]+right[3]+right[4];
+    M.innerHTML=`<div class="quiz"><div class="card result"><div style="font-size:64px">🚀</div><h2 style="font-size:28px;font-weight:900">Тебе подойдёт ${st[1]}</h2>
+    <p class="muted" style="margin-top:8px">Верно ${total} из ${qs.length}. ${rec===2?'Начнём с основ: слова и первые правила.':rec===3?'Основы ты знаешь, двигаемся дальше.':'Отличные знания! Тебе — самые сложные темы.'}</p>
+    <p class="muted" style="margin-top:6px;font-size:14px">Ступень можно поменять в любой момент, а темы с прошлых ступеней всегда открыты для повторения.</p>
+    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:20px"><button class="btn v" id="pok">К темам</button></div></div></div>`;
+    M.querySelector('#pok').onclick=()=>renderEnglish(M);
+  }
+  draw();
 }
 const clean=t=>t.toLowerCase().replace(/[^a-z]/g,'');
 function makeQuestions(u,l){

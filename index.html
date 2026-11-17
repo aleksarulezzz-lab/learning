@@ -206,11 +206,39 @@ main{padding:22px 28px 40px;max-width:1280px;width:100%;margin:0 auto}
 .unit{padding:18px}
 .unit .ue{font-size:40px}
 .unit h3{margin-top:6px}
-.lessons{display:flex;gap:8px;margin-top:12px}
+.lessons{display:flex;gap:6px;margin-top:12px}
+.lessons .lesson{min-width:0;padding:10px 2px;font-size:12px}
+.units:has(.unit.en){grid-template-columns:repeat(auto-fill,minmax(285px,1fr))}
 .lesson{flex:1;padding:10px 6px;border-radius:14px;background:var(--en-bg);font-weight:800;font-size:12.5px;text-align:center;line-height:1.25}
 .lesson .s{display:block;font-size:14px;letter-spacing:1px;margin-top:3px;color:#f5a700}
 .lesson.lock{opacity:.45;cursor:not-allowed;background:#f1f0f6}
 .lesson:not(.lock):hover{background:#cff5e3}
+
+.entabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.entabs button{padding:10px 16px;border-radius:999px;background:#fff;border:2px solid #e6e2f7;font-weight:900;font-size:15px}
+.entabs button small{margin-left:8px;font-size:12px;color:var(--muted);font-weight:800}
+.entabs button.on{background:var(--en-bg);border-color:var(--en);color:#127a57}
+.entabs.kind{margin-bottom:18px}
+.spellout{font-size:22px;font-weight:900;letter-spacing:2px;color:var(--en);margin-bottom:4px}
+.rule{text-align:left;max-width:560px;margin:0 auto}
+.rule .ask,.rule .big,.rule h2{text-align:center}
+.rule h2{font-size:24px;font-weight:900;margin:4px 0 12px}
+.rule p{font-size:17px;line-height:1.5;margin:8px 0}
+.rule b{color:#127a57}
+.exs{display:grid;gap:8px;margin-top:14px}
+.ex{display:flex;flex-direction:column;align-items:flex-start;text-align:left;padding:12px 16px;border-radius:16px;background:var(--en-bg)}
+.ex b{font-size:18px;color:var(--ink)}.ex span{color:var(--muted);font-weight:700;font-size:14px}
+.sent{font-size:30px;font-weight:900;margin:22px 0 4px;line-height:1.35}
+.sent .gap{color:var(--en);display:inline-block;min-width:60px;border-bottom:3px dashed var(--en)}
+.sent .gap.fill{border-bottom-style:solid}
+.hint{margin-top:14px;font-weight:800;color:var(--muted);font-size:14px}
+.hintbox{margin-top:10px;padding:12px 14px;border-radius:14px;background:#fff8e1;font-size:15px;text-align:left}
+.wslots{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;min-height:58px;margin:12px 0 0;padding:10px;border-bottom:4px solid #cfc8ea}
+.wslots span{padding:8px 12px;border-radius:12px;background:var(--en-bg);font-size:22px;font-weight:900}
+.wslots i{color:var(--muted);font-weight:700;align-self:center}
+.wslots.ok{border-color:var(--ok)}
+.letter.wtile{width:auto;min-width:52px;padding:0 14px;font-size:22px}
+.unit.gram .ue{font-size:34px}
 
 /* quiz */
 .quiz{max-width:720px;margin:0 auto}
@@ -305,6 +333,7 @@ main{padding:22px 28px 40px;max-width:1280px;width:100%;margin:0 auto}
 <nav class="bnav" id="bnav"></nav>
 <div class="toast" id="toast"></div>
 
+<script src="english-data.js"></script>
 <script>
 'use strict';
 /* ====================== настройки ====================== */
@@ -345,29 +374,23 @@ function readZh(){
 }
 function enStats(){
   let lessons=0,stars=0,unitsDone=0,perfect=0;
-  for(const u of UNITS){const r=en.units[u.id]||[];let all=true;
-    for(let i=0;i<3;i++){if(r[i]){lessons++;stars+=r[i];if(r[i]===3)perfect++}else all=false}
+  let gram=0;for(const u of UNITS){const r=en.units[u.id]||[];let all=true;
+    for(let i=0;i<3;i++){if(r[i]){lessons++;stars+=r[i];if(r[i]===3)perfect++;if(u.kind==='gram')gram++}else all=false}
     if(all)unitsDone++}
   const days={};for(const k in en.days)days[k]=en.days[k].lessons||0;
-  return {xp:en.xp||0,lessons,stars,unitsDone,perfect,days};
+  return {xp:en.xp||0,lessons,stars,unitsDone,perfect,days,gram};
 }
 
 /* ====================== английский: банк ====================== */
-const UNITS=[
- {id:'animals',e:'🐱',ru:'Животные',tpl:['I have a ___.','У меня есть …'],w:[['cat','🐱','кошка'],['dog','🐶','собака'],['fox','🦊','лиса'],['bear','🐻','медведь'],['rabbit','🐰','кролик'],['frog','🐸','лягушка'],['lion','🦁','лев'],['mouse','🐭','мышь']]},
- {id:'colors',e:'🎨',ru:'Цвета',tpl:['The ball is ___.','Мяч …'],w:[['red','🔴','красный'],['blue','🔵','синий'],['green','🟢','зелёный'],['yellow','🟡','жёлтый'],['orange','🟠','оранжевый'],['purple','🟣','фиолетовый'],['black','⚫','чёрный'],['white','⚪','белый']]},
- {id:'numbers',e:'🔢',ru:'Числа',tpl:['I can see ___ stars.','Я вижу … звёзд(ы)'],w:[['one','1️⃣','один'],['two','2️⃣','два'],['three','3️⃣','три'],['four','4️⃣','четыре'],['five','5️⃣','пять'],['six','6️⃣','шесть'],['seven','7️⃣','семь'],['eight','8️⃣','восемь']]},
- {id:'food',e:'🍎',ru:'Еда',tpl:['I like ___.','Я люблю …'],w:[['apple','🍎','яблоко'],['banana','🍌','банан'],['milk','🥛','молоко'],['bread','🍞','хлеб'],['cake','🍰','торт'],['egg','🥚','яйцо'],['cheese','🧀','сыр'],['juice','🧃','сок']]},
- {id:'family',e:'👨‍👩‍👧',ru:'Семья',tpl:['This is my ___.','Это мой / моя …'],w:[['mother','👩','мама'],['father','👨','папа'],['sister','👧','сестра'],['brother','👦','брат'],['baby','👶','малыш'],['grandma','👵','бабушка'],['grandpa','👴','дедушка'],['family','👨‍👩‍👧','семья']]},
- {id:'school',e:'🎒',ru:'Школа',tpl:['This is a ___.','Это …'],w:[['book','📕','книга'],['pen','🖊️','ручка'],['pencil','✏️','карандаш'],['bag','🎒','рюкзак'],['ruler','📏','линейка'],['chair','🪑','стул'],['clock','⏰','часы'],['teacher','🧑‍🏫','учитель']]},
- {id:'body',e:'🙂',ru:'Тело',tpl:['This is my ___.','Это мой / моя …'],w:[['eye','👁️','глаз'],['ear','👂','ухо'],['nose','👃','нос'],['mouth','👄','рот'],['hand','✋','рука'],['foot','🦶','стопа'],['leg','🦵','нога'],['tooth','🦷','зуб']]},
- {id:'nature',e:'🌤️',ru:'Природа',tpl:['I can see the ___.','Я вижу …'],w:[['sun','☀️','солнце'],['rain','🌧️','дождь'],['snow','❄️','снег'],['cloud','☁️','облако'],['tree','🌳','дерево'],['flower','🌸','цветок'],['star','⭐','звезда'],['moon','🌙','луна']]},
- {id:'home',e:'🏠',ru:'Дом',tpl:['This is my ___.','Это мой / моя …'],w:[['house','🏠','дом'],['door','🚪','дверь'],['window','🪟','окно'],['bed','🛏️','кровать'],['lamp','💡','лампа'],['sofa','🛋️','диван'],['key','🔑','ключ'],['bath','🛁','ванна']]},
- {id:'transport',e:'🚀',ru:'Транспорт',tpl:['I go by ___.','Я еду на …'],w:[['car','🚗','машина'],['bus','🚌','автобус'],['train','🚆','поезд'],['plane','✈️','самолёт'],['ship','🚢','корабль'],['bike','🚲','велосипед'],['rocket','🚀','ракета'],['taxi','🚕','такси']]},
- {id:'clothes',e:'👕',ru:'Одежда',tpl:['I put on my ___.','Я надеваю …'],w:[['cap','🧢','кепка'],['dress','👗','платье'],['T-shirt','👕','футболка'],['shoes','👟','кроссовки'],['socks','🧦','носки'],['coat','🧥','пальто'],['scarf','🧣','шарф'],['gloves','🧤','перчатки']]},
- {id:'actions',e:'🏃',ru:'Действия',tpl:['I can ___.','Я умею …'],w:[['run','🏃','бегать'],['swim','🏊','плавать'],['jump','🤸','прыгать'],['sing','🎤','петь'],['dance','💃','танцевать'],['read','📖','читать'],['sleep','😴','спать'],['draw','🎨','рисовать']]}
-];
+// Темы — в english-data.js (программа начальной школы, 2–4 класс: лексика + грамматика).
+const UNITS=[...EN_LEX.map(u=>({...u,kind:'lex'})),...EN_GRAM.map(u=>({...u,kind:'gram'}))];
 const LESSONS=['Знакомство','Тренировка','Испытание'];
+const GLESSONS=['Правило','Тренировка','Испытание'];
+const lessonNames=u=>u.kind==='gram'?GLESSONS:LESSONS;
+const unitDone=u=>(en.units[u.id]||[]).filter(Boolean).length>=3;
+// Следующая тема: сначала в выбранном классе, слова и грамматика вперемешку по порядку.
+function enNextUnit(){const g=en.grade||2;const order=[...UNITS.filter(u=>u.g===g),...UNITS.filter(u=>u.g!==g)];return order.find(u=>!unitDone(u))}
+
 
 /* ====================== уровни и награды ====================== */
 const LEVELS=[[0,'Юнга'],[100,'Наблюдатель'],[300,'Исследователь'],[700,'Штурман'],[1500,'Звездочёт'],[3000,'Астроном'],[6000,'Капитан галактики'],[10000,'Хранитель звёзд']];
@@ -395,13 +418,13 @@ function snapshot(){const m=readMath(),z=readZh(),e=enStats();const xp=totalXp(m
 /* ====================== карта: узлы маршрута ====================== */
 const MATH_STEPS=[1,5,10,20,35,50,75,100,150,200,300,500];
 const ZH_STEPS=[1,5,10,20,30,45,60,80,100,130,160,200];
+const EN_STEPS=[1,3,5,8,12,16,21,27,34,42,51,62];
 function routeNodes(x){
   const mk=(vals,cur,label)=>{let firstOpen=-1;return vals.map((v,i)=>{const done=cur>=v;if(!done&&firstOpen<0)firstOpen=i;
     return {v,done,cur:!done&&firstOpen===i,label:label(v),left:Math.max(0,v-cur)}})};
   const math=mk(MATH_STEPS,x.m.solved,v=>v+' '+plural(v,'задача','задачи','задач'));
   const zh=mk(ZH_STEPS,x.z.words,v=>v+' '+plural(v,'слово','слова','слов'));
-  let open=-1;const eng=UNITS.map((u,i)=>{const r=en.units[u.id]||[];const done=r.filter(Boolean).length===3;
-    if(!done&&open<0)open=i;return {u,done,cur:!done&&open===i,stars:r.reduce((a,b)=>a+(b||0),0),label:u.ru}});
+  const eng=mk(EN_STEPS.filter(v=>v<=UNITS.length),x.e.unitsDone,v=>v+' '+plural(v,'тема','темы','тем'));
   return {math,zh,eng};
 }
 const ARMS=[
@@ -491,7 +514,7 @@ function celebrateIfGrew(){const x=snapshot();const was=hub.seen||[];const now=x
 const SLIDES=[
  {tag:'🧮 Тема недели',h:'Тайны чисел',p:'Логика, хитрые задачи и олимпиадные загадки. Каждая решённая задача — новая звезда на карте.',btn:'Решать',k:'math',art:'math'},
  {tag:'🏮 Иероглиф недели',h:'Путешествие в Китай',p:'Учим слова, тоны и иероглифы. Дракон ждёт тебя на Планете Иероглифов!',btn:'Учить',k:'zh',art:'zh'},
- {tag:'💬 Новая планета',h:'Hello, English!',p:'12 тем: животные, цвета, еда, космос и ракеты. Слушай, выбирай и собирай слова.',btn:'Начать',k:'en',art:'en'}
+ {tag:'💬 Новая планета',h:'Hello, English!',p:'Программа начальной школы: 36 тем слов и 26 тем грамматики для 2–4 класса. Слушай, выбирай, собирай фразы.',btn:'Начать',k:'en',art:'en'}
 ];
 function heroArt(k){
   const c={math:['#4fb6ff','#9bdcff','∑ π ÷'],zh:['#ff7a5c','#ffc38f','中 学 山'],en:['#2fd39a','#a6f0c6','A b C']}[k];
@@ -518,7 +541,7 @@ function renderHome(M){
      <div class="subj-body"><div class="subj-art">${art}</div><div class="topics">${topics.map(([n,on])=>`<div class="topic">${n}<span class="chk ${on?'on':''}">${on?'✓':''}</span></div>`).join('')}</div></div>
      <div class="subj-foot"><div class="minibar"><i style="width:${Math.round(pctv*100)}%"></i></div><span class="muted">${foot}</span></div></div>`;
   const nm=MATH_STEPS.find(v=>v>x.m.solved),nz=ZH_STEPS.find(v=>v>x.z.words);
-  const enNext=UNITS.find(u=>(en.units[u.id]||[]).filter(Boolean).length<3);
+  const enNext=enNextUnit();
   M.innerHTML=`
   <div class="top">
     <div class="ava" data-go="parents" title="Сменить героя" id="avaBtn">${hub.avatar||'🦊'}</div>
@@ -545,7 +568,7 @@ function renderHome(M){
 
     ${subj('math','Математика','∑','🧮',[['Задачи',x.m.solved>=5],['Логика',x.m.topics>=3],['Олимпиады',x.m.solved>=50]],nm?`до звезды: ${nm-x.m.solved}`:'все звёзды!',x.m.solved/500)}
     ${subj('zh','Китайский','中','🏮',[['Слова',x.z.words>=10],['Тоны',x.z.words>=30],['Иероглифы',x.z.words>=60]],nz?`до звезды: ${nz-x.z.words}`:'все звёзды!',x.z.words/200)}
-    ${subj('en','Английский','Aa','🦁',[['Слова',x.e.lessons>=1],['Слушаем',x.e.lessons>=6],['Фразы',x.e.unitsDone>=3]],enNext?`тема: ${enNext.ru}`:'все темы!',x.e.lessons/(UNITS.length*3))}
+    ${subj('en','Английский','Aa','🦁',[['Слова',x.e.lessons>=1],['Грамматика',x.e.gram>=1],['Фразы',x.e.unitsDone>=3]],enNext?`тема: ${enNext.ru}`:'все темы!',x.e.lessons/(UNITS.length*3))}
 
     <div class="card c-plan"><h3>📅 План на сегодня</h3><div class="plan">${plan.map(p=>`<div class="task ${p.done?'done':''}" data-subj="${p.k}"><span class="box">${p.done?'✓':''}</span><span class="t">${p.t}</span><span class="muted" style="font-size:13px">${p.d}</span><span class="xp">+${p.xp} ⭐</span></div>`).join('')}</div></div>
     <div class="card c-star"><h3>✨ Моя звезда</h3><div class="starbox">${myStar(x.lv.i,x.lv.pct)}<div><b style="font-size:18px">${x.lv.i<2?'Растёт!':x.lv.i<5?'Сияет!':'Сверхновая!'}</b><p style="opacity:.8;font-weight:700;font-size:13px;margin-top:4px">Занимайся, и твоя звезда станет больше и ярче.</p></div></div></div>
@@ -586,7 +609,7 @@ function renderMap(M){
   <div class="routes">
     ${routeCard('math','Математика','∑',nm?`Следующая звезда: <b>${nm.label}</b> — осталось ${nm.left}`:'Все звёзды зажжены!')}
     ${routeCard('zh','Китайский','中',nz?`Следующая звезда: <b>${nz.label}</b> — осталось ${nz.left}`:'Все звёзды зажжены!')}
-    ${routeCard('en','Английский','Aa',ne?`Следующая звезда: тема <b>${ne.u.ru}</b>`:'Все звёзды зажжены!')}
+    ${routeCard('en','Английский','Aa',ne?`Следующая звезда: <b>${ne.label}</b> — осталось ${ne.left}`:'Все звёзды зажжены!')}
   </div>`;
   M.querySelectorAll('[data-subj]').forEach(el=>el.addEventListener('click',()=>openSubject(el.dataset.subj)));
   // pan & zoom
@@ -617,8 +640,7 @@ function nodeInfo(arm,i,x,R){
   if(arm==='home'){ic=hub.avatar||'🦊';t='Это ты!';d=`Уровень «${x.lv.name}», ${x.xp} ⭐. Зажжено звёзд: ${countLit(x)}.`;P.innerHTML=`<div class="pi" style="background:#ffd54a">${ic}</div><div class="pt"><b>${t}</b><p>${d}</p></div>`;P.classList.add('on');return}
   if(i==='planet'){ic=A.icon;t=A.name;d='Пройди все звёзды на этом пути, чтобы долететь до планеты.'}
   else{const nd=R[arm][+i];ic=nd.done?'⭐':nd.cur?'✨':'🔒';
-    if(arm==='eng'){t='Тема «'+nd.u.ru+'» '+nd.u.e;d=nd.done?`Пройдена! Звёзд за уроки: ${nd.stars} из 9.`:nd.cur?'Следующая цель: пройди 3 урока этой темы.':'Откроется после предыдущих тем.'}
-    else{const what=arm==='math'?'решённых задач':'выученных слов';t=nd.label;d=nd.done?'Звезда зажжена! 🎉':nd.cur?`Следующая цель. Осталось ${nd.left} ${what}.`:`Откроется, когда наберёшь ${nd.v} ${what}.`}}
+    {const what=arm==='math'?'решённых задач':arm==='eng'?'пройденных тем':'выученных слов';t=nd.label;d=nd.done?'Звезда зажжена! 🎉':nd.cur?`Следующая цель. Осталось ${nd.left} ${what}.`:`Откроется, когда наберёшь ${nd.v} ${what}.`}}
   btn=`<button class="btn v" id="pgo">Заниматься</button>`;
   P.innerHTML=`<div class="pi" style="background:linear-gradient(135deg,${A.color},${A.glow});font-weight:900">${ic}</div><div class="pt"><b>${esc(t)}</b><p>${esc(d)}</p></div>${btn}`;
   P.classList.add('on');P.querySelector('#pgo').onclick=()=>openSubject(k);
@@ -630,7 +652,7 @@ function renderSubjects(M){
   M.innerHTML=`<div class="screen-title"><h1>Чем займёмся сегодня?</h1></div><div class="grid">
    ${bigSubj('math','Математика','∑','🧮','Олимпиадные и школьные задачи, логика, контрольные с оценкой.',`${x.m.solved} ${plural(x.m.solved,'задача решена','задачи решены','задач решено')}`)}
    ${bigSubj('zh','Китайский','中','🏮','Слова, тоны, иероглифы и истории с драконом.',`${x.z.words} ${plural(x.z.words,'слово выучено','слова выучено','слов выучено')}`)}
-   ${bigSubj('en','Английский','Aa','🦁','12 тем: слушаем, выбираем картинки, собираем слова и фразы.',`${x.e.lessons} из ${UNITS.length*3} уроков`)}
+   ${bigSubj('en','Английский','Aa','🦁','Программа 2–4 класса: темы слов и грамматика с правилами. Слушаем, выбираем, собираем фразы.',`${x.e.lessons} из ${UNITS.length*3} уроков`)}
   </div>`;
   M.querySelectorAll('[data-subj]').forEach(el=>el.onclick=()=>openSubject(el.dataset.subj));
 }
@@ -651,7 +673,7 @@ function renderParents(M){
   <div class="card"><h3>📚 Как устроен ${BRAND}</h3><ul>
     <li><b>Математика</b> — олимпиадный тренажёр и «Школа на шаг вперёд»: задачи, контрольные, будильник на занятие.</li>
     <li><b>Китайский</b> — слова, тоны, иероглифы, интервальные повторения.</li>
-    <li><b>Английский</b> — 12 тем по 3 урока: знакомство, тренировка, испытание. Слова озвучивает браузер.</li>
+    <li><b>Английский</b> — программа начальной школы по методике репетитора: 36 лексических тем (от приветствий до стран и профессий) и 26 грамматических (to be, can, have got, Present Simple и Continuous, сравнения, Past Simple). Темы разделены по классам: 2, 3 и 4. В каждой теме 3 урока, слова и фразы озвучивает браузер.</li>
     <li><b>Карта ученика</b> — три звёздных пути. Звёзды загораются за решённые задачи, выученные слова и пройденные темы.</li></ul></div>
   <div class="card"><h3>🔒 Приватность</h3><p>${BRAND} не собирает персональные данные: нет регистрации, имён и фото. Весь прогресс хранится только в этом браузере на этом устройстве. Если очистить данные браузера, прогресс пропадёт.</p></div>
   <div class="card"><h3>🧹 Сбросить</h3><p>Сбросить прогресс по английскому и мини-игре (математика и китайский не затрагиваются).</p><button class="btn v" id="reset" style="margin-top:12px">Сбросить</button><span id="rs" class="muted" style="margin-left:10px"></span></div>
@@ -666,50 +688,83 @@ function pickVoice(){try{const vs=speechSynthesis.getVoices();voice=vs.find(v=>/
 try{speechSynthesis.onvoiceschanged=pickVoice;pickVoice()}catch(e){}
 function say(t){try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang=voice?voice.lang:'en-GB';if(voice)u.voice=voice;u.rate=.85;speechSynthesis.speak(u)}catch(e){}}
 function renderEnglish(M){
-  const x=enStats();
+  const x=enStats();const g=en.grade||2,tab=en.tab||'lex';
+  const list=UNITS.filter(u=>u.g===g&&u.kind===tab);
+  const cnt=(gg,k)=>{const l=UNITS.filter(u=>u.g===gg&&(!k||u.kind===k));return l.filter(unitDone).length+'/'+l.length};
   M.innerHTML=`<div class="screen-title"><button class="back" data-go="subjects">←</button><h1>Английский 🦁</h1></div>
-  <p class="muted" style="margin-bottom:16px">Пройдено уроков: ${x.lessons} из ${UNITS.length*3} · звёзд ${x.stars}. Каждая тема — звезда на Планете Слов.</p>
-  <div class="units">${UNITS.map((u,ui)=>{const r=en.units[u.id]||[];const prevDone=ui===0||(en.units[UNITS[ui-1].id]||[]).filter(Boolean).length>=1;
-    return `<div class="card unit en"><div class="ue">${u.e}</div><h3>${u.ru}</h3><p class="muted" style="font-size:13px">${u.w.slice(0,4).map(w=>w[0]).join(', ')}…</p>
-    <div class="lessons">${LESSONS.map((l,i)=>{const open=prevDone&&(i===0||r[i-1]);return `<button class="lesson ${open?'':'lock'}" ${open?`data-les="${ui}:${i}"`:''}>${open?'':'🔒 '}${l}<span class="s">${r[i]?'★'.repeat(r[i])+'☆'.repeat(3-r[i]):'☆☆☆'}</span></button>`}).join('')}</div></div>`}).join('')}</div>`;
+  <p class="muted" style="margin-bottom:14px">Программа начальной школы: слова по темам и грамматика с правилами. Пройдено уроков: ${x.lessons} из ${UNITS.length*3} · звёзд ${x.stars}.</p>
+  <div class="entabs" role="tablist">${EN_GRADES.map(([n,t])=>`<button class="${g===n?'on':''}" data-grade="${n}">${t}<small>${cnt(n)}</small></button>`).join('')}</div>
+  <div class="entabs kind" role="tablist"><button class="${tab==='lex'?'on':''}" data-tab="lex">📖 Слова<small>${cnt(g,'lex')}</small></button><button class="${tab==='gram'?'on':''}" data-tab="gram">🧩 Грамматика<small>${cnt(g,'gram')}</small></button></div>
+  <div class="units">${list.map((u,li)=>{const r=en.units[u.id]||[];const ui=UNITS.indexOf(u);const prevDone=li===0||r.some(Boolean)||(en.units[list[li-1].id]||[]).filter(Boolean).length>=1;
+    const sub=u.kind==='gram'?(u.ex[0]?esc(u.ex[0][0]):''):u.w.slice(0,4).map(w=>esc(w[0])).join(', ')+'…';
+    return `<div class="card unit en ${u.kind}"><div class="ue">${u.e}</div><h3>${esc(u.ru)}</h3><p class="muted" style="font-size:13px">${sub}</p>
+    <div class="lessons">${lessonNames(u).map((l,i)=>{const open=prevDone&&(i===0||r[i-1]);return `<button class="lesson ${open?'':'lock'}" ${open?`data-les="${ui}:${i}"`:''}>${open?'':'🔒 '}${l}<span class="s">${r[i]?'★'.repeat(r[i])+'☆'.repeat(3-r[i]):'☆☆☆'}</span></button>`}).join('')}</div></div>`}).join('')}</div>`;
+  M.querySelectorAll('[data-grade]').forEach(b=>b.onclick=()=>{en.grade=+b.dataset.grade;saveEn();renderEnglish(M)});
+  M.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{en.tab=b.dataset.tab;saveEn();renderEnglish(M)});
   M.querySelectorAll('[data-les]').forEach(b=>b.onclick=()=>{const [u,l]=b.dataset.les.split(':').map(Number);startLesson(M,u,l)});
 }
+const clean=t=>t.toLowerCase().replace(/[^a-z]/g,'');
 function makeQuestions(u,l){
+  if(u.kind==='gram')return makeGramQuestions(u,l);
   const W=u.w,qs=[];const others=w=>shuffle(W.filter(o=>o!==w));
   const opts=(w,n=4)=>shuffle([w,...others(w).slice(0,n-1)]);
+  const tpl=()=>u.tpl[Math.floor(Math.random()*u.tpl.length)];
   const pool=shuffle(W);
+  const spellable=W.filter(w=>clean(w[0]).length<=9);
   if(l===0){pool.forEach(w=>qs.push({type:'card',w}));shuffle(W).slice(0,6).forEach((w,i)=>qs.push(i%2?{type:'pic2word',w,o:opts(w)}:{type:'hear2pic',w,o:opts(w)}))}
-  else if(l===1){const kinds=['hear2pic','pic2word','word2ru','hear2word'];pool.forEach((w,i)=>qs.push({type:kinds[i%4],w,o:opts(w)}));shuffle(W).slice(0,2).forEach(w=>qs.push({type:'pic2word',w,o:opts(w)}))}
-  else{const p=pool;qs.push({type:'spell',w:p[0]},{type:'spell',w:p[1]},{type:'spell',w:p[2]});
-    [p[3],p[4],p[5]].forEach(w=>qs.push({type:'phrase',w,o:opts(w)}));qs.push({type:'ru2word',w:p[6],o:opts(p[6])},{type:'hear2pic',w:p[7],o:opts(p[7])});
+  else if(l===1){const kinds=['hear2pic','pic2word','word2ru','hear2word'];pool.forEach((w,i)=>qs.push({type:kinds[i%4],w,o:opts(w)}));shuffle(W).slice(0,2).forEach(w=>qs.push({type:'phrase',w,t:tpl(),o:opts(w)}))}
+  else{const sp=shuffle(spellable).slice(0,u.spellOut?5:3);const rest=shuffle(W.filter(w=>!sp.includes(w)));
+    sp.forEach(w=>qs.push({type:'spell',w}));
+    rest.slice(0,u.spellOut?1:3).forEach(w=>qs.push({type:'phrase',w,t:tpl(),o:opts(w)}));
+    rest.slice(u.spellOut?1:3,u.spellOut?3:5).forEach((w,i)=>qs.push(i%2?{type:'hear2pic',w,o:opts(w)}:{type:'ru2word',w,o:opts(w)}));
     return shuffle(qs)}
   return qs;
 }
+// Грамматика: правило → тренировка выбора формы → испытание (выбор + собери предложение).
+function makeGramQuestions(u,l){
+  const Q=u.q.map(q=>({type:'gchoose',s:q[0],a:q[1],o:shuffle(q.slice(1,4).filter(Boolean)),ru:q[4]}));
+  const O=u.ord.map(o=>({type:'gorder',s:o[0],ru:o[1]}));
+  if(l===0)return [{type:'rule'},...shuffle(Q).slice(0,4),O[0]];
+  if(l===1)return shuffle(Q).slice(0,8);
+  return shuffle([...shuffle(Q).slice(0,5),...O]);
+}
 function startLesson(M,ui,l){
   const u=UNITS[ui];const qs=makeQuestions(u,l);let i=0,mistakes=0,correct=0,locked=false;
-  const scored=qs.filter(q=>q.type!=='card').length;
+  const scored=qs.filter(q=>q.type!=='card'&&q.type!=='rule').length;
   const next=()=>{i++;locked=false;i<qs.length?draw():finish()};
-  const answer=(btn,ok,w)=>{if(locked)return;if(ok){locked=true;btn.classList.add('ok');correct++;say(w[0]);setTimeout(next,850)}else{btn.classList.add('bad');mistakes++;setTimeout(()=>btn.classList.remove('bad'),400)}};
-  function draw(){const q=qs[i];const w=q.w;let body='';
-    const optBtns=(kind)=>`<div class="opts">${q.o.map((o,j)=>`<button class="opt ${kind==='emo'?'emo':''}" data-o="${j}">${kind==='emo'?o[1]:kind==='ru'?o[2]:esc(o[0])}</button>`).join('')}</div>`;
+  const answer=(btn,ok,spoken)=>{if(locked)return;if(ok){locked=true;btn.classList.add('ok');correct++;say(spoken);setTimeout(next,u.kind==='gram'?1300:850)}else{btn.classList.add('bad');mistakes++;setTimeout(()=>btn.classList.remove('bad'),400)}};
+  const spellOut=w=>clean(w).toUpperCase().split('').join(' · ');
+  function draw(){const q=qs[i];const w=q.w;let body='',speak=w?w[0]:'';
+    const optBtns=(kind)=>`<div class="opts">${q.o.map((o,j)=>`<button class="opt ${kind==='emo'?'emo':''}" data-o="${j}">${kind==='emo'?o[1]:kind==='ru'?esc(o[2]):esc(o[0])}</button>`).join('')}</div>`;
     const sayBtn=`<button class="say" id="sayb">🔊 Послушать</button>`;
     switch(q.type){
-      case 'card':body=`<div class="fc"><div class="ask">Новое слово</div><div class="big">${w[1]}</div><div class="word">${esc(w[0])}</div><div class="ru">${w[2]}</div>${sayBtn}<button class="btn v" id="nextb" style="margin:18px auto 0">Дальше →</button></div>`;break;
+      case 'card':body=`<div class="fc"><div class="ask">Новое слово</div><div class="big">${w[1]}</div><div class="word">${esc(w[0])}</div>${u.spellOut?`<div class="spellout">${spellOut(w[0])}</div>`:''}<div class="ru">${esc(w[2])}</div>${sayBtn}<button class="btn v" id="nextb" style="margin:18px auto 0">Дальше →</button></div>`;
+        if(u.spellOut)speak=clean(w[0]).toUpperCase().split('').join(', ')+'. '+w[0];break;
       case 'hear2pic':body=`<div class="ask">Послушай и выбери картинку</div><div class="big">🎧</div>${sayBtn}${optBtns('emo')}`;break;
       case 'hear2word':body=`<div class="ask">Послушай и выбери слово</div><div class="big">🎧</div>${sayBtn}${optBtns('en')}`;break;
       case 'pic2word':body=`<div class="ask">Как это по-английски?</div><div class="big">${w[1]}</div>${optBtns('en')}`;break;
       case 'word2ru':body=`<div class="ask">Что значит это слово?</div><div class="word">${esc(w[0])}</div>${sayBtn}${optBtns('ru')}`;break;
-      case 'ru2word':body=`<div class="ask">Переведи на английский</div><div class="word">${w[2]}</div>${optBtns('en')}`;break;
-      case 'phrase':{const [en1,ru1]=u.tpl;body=`<div class="ask">Вставь слово во фразу · <span style="font-weight:700">${ru1}</span></div><div class="big">${w[1]}</div><div class="word" style="font-size:30px">${esc(en1).replace('___','<span style="color:var(--en)">____</span>')}</div>${optBtns('en')}`;break}
-      case 'spell':{const letters=shuffle([...w[0].toLowerCase().replace(/[^a-z]/g,'')]);body=`<div class="ask">Собери слово из букв · ${w[2]}</div><div class="big">${w[1]}</div>${sayBtn}<div class="slots" id="slots">${letters.map(()=>'<div class="slot"></div>').join('')}</div><div class="letters">${letters.map((c,j)=>`<button class="letter" data-l="${j}">${c}</button>`).join('')}</div><button class="say" id="undo" style="margin-top:14px">⌫ Стереть</button>`;q.letters=letters;break}
+      case 'ru2word':body=`<div class="ask">Переведи на английский</div><div class="word">${esc(w[2])}</div>${optBtns('en')}`;break;
+      case 'phrase':{const [en1,ru1]=q.t;speak=en1.replace('___',w[0]);body=`<div class="ask">Вставь слово во фразу · <span style="font-weight:700">${esc(ru1)}</span></div><div class="big">${w[1]}</div><div class="word" style="font-size:30px">${esc(en1).replace('___','<span style="color:var(--en)">____</span>')}</div>${optBtns('en')}`;break}
+      case 'spell':{const letters=shuffle([...clean(w[0])]);body=`<div class="ask">Собери слово из букв · ${esc(w[2])}</div><div class="big">${w[1]}</div>${sayBtn}<div class="slots" id="slots">${letters.map(()=>'<div class="slot"></div>').join('')}</div><div class="letters">${letters.map((c,j)=>`<button class="letter" data-l="${j}">${c}</button>`).join('')}</div><button class="say" id="undo" style="margin-top:14px">⌫ Стереть</button>`;q.letters=letters;break}
+      case 'rule':speak=u.ex.map(e=>e[0]).join(' ');body=`<div class="rule"><div class="ask">Правило</div><div class="big" style="font-size:64px">${u.e}</div><h2>${esc(u.ru)}</h2>${u.rule.map(r=>`<p>${r}</p>`).join('')}
+        <div class="exs">${u.ex.map((e,j)=>`<button class="ex" data-ex="${j}"><b>🔊 ${esc(e[0])}</b><span>${esc(e[1])}</span></button>`).join('')}</div><button class="btn v" id="nextb" style="margin:18px auto 0">Понятно, тренируемся →</button></div>`;break;
+      case 'gchoose':speak=q.s.replace('___',q.a);body=`<div class="ask">Выбери верный вариант · <span style="font-weight:700">${esc(q.ru)}</span></div><div class="sent">${esc(q.s).replace('___','<span class="gap">____</span>')}</div>
+        <div class="opts">${q.o.map((o,j)=>`<button class="opt" data-g="${j}">${esc(o)}</button>`).join('')}</div><button class="hint" id="hint">💡 Подсказка</button><div class="hintbox" id="hintbox" hidden>${u.rule[0]}</div>`;break;
+      case 'gorder':{speak=q.s;const words=q.s.split(' ');let sh;do{sh=shuffle(words.map((t,j)=>[t,j]))}while(words.length>1&&sh.every((p,j)=>p[1]===j));q.sh=sh;
+        body=`<div class="ask">Собери предложение · <span style="font-weight:700">${esc(q.ru)}</span></div><div class="big" style="font-size:52px">${u.e}</div><div class="wslots" id="wslots"></div><div class="letters">${sh.map((p,j)=>`<button class="letter wtile" data-w="${j}">${esc(p[0])}</button>`).join('')}</div><button class="say" id="undo" style="margin-top:14px">⌫ Стереть</button>`;break}
     }
     M.innerHTML=`<div class="quiz"><div class="qtop"><button class="back" id="qx">✕</button><div class="qbar"><i style="width:${i/qs.length*100}%"></i></div><b>${u.e}</b></div><div class="card qcard">${body}</div></div>`;
     M.querySelector('#qx').onclick=()=>renderEnglish(M);
-    const sb=M.querySelector('#sayb');if(sb)sb.onclick=()=>say(q.type==='phrase'?u.tpl[0].replace('___',w[0]):w[0]);
-    if(['card','hear2pic','hear2word','word2ru'].includes(q.type))setTimeout(()=>say(w[0]),250);
-    if(q.type==='card')M.querySelector('#nextb').onclick=next;
-    M.querySelectorAll('[data-o]').forEach(b=>b.onclick=()=>answer(b,q.o[+b.dataset.o]===w,w));
-    if(q.type==='spell'){const target=w[0].toLowerCase().replace(/[^a-z]/g,'');let typed=[];const slots=[...M.querySelectorAll('.slot')];
+    const sb=M.querySelector('#sayb');if(sb)sb.onclick=()=>say(speak);
+    if(['card','hear2pic','hear2word','word2ru'].includes(q.type))setTimeout(()=>say(speak),250);
+    if(q.type==='card'||q.type==='rule')M.querySelector('#nextb').onclick=next;
+    M.querySelectorAll('[data-ex]').forEach(b=>b.onclick=()=>say(u.ex[+b.dataset.ex][0]));
+    M.querySelectorAll('[data-o]').forEach(b=>b.onclick=()=>answer(b,q.o[+b.dataset.o]===w,q.type==='phrase'?speak:w[0]));
+    M.querySelectorAll('[data-g]').forEach(b=>b.onclick=()=>{const ok=q.o[+b.dataset.g]===q.a;answer(b,ok,speak);
+      if(ok){const gp=M.querySelector('.gap');if(gp){gp.textContent=q.a;gp.classList.add('fill')}}});
+    const hb=M.querySelector('#hint');if(hb)hb.onclick=()=>{M.querySelector('#hintbox').hidden=false;hb.remove()};
+    if(q.type==='spell'){const target=clean(w[0]);let typed=[];const slots=[...M.querySelectorAll('.slot')];
       const upd=()=>slots.forEach((s,j)=>s.textContent=typed[j]!=null?q.letters[typed[j]]:'');
       M.querySelectorAll('[data-l]').forEach(b=>b.onclick=()=>{if(locked)return;typed.push(+b.dataset.l);b.classList.add('used');upd();
         if(typed.length===target.length){const got=typed.map(j=>q.letters[j]).join('');
@@ -717,11 +772,19 @@ function startLesson(M,ui,l){
           else{mistakes++;M.querySelector('#slots').animate([{transform:'translateX(-6px)'},{transform:'translateX(6px)'},{transform:'none'}],{duration:300});
             setTimeout(()=>{typed=[];M.querySelectorAll('.letter').forEach(x=>x.classList.remove('used'));upd()},450)}}});
       M.querySelector('#undo').onclick=()=>{const j=typed.pop();if(j!=null)M.querySelector(`[data-l="${j}"]`).classList.remove('used');upd()}}
+    if(q.type==='gorder'){const target=q.s.split(' ');let typed=[];const box=M.querySelector('#wslots');
+      const upd=()=>{box.innerHTML=typed.map(j=>`<span>${esc(q.sh[j][0])}</span>`).join('')||'<i>нажимай на слова по порядку</i>'};upd();
+      M.querySelectorAll('[data-w]').forEach(b=>b.onclick=()=>{if(locked)return;typed.push(+b.dataset.w);b.classList.add('used');upd();
+        if(typed.length===target.length){const got=typed.map(j=>q.sh[j][0]).join(' ');
+          if(got===q.s){locked=true;correct++;box.classList.add('ok');say(q.s);setTimeout(next,1400)}
+          else{mistakes++;box.animate([{transform:'translateX(-6px)'},{transform:'translateX(6px)'},{transform:'none'}],{duration:300});
+            setTimeout(()=>{typed=[];M.querySelectorAll('.wtile').forEach(x=>x.classList.remove('used'));upd()},600)}}});
+      M.querySelector('#undo').onclick=()=>{const j=typed.pop();if(j!=null)M.querySelector(`[data-w="${j}"]`).classList.remove('used');upd()}}
   }
   function finish(){
     const stars=mistakes===0?3:mistakes<=2?2:1;const r=en.units[u.id]||[0,0,0];const prev=r[l]||0;r[l]=Math.max(prev,stars);en.units[u.id]=r;
     const gain=correct*5+(stars===3?20:stars===2?10:5);en.xp=(en.xp||0)+gain;const t=today();en.days[t]=en.days[t]||{lessons:0,correct:0};en.days[t].lessons++;en.days[t].correct+=correct;saveEn();
-    M.innerHTML=`<div class="quiz"><div class="card result"><div class="ask muted">${u.ru} · ${LESSONS[l]}</div><div class="stars">${'⭐'.repeat(stars)}${'<span style="opacity:.2">⭐</span>'.repeat(3-stars)}</div>
+    M.innerHTML=`<div class="quiz"><div class="card result"><div class="ask muted">${esc(u.ru)} · ${lessonNames(u)[l]}</div><div class="stars">${'⭐'.repeat(stars)}${'<span style="opacity:.2">⭐</span>'.repeat(3-stars)}</div>
       <h2 style="font-size:28px;font-weight:900">${stars===3?'Блестяще!':stars===2?'Отлично!':'Хорошо, идём дальше!'}</h2>
       <p class="muted" style="margin-top:8px">Верно: ${correct} из ${scored} · ошибок: ${mistakes} · +${gain} ⭐</p>
       <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:20px"><button class="btn v" id="again">Ещё раз</button><button class="btn" id="tolist">К темам</button><button class="btn" data-go="map">🗺️ На карту</button></div></div></div>`;

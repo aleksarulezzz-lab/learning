@@ -1,0 +1,12 @@
+{
+  "name": "zvezdochet-api",
+  "private": true,
+  "description": "API личных кабинетов «Звездочёт» для Yandex Cloud Functions + YDB",
+  "main": "src/index.js",
+  "scripts": { "test": "node --test test/api.test.js" },
+  "engines": { "node": ">=22" },
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.700.0",
+    "@aws-sdk/lib-dynamodb": "^3.700.0"
+  }
+}

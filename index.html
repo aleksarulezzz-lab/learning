@@ -578,6 +578,56 @@ html[data-theme="dark"]{background:#0c0a2a}
 .subj-art>.planet-art{position:absolute;inset:4px;width:calc(100% - 8px);height:calc(100% - 8px)}
 .c-subj:hover .planet-art{transform:rotate(-4deg) scale(1.04);transition:transform .4s}
 .planet-art{transition:transform .4s}
+
+/* ===== Стекло v2: прозрачность, стеклянная кромка, свет изнутри (обе темы) ===== */
+:root{
+  --glass:linear-gradient(160deg,rgba(255,255,255,.58) 0%,rgba(255,255,255,.30) 55%,rgba(240,234,255,.40) 100%);
+  --blur:blur(22px) saturate(185%);
+}
+/* кромка стекла: светлая сверху-слева, цветная снизу-справа */
+.card::after,.btn .edge{content:"";position:absolute;inset:0;border-radius:inherit;padding:1.5px;pointer-events:none;
+  background:linear-gradient(145deg,rgba(255,255,255,.95),rgba(255,255,255,.25) 35%,rgba(255,255,255,0) 60%,rgba(160,130,255,.6));
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude}
+.c-subj.math::after{background:linear-gradient(145deg,rgba(255,255,255,.95),rgba(255,255,255,.2) 35%,rgba(255,255,255,0) 60%,rgba(47,164,255,.75))}
+.c-subj.zh::after{background:linear-gradient(145deg,rgba(255,255,255,.95),rgba(255,255,255,.2) 35%,rgba(255,255,255,0) 60%,rgba(255,106,91,.7))}
+.c-subj.en::after{background:linear-gradient(145deg,rgba(255,255,255,.95),rgba(255,255,255,.2) 35%,rgba(255,255,255,0) 60%,rgba(34,192,138,.7))}
+.card{border-color:transparent}
+[data-theme="dark"] .card::after{background:linear-gradient(145deg,rgba(255,255,255,.55),rgba(200,180,255,.15) 35%,rgba(255,255,255,0) 60%,rgba(185,150,255,.8))}
+
+/* иконки предметов: стеклянные кубики со светом внутри */
+.subj-head .ico{-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);text-shadow:0 0 10px rgba(255,255,255,.9),0 1px 2px rgba(0,0,0,.2)}
+.math .ico{background:radial-gradient(70% 60% at 50% 60%,rgba(190,235,255,.85),transparent 70%),linear-gradient(160deg,rgba(110,195,255,.78),rgba(40,100,255,.55));
+  box-shadow:inset 0 1.5px 0 rgba(255,255,255,.9),inset 0 0 0 1px rgba(255,255,255,.4),inset 0 -8px 14px rgba(20,60,200,.35),0 0 20px rgba(47,164,255,.5)}
+.zh .ico{background:radial-gradient(70% 60% at 50% 60%,rgba(255,225,190,.85),transparent 70%),linear-gradient(160deg,rgba(255,150,110,.8),rgba(240,70,70,.55));
+  box-shadow:inset 0 1.5px 0 rgba(255,255,255,.9),inset 0 0 0 1px rgba(255,255,255,.4),inset 0 -8px 14px rgba(170,30,40,.3),0 0 20px rgba(255,106,91,.45)}
+.en .ico{background:radial-gradient(70% 60% at 50% 60%,rgba(200,255,225,.85),transparent 70%),linear-gradient(160deg,rgba(80,225,165,.8),rgba(20,160,140,.55));
+  box-shadow:inset 0 1.5px 0 rgba(255,255,255,.9),inset 0 0 0 1px rgba(255,255,255,.4),inset 0 -8px 14px rgba(10,110,90,.3),0 0 20px rgba(34,192,138,.45)}
+.logo{background:radial-gradient(70% 60% at 50% 60%,rgba(220,205,255,.8),transparent 70%),linear-gradient(150deg,rgba(150,120,255,.85),rgba(80,110,255,.6));
+  box-shadow:inset 0 1.5px 0 rgba(255,255,255,.9),inset 0 0 0 1px rgba(255,255,255,.4),inset 0 -8px 14px rgba(40,20,160,.35),0 0 24px rgba(123,92,255,.55)}
+
+/* окна с планетами: прозрачные, свет идёт из центра */
+.subj-art{-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.math .subj-art{background:radial-gradient(55% 55% at 50% 52%,rgba(255,255,255,.75),rgba(150,215,255,.25) 60%,transparent 85%),linear-gradient(140deg,rgba(220,240,255,.55),rgba(150,205,255,.35))}
+.zh .subj-art{background:radial-gradient(55% 55% at 50% 52%,rgba(255,255,255,.75),rgba(255,190,160,.25) 60%,transparent 85%),linear-gradient(140deg,rgba(255,236,226,.55),rgba(255,190,165,.35))}
+.en .subj-art{background:radial-gradient(55% 55% at 50% 52%,rgba(255,255,255,.75),rgba(160,240,200,.25) 60%,transparent 85%),linear-gradient(140deg,rgba(225,252,238,.55),rgba(160,235,200,.35))}
+
+/* кнопки: прозрачное стекло вместо глянцевого пластика */
+.btn{color:var(--ink);background:linear-gradient(180deg,rgba(255,255,255,.78),rgba(235,228,255,.42));-webkit-backdrop-filter:blur(12px) saturate(180%);backdrop-filter:blur(12px) saturate(180%);
+  box-shadow:0 8px 24px rgba(40,20,120,.22),inset 0 1.5px 0 rgba(255,255,255,.95),inset 0 0 0 1px rgba(255,255,255,.55),inset 0 -6px 14px rgba(150,120,255,.28),inset 0 0 18px rgba(255,255,255,.35)}
+.btn.v{background:radial-gradient(80% 90% at 50% 100%,rgba(200,180,255,.6),transparent 70%),linear-gradient(180deg,rgba(150,125,255,.85),rgba(100,70,240,.68));
+  box-shadow:0 10px 26px rgba(110,80,255,.42),0 0 22px rgba(140,110,255,.35),inset 0 1.5px 0 rgba(255,255,255,.75),inset 0 0 0 1px rgba(255,255,255,.3),inset 0 -6px 14px rgba(40,10,140,.3)}
+html:not([data-theme="dark"]) .c-hero .btn,html:not([data-theme="dark"]) .c-map .btn,html:not([data-theme="dark"]) .c-game .btn{color:#fff;background:linear-gradient(180deg,rgba(255,255,255,.34),rgba(255,255,255,.12));
+  box-shadow:0 8px 24px rgba(5,2,30,.35),0 0 20px rgba(180,160,255,.35),inset 0 1.5px 0 rgba(255,255,255,.8),inset 0 0 0 1px rgba(255,255,255,.4),inset 0 -6px 14px rgba(170,140,255,.35),inset 0 0 18px rgba(255,255,255,.15)}
+html:not([data-theme="dark"]) .c-hero .btn::before,html:not([data-theme="dark"]) .c-map .btn::before,html:not([data-theme="dark"]) .c-game .btn::before{background:linear-gradient(180deg,rgba(255,255,255,.5),rgba(255,255,255,0))}
+
+/* таблетки, строки, значки — прозрачнее и светятся изнутри */
+.pill,.go,.back{background:linear-gradient(180deg,rgba(255,255,255,.65),rgba(244,240,255,.35))}
+.task{background:linear-gradient(180deg,rgba(255,255,255,.5),rgba(240,235,255,.25));box-shadow:inset 0 1.5px 0 rgba(255,255,255,.95),inset 0 0 0 1px rgba(255,255,255,.55),inset 0 -10px 18px -10px rgba(123,92,255,.35)}
+.badge{background:radial-gradient(55% 55% at 50% 50%,rgba(255,255,255,.95),rgba(220,205,255,.35) 70%,transparent),linear-gradient(140deg,rgba(243,239,255,.6),rgba(215,200,255,.4));
+  box-shadow:inset 0 1.5px 0 #fff,inset 0 0 0 1px rgba(255,255,255,.65),inset 0 -12px 22px -10px rgba(123,92,255,.45),0 0 14px rgba(123,92,255,.18)}
+.streak{background:linear-gradient(90deg,rgba(255,236,200,.7),rgba(255,220,200,.45))}
+.c-lvl{background:var(--glass-sheen),radial-gradient(90% 80% at 100% 0%,rgba(190,160,255,.5),transparent 60%),linear-gradient(160deg,rgba(240,234,255,.55),rgba(214,200,255,.45))}
+@media (max-width:760px){:root{--blur:blur(12px) saturate(160%)}}
 </style>
 </head>
 <body>
@@ -927,8 +977,12 @@ const PLANETS={
 function planetSVG(k,{cls='planet-art',moons=true}={}){
   const P=PLANETS[k],u='p'+(++_pl)+k,cx=100,cy=108,r=58;
   const defs=`<defs>
-   <radialGradient id="${u}b" cx=".34" cy=".3" r=".85"><stop offset="0" stop-color="${P.a}"/><stop offset=".35" stop-color="${P.b}"/><stop offset=".75" stop-color="${P.c}"/><stop offset="1" stop-color="${P.d}"/></radialGradient>
-   <radialGradient id="${u}s" cx=".78" cy=".82" r=".75"><stop offset="0" stop-color="#05021e" stop-opacity=".75"/><stop offset=".55" stop-color="#05021e" stop-opacity=".15"/><stop offset="1" stop-color="#05021e" stop-opacity="0"/></radialGradient>
+   <radialGradient id="${u}b" cx=".34" cy=".3" r=".85"><stop offset="0" stop-color="${P.a}" stop-opacity=".95"/><stop offset=".35" stop-color="${P.b}" stop-opacity=".72"/><stop offset=".75" stop-color="${P.c}" stop-opacity=".62"/><stop offset="1" stop-color="${P.d}" stop-opacity=".8"/></radialGradient>
+   <radialGradient id="${u}k" cx=".5" cy=".55" r=".5"><stop offset="0" stop-color="#fff" stop-opacity=".95"/><stop offset=".35" stop-color="${P.atm}" stop-opacity=".7"/><stop offset="1" stop-color="${P.atm}" stop-opacity="0"/></radialGradient>
+   <radialGradient id="${u}f" cx=".5" cy=".5" r=".5"><stop offset=".7" stop-color="#fff" stop-opacity="0"/><stop offset=".93" stop-color="${P.atm}" stop-opacity=".55"/><stop offset="1" stop-color="#fff" stop-opacity=".95"/></radialGradient>
+   <radialGradient id="${u}q" cx=".72" cy=".78" r=".4"><stop offset="0" stop-color="${P.a}" stop-opacity=".85"/><stop offset="1" stop-color="${P.a}" stop-opacity="0"/></radialGradient>
+   <filter id="${u}bl" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="9"/></filter>
+   <radialGradient id="${u}s" cx=".78" cy=".82" r=".75"><stop offset="0" stop-color="#05021e" stop-opacity=".45"/><stop offset=".55" stop-color="#05021e" stop-opacity=".08"/><stop offset="1" stop-color="#05021e" stop-opacity="0"/></radialGradient>
    <radialGradient id="${u}g" cx=".5" cy=".5" r=".5"><stop offset=".72" stop-color="${P.atm}" stop-opacity="0"/><stop offset=".86" stop-color="${P.atm}" stop-opacity=".55"/><stop offset="1" stop-color="${P.atm}" stop-opacity="0"/></radialGradient>
    <radialGradient id="${u}h" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#fff" stop-opacity=".9"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
    <linearGradient id="${u}x" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff"/><stop offset=".45" stop-color="${P.a}"/><stop offset="1" stop-color="${P.b}"/></linearGradient>
@@ -976,11 +1030,16 @@ function planetSVG(k,{cls='planet-art',moons=true}={}){
       <g transform="translate(36 158)"><circle r="12" fill="#ffe27a"/><circle r="12" fill="url(#${u}h)" opacity=".5"/><path d="M-5 -1 a5 5 0 0 0 10 0" stroke="#9a6b00" stroke-width="2" fill="none" stroke-linecap="round"/><circle cx="-4" cy="-4" r="1.6" fill="#9a6b00"/><circle cx="4" cy="-4" r="1.6" fill="#9a6b00"/></g>`;
   }
   return `<svg class="${cls}" viewBox="0 0 200 200" aria-label="${P.name}" role="img">${defs}
+   <circle cx="${cx}" cy="${cy}" r="${r+6}" fill="${P.b}" opacity=".55" filter="url(#${u}bl)"/>
    <circle cx="${cx}" cy="${cy}" r="${r+16}" fill="url(#${u}g)"/>${back}${top}
+   <circle cx="${cx}" cy="${cy}" r="${r*.62}" fill="url(#${u}k)"/>
    <circle cx="${cx}" cy="${cy}" r="${r}" fill="url(#${u}b)"/>
-   <g clip-path="url(#${u}c)">${surf}<circle cx="${cx}" cy="${cy}" r="${r}" fill="url(#${u}s)"/></g>
-   <circle cx="${cx}" cy="${cy}" r="${r-1}" fill="none" stroke="${P.atm}" stroke-width="2" opacity=".7"/>
+   <g clip-path="url(#${u}c)" opacity=".85">${surf}</g>
+   <g clip-path="url(#${u}c)"><circle cx="${cx}" cy="${cy}" r="${r*.45}" fill="url(#${u}k)" opacity=".55"/><circle cx="${cx}" cy="${cy}" r="${r}" fill="url(#${u}s)"/><circle cx="${cx}" cy="${cy}" r="${r}" fill="url(#${u}q)"/></g>
+   <circle cx="${cx}" cy="${cy}" r="${r}" fill="url(#${u}f)"/>
+   <path d="M${cx-r*.82} ${cy-r*.2} A${r*.86} ${r*.86} 0 0 1 ${cx+r*.1} ${cy-r*.84}" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".85"/>
    <ellipse cx="${cx-22}" cy="${cy-26}" rx="18" ry="11" fill="url(#${u}h)" transform="rotate(-30 ${cx-22} ${cy-26})"/>
+   <circle cx="${cx-30}" cy="${cy-14}" r="3" fill="#fff" opacity=".9"/>
    ${front}</svg>`;
 }
 const SLIDES=[

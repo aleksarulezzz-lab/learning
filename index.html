@@ -574,6 +574,10 @@ html[data-theme="dark"]{background:#0c0a2a}
 }
 @media (prefers-reduced-motion:reduce){[data-theme="dark"] .btn::after{display:none}}
 
+.planet-art{width:100%;height:100%;display:block;overflow:visible}
+.subj-art>.planet-art{position:absolute;inset:4px;width:calc(100% - 8px);height:calc(100% - 8px)}
+.c-subj:hover .planet-art{transform:rotate(-4deg) scale(1.04);transition:transform .4s}
+.planet-art{transition:transform .4s}
 </style>
 </head>
 <body>
@@ -914,19 +918,90 @@ function celebrateIfGrew(){const x=snapshot();const was=hub.seen||[];const now=x
   const fresh=now.filter(i=>!was.includes(i));if(fresh.length){toast('Новая находка: '+BADGES[fresh[0]][0]+' '+BADGES[fresh[0]][1]);hub.seen=now;saveHub()}}
 
 /* ====================== главная ====================== */
+/* ====================== иллюстрации: объёмные планеты предметов ====================== */
+// Рисуем SVG: шар с освещением слева сверху, тень терминатора, рельеф внутри шара,
+// атмосфера по краю, блик, кольцо/спутники. Каждый вызов даёт уникальные id градиентов.
+let _pl=0;
+const PLANETS={
+ math:{a:'#bfeaff',b:'#4fb6ff',c:'#1f4fd1',d:'#0d1f6e',atm:'#8fdcff',name:'Планета Чисел'},
+ zh:{a:'#ffe1b0',b:'#ff8a4c',c:'#d8323f',d:'#5a0f2a',atm:'#ffb36b',name:'Планета Иероглифов'},
+ en:{a:'#d6ffe6',b:'#45d99a',c:'#14946f',d:'#063a3a',atm:'#9be7b5',name:'Планета Слов'}
+};
+function planetSVG(k,{cls='planet-art',moons=true}={}){
+  const P=PLANETS[k],u='p'+(++_pl)+k,cx=100,cy=108,r=58;
+  const defs=`<defs>
+   <radialGradient id="${u}b" cx=".34" cy=".3" r=".85"><stop offset="0" stop-color="${P.a}"/><stop offset=".35" stop-color="${P.b}"/><stop offset=".75" stop-color="${P.c}"/><stop offset="1" stop-color="${P.d}"/></radialGradient>
+   <radialGradient id="${u}s" cx=".78" cy=".82" r=".75"><stop offset="0" stop-color="#05021e" stop-opacity=".75"/><stop offset=".55" stop-color="#05021e" stop-opacity=".15"/><stop offset="1" stop-color="#05021e" stop-opacity="0"/></radialGradient>
+   <radialGradient id="${u}g" cx=".5" cy=".5" r=".5"><stop offset=".72" stop-color="${P.atm}" stop-opacity="0"/><stop offset=".86" stop-color="${P.atm}" stop-opacity=".55"/><stop offset="1" stop-color="${P.atm}" stop-opacity="0"/></radialGradient>
+   <radialGradient id="${u}h" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#fff" stop-opacity=".9"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+   <linearGradient id="${u}x" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff"/><stop offset=".45" stop-color="${P.a}"/><stop offset="1" stop-color="${P.b}"/></linearGradient>
+   <linearGradient id="${u}r" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="${P.atm}" stop-opacity=".15"/><stop offset=".5" stop-color="#fff" stop-opacity=".95"/><stop offset="1" stop-color="${P.atm}" stop-opacity=".15"/></linearGradient>
+   <clipPath id="${u}c"><circle cx="${cx}" cy="${cy}" r="${r}"/></clipPath></defs>`;
+  let surf='',back='',front='',top='';
+  if(k==='math'){
+    // кристальные грани и полосы
+    surf=`<path d="M40 92 Q100 70 160 92 L160 104 Q100 82 40 104Z" fill="#fff" opacity=".18"/>
+      <path d="M44 130 Q100 112 158 132 L156 142 Q100 122 46 140Z" fill="#0d1f6e" opacity=".25"/>
+      <path d="M70 60 L96 84 L78 104 L56 86Z" fill="#fff" opacity=".22"/><path d="M118 118 L140 132 L128 150 L108 138Z" fill="#cfefff" opacity=".25"/>
+      <path d="M86 150 L100 140 L112 156 L96 166Z" fill="#fff" opacity=".15"/>`;
+    top=`<g transform="translate(96 54)"><path d="M0 0 L8 -26 L16 0Z" fill="url(#${u}x)"/><path d="M8 -26 L16 0 L10 2Z" fill="${P.c}" opacity=".45"/></g>
+      <g transform="translate(78 58) rotate(-22)"><path d="M0 0 L6 -18 L12 0Z" fill="url(#${u}x)"/><path d="M6 -18 L12 0 L7 1Z" fill="${P.c}" opacity=".45"/></g>
+      <g transform="translate(116 58) rotate(20)"><path d="M0 0 L5 -15 L10 0Z" fill="url(#${u}x)"/><path d="M5 -15 L10 0 L6 1Z" fill="${P.c}" opacity=".45"/></g>`;
+    back=`<path d="M22 118 A80 20 -14 0 1 178 82" fill="none" stroke="url(#${u}r)" stroke-width="7" stroke-linecap="round" opacity=".55"/>`;
+    front=`<path d="M178 82 A80 20 -14 0 1 22 118" fill="none" stroke="url(#${u}r)" stroke-width="7" stroke-linecap="round"/>`;
+    if(moons)front+=`<g font-family="Nunito,sans-serif" font-weight="900" text-anchor="middle">
+      <g transform="translate(30 50)"><circle r="15" fill="url(#${u}x)"/><circle r="15" fill="none" stroke="#fff" stroke-opacity=".8" stroke-width="1.5"/><text y="6" font-size="17" fill="${P.c}">7</text></g>
+      <g transform="translate(172 150)"><circle r="12" fill="url(#${u}x)"/><text y="5" font-size="14" fill="${P.c}">+</text></g>
+      <g transform="translate(166 34)"><rect x="-11" y="-11" width="22" height="22" rx="6" fill="url(#${u}x)" transform="rotate(14)"/><text y="5" font-size="14" fill="${P.c}">π</text></g></g>`;
+  }else if(k==='zh'){
+    surf=`<path d="M48 100 Q70 92 84 104 T120 98 T158 108" fill="none" stroke="#ffd36b" stroke-width="3" opacity=".9"/>
+      <path d="M54 136 Q78 126 96 140 T150 132" fill="none" stroke="#ffb03b" stroke-width="2.5" opacity=".8"/>
+      <path d="M84 104 L80 122 L92 136" fill="none" stroke="#ffd36b" stroke-width="2" opacity=".7"/>
+      <circle cx="122" cy="84" r="9" fill="#5a0f2a" opacity=".35"/><circle cx="70" cy="152" r="7" fill="#5a0f2a" opacity=".35"/><circle cx="140" cy="150" r="5" fill="#5a0f2a" opacity=".35"/>`;
+    top=`<path d="M78 58 L92 34 L104 34 L120 58Z" fill="${P.c}"/><path d="M92 34 L104 34 L120 58 L104 58Z" fill="${P.d}" opacity=".45"/>
+      <path d="M92 34 Q98 26 104 34" fill="#ffd36b"/><path d="M95 36 L92 50 M101 36 L104 46" stroke="#ffd36b" stroke-width="3" stroke-linecap="round"/>
+      <circle cx="98" cy="22" r="7" fill="#ffd36b" opacity=".6"/><circle cx="106" cy="12" r="5" fill="#ffb36b" opacity=".45"/><circle cx="92" cy="8" r="4" fill="#ffb36b" opacity=".3"/>`;
+    if(moons)front=`<g transform="translate(164 64)"><line x1="0" y1="-26" x2="0" y2="-16" stroke="#ffd36b" stroke-width="2"/>
+      <rect x="-14" y="-16" width="28" height="5" rx="2" fill="#ffd36b"/><ellipse cx="0" cy="2" rx="17" ry="15" fill="#ff4a3d"/><ellipse cx="0" cy="2" rx="17" ry="15" fill="url(#${u}h)" opacity=".5"/>
+      <path d="M-9 -10 Q-14 2 -9 14 M0 -13 V17 M9 -10 Q14 2 9 14" stroke="#c2202c" stroke-width="1.6" fill="none"/>
+      <rect x="-14" y="15" width="28" height="5" rx="2" fill="#ffd36b"/><line x1="0" y1="20" x2="0" y2="30" stroke="#ffd36b" stroke-width="2"/>
+      <text y="7" text-anchor="middle" font-size="14" font-weight="900" fill="#fff6c8" font-family="sans-serif">福</text></g>
+      <g transform="translate(34 160)"><circle r="11" fill="#ffb36b"/><circle r="11" fill="url(#${u}h)" opacity=".5"/><text y="5" text-anchor="middle" font-size="12" font-weight="900" fill="#8a1d2b" font-family="sans-serif">中</text></g>`;
+  }else{
+    surf=`<path d="M42 96 Q62 84 86 94 Q110 104 128 88 Q146 76 160 92 L160 120 Q140 108 120 120 Q96 134 70 118 Q54 110 42 118Z" fill="#0e7a5c" opacity=".45"/>
+      <path d="M50 140 Q80 128 110 144 Q130 152 154 136" fill="none" stroke="#bff5ff" stroke-width="5" stroke-linecap="round" opacity=".55"/>
+      <ellipse cx="128" cy="72" rx="14" ry="7" fill="#7fe0ff" opacity=".55"/><ellipse cx="72" cy="158" rx="10" ry="5" fill="#7fe0ff" opacity=".5"/>
+      <path d="M58 76 q8 -6 16 0 q8 -6 16 0" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" opacity=".65"/>`;
+    const tree=(x,y,s)=>`<g transform="translate(${x} ${y}) scale(${s})"><rect x="-2" y="-2" width="4" height="8" fill="#6b3d1f"/><path d="M-11 0 L0 -26 L11 0Z" fill="#1aa874"/><path d="M0 -26 L11 0 L3 0Z" fill="#0b6b4c" opacity=".6"/><path d="M-8 -10 L0 -30 L8 -10Z" fill="#3fd894"/></g>`;
+    top=tree(84,54,1)+tree(100,50,1.25)+tree(116,55,.9)+tree(70,61,.7)+tree(130,61,.7);
+    if(moons)front=`<g transform="translate(160 56)"><path d="M-22 -14 h44 a8 8 0 0 1 8 8 v16 a8 8 0 0 1 -8 8 h-30 l-10 9 v-9 h-4 a8 8 0 0 1 -8 -8 v-16 a8 8 0 0 1 8 -8z" fill="#fff"/>
+      <text y="7" text-anchor="middle" font-size="17" font-weight="900" fill="${P.c}" font-family="Nunito,sans-serif">ABC</text></g>
+      <g transform="translate(36 158)"><circle r="12" fill="#ffe27a"/><circle r="12" fill="url(#${u}h)" opacity=".5"/><path d="M-5 -1 a5 5 0 0 0 10 0" stroke="#9a6b00" stroke-width="2" fill="none" stroke-linecap="round"/><circle cx="-4" cy="-4" r="1.6" fill="#9a6b00"/><circle cx="4" cy="-4" r="1.6" fill="#9a6b00"/></g>`;
+  }
+  return `<svg class="${cls}" viewBox="0 0 200 200" aria-label="${P.name}" role="img">${defs}
+   <circle cx="${cx}" cy="${cy}" r="${r+16}" fill="url(#${u}g)"/>${back}${top}
+   <circle cx="${cx}" cy="${cy}" r="${r}" fill="url(#${u}b)"/>
+   <g clip-path="url(#${u}c)">${surf}<circle cx="${cx}" cy="${cy}" r="${r}" fill="url(#${u}s)"/></g>
+   <circle cx="${cx}" cy="${cy}" r="${r-1}" fill="none" stroke="${P.atm}" stroke-width="2" opacity=".7"/>
+   <ellipse cx="${cx-22}" cy="${cy-26}" rx="18" ry="11" fill="url(#${u}h)" transform="rotate(-30 ${cx-22} ${cy-26})"/>
+   ${front}</svg>`;
+}
 const SLIDES=[
  {tag:'🧮 Тема недели',h:'Тайны чисел',p:'Логика, хитрые задачи и олимпиадные загадки. Каждая решённая задача — новая звезда на карте.',btn:'Решать',k:'math',art:'math'},
  {tag:'🏮 Иероглиф недели',h:'Путешествие в Китай',p:'Учим слова, тоны и иероглифы. Дракон ждёт тебя на Планете Иероглифов!',btn:'Учить',k:'zh',art:'zh'},
  {tag:'💬 Новая планета',h:'Hello, English!',p:'12 тем: животные, цвета, еда, космос и ракеты. Слушай, выбирай и собирай слова.',btn:'Начать',k:'en',art:'en'}
 ];
 function heroArt(k){
-  const c={math:['#4fb6ff','#9bdcff','∑ π ÷'],zh:['#ff7a5c','#ffc38f','中 学 山'],en:['#2fd39a','#a6f0c6','A b C']}[k];
-  return `<svg class="hero-art" viewBox="0 0 300 260" preserveAspectRatio="xMidYMid slice"><defs><radialGradient id="ha${k}" cx=".35" cy=".35"><stop offset="0" stop-color="#fff"/><stop offset=".3" stop-color="${c[1]}"/><stop offset="1" stop-color="${c[0]}"/></radialGradient></defs>
-   <circle cx="180" cy="130" r="92" fill="${c[0]}" opacity=".18"/><circle cx="180" cy="130" r="68" fill="url(#ha${k})"/>
-   <ellipse cx="180" cy="130" rx="118" ry="24" fill="none" stroke="${c[1]}" stroke-width="6" opacity=".7" transform="rotate(-18 180 130)"/>
-   <text x="180" y="145" text-anchor="middle" font-size="40" font-weight="900" fill="#fff" font-family="Nunito">${c[2]}</text>
-   <circle cx="62" cy="52" r="10" fill="#ffe27a"/><circle cx="270" cy="230" r="6" fill="#fff" opacity=".7"/><circle cx="40" cy="210" r="4" fill="#fff"/>
-   <path d="${starPath(270,40,14,6)}" fill="#ffe27a"/><path d="${starPath(90,230,9,4)}" fill="#fff" opacity=".8"/></svg>`;
+  const g={math:'#4fb6ff',zh:'#ff7a5c',en:'#2fd39a'}[k];const u='hs'+(++_pl);
+  const inner=planetSVG(k).replace('<svg ','<svg x="40" y="10" width="250" height="250" ');
+  return `<svg class="hero-art" viewBox="0 0 300 260" preserveAspectRatio="xMidYMid slice"><defs><radialGradient id="${u}"><stop offset="0" stop-color="${g}" stop-opacity=".55"/><stop offset="1" stop-color="${g}" stop-opacity="0"/></radialGradient></defs>
+   <circle cx="165" cy="140" r="130" fill="url(#${u})"/>
+   <ellipse cx="165" cy="140" rx="150" ry="40" fill="none" stroke="#fff" stroke-opacity=".12" stroke-width="1.5" stroke-dasharray="3 7" transform="rotate(-14 165 140)"/>
+   ${inner}
+   <circle cx="34" cy="48" r="9" fill="#ffe27a"/><circle cx="34" cy="48" r="16" fill="#ffe27a" opacity=".18"/>
+   <path d="${starPath(272,34,12,5)}" fill="#ffe27a"/><path d="${starPath(30,214,8,3.5)}" fill="#fff" opacity=".85"/>
+   <circle cx="282" cy="236" r="3" fill="#fff" opacity=".8"/><circle cx="250" cy="14" r="2" fill="#fff"/><circle cx="14" cy="120" r="2" fill="#fff" opacity=".7"/>
+   <path d="M210 30 l26 -14" stroke="#fff" stroke-opacity=".6" stroke-width="2" stroke-linecap="round"/><circle cx="210" cy="30" r="2.5" fill="#fff"/></svg>`;
 }
 let slideTimer;
 function renderHome(M){
@@ -941,7 +1016,7 @@ function renderHome(M){
   const greet=['Сегодня откроем новые звёзды?','Куда полетим сегодня?','Карта ждёт новых открытий!'][new Date().getDay()%3];
   const subj=(k,name,ic,art,topics,foot,pctv)=>`<div class="card c-subj ${k}" data-subj="${k}">
      <div class="subj-head"><div class="ico">${ic}</div><h3>${name}</h3><div class="go">›</div></div>
-     <div class="subj-body"><div class="subj-art">${art}</div><div class="topics">${topics.map(([n,on])=>`<div class="topic">${n}<span class="chk ${on?'on':''}">${on?'✓':''}</span></div>`).join('')}</div></div>
+     <div class="subj-body"><div class="subj-art">${planetSVG(k)}</div><div class="topics">${topics.map(([n,on])=>`<div class="topic">${n}<span class="chk ${on?'on':''}">${on?'✓':''}</span></div>`).join('')}</div></div>
      <div class="subj-foot"><div class="minibar"><i style="width:${Math.round(pctv*100)}%"></i></div><span class="muted">${foot}</span></div></div>`;
   const nm=MATH_STEPS.find(v=>v>x.m.solved),nz=ZH_STEPS.find(v=>v>x.z.words);
   const enNext=UNITS.find(u=>(en.units[u.id]||[]).filter(Boolean).length<3);
@@ -1063,7 +1138,7 @@ function renderSubjects(M){
   M.querySelectorAll('[data-subj]').forEach(el=>el.onclick=()=>openSubject(el.dataset.subj));
 }
 function bigSubj(k,n,ic,art,desc,stat){return `<div class="card c-subj ${k}" data-subj="${k}"><div class="subj-head"><div class="ico">${ic}</div><h3>${n}</h3><div class="go">›</div></div>
-  <div class="subj-art" style="width:100%;height:150px;margin:14px 0;font-size:80px">${art}</div><p class="muted">${desc}</p><p style="margin-top:10px;font-weight:900">${stat}</p></div>`}
+  <div class="subj-art" style="width:100%;height:150px;margin:14px 0;font-size:80px">${planetSVG(k)}</div><p class="muted">${desc}</p><p style="margin-top:10px;font-weight:900">${stat}</p></div>`}
 
 /* ====================== коллекция ====================== */
 function renderCollection(M){const x=snapshot();hub.seen=x.badges.map((b,i)=>b?i:-1).filter(i=>i>=0);saveHub();

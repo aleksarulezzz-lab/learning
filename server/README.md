@@ -30,5 +30,9 @@ cd server && npm test
 
 ## Развёртывание
 
-Нужны `yc` CLI, `jq`, переменные `YC_SA_KEY_JSON` (авторизованный ключ сервисного аккаунта с ролью
-`editor` на каталог) и `YC_FOLDER_ID`. Затем `npm install && ./deploy/setup.sh`.
+Автоматически через GitHub Actions (`.github/workflows/deploy-api.yml`): после слияния изменений в
+`server/` в main или вручную кнопкой Run workflow. Нужны секреты репозитория `YC_SA_KEY_JSON`
+(авторизованный ключ сервисного аккаунта с ролью `admin` на каталог `zvezdochet`) и `YC_FOLDER_ID`.
+Ключ к базе создаётся один раз и хранится только в Lockbox, в логи не выводится.
+
+Вручную: `yc` CLI, `jq`, те же переменные, затем `npm install && ./deploy/setup.sh`.

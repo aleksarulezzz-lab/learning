@@ -269,6 +269,7 @@ main{padding:22px 28px 40px;max-width:1280px;width:100%;margin:0 auto}
   .app{grid-template-columns:1fr}
   .side{display:none}
   main{padding:16px 16px 100px}
+  site-footer{--sf-bottom:90px} /* подвал не прячется под нижним меню */
   .bnav{display:flex;position:fixed;left:10px;right:10px;bottom:10px;z-index:40;background:rgba(255,255,255,.92);backdrop-filter:blur(14px);border-radius:22px;box-shadow:0 10px 30px rgba(60,40,160,.2);padding:6px;justify-content:space-around}
   .bnav button{display:flex;flex-direction:column;align-items:center;font-size:11px;font-weight:800;color:var(--muted);padding:6px 8px;border-radius:14px}
   .bnav button .ic{font-size:22px}
@@ -768,5 +769,7 @@ const start=(location.hash||'').slice(1);go(ROUTES.includes(start)?start:'home')
 onboarding();
 if('serviceWorker' in navigator&&location.protocol==='https:')navigator.serviceWorker.register('sw.js').catch(()=>{});
 </script>
+<!-- общий подвал сайта: один файл на aleksarulezzz.ru, правится в проекте портфолио -->
+<script src="/shared/footer.js" defer></script>
 </body>
 </html>

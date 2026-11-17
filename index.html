@@ -663,16 +663,16 @@ function mapSVG(x,{mini=false}={}){
     nodes.forEach((nd,i)=>{const [cx,cy]=pts[i];const st=nd.done?'done':nd.cur?'cur':'lock';
       const r=mini?(nd.cur?22:18):(nd.cur?44:nd.done?37:33);
       const dx=cx-500,dy=cy-500,dl=Math.hypot(dx,dy)||1,ux=dx/dl,uy=dy/dl;
-      const inner=arm.k==='eng'?nd.u.e:String(nd.v);
+      const topic=!!nd.u;const inner=topic?nd.u.e:String(nd.v);
       s+=`<g class="node ${st}" data-arm="${arm.k}" data-i="${i}">
         <circle class="halo" cx="${cx}" cy="${cy}" r="${r+18}" fill="${arm.glow}"/>
         <circle cx="${f1(cx)}" cy="${f1(cy)}" r="${r}" fill="${nd.done?`url(#pl-${arm.k})`:nd.cur?'#fff':'#231a5c'}" stroke="${nd.done?'#fff':arm.glow}" stroke-width="${nd.cur?5:3}" ${nd.done||nd.cur?'':'stroke-opacity=".75"'}/>
         ${mini?`<path d="${starPath(cx,cy,r*.55,r*.24)}" fill="${nd.done?'#fff':nd.cur?arm.color:arm.glow}" opacity="${nd.done||nd.cur?1:.55}"/>`
-          :`<text x="${f1(cx)}" y="${f1(cy+(arm.k==='eng'?12:10))}" text-anchor="middle" font-size="${arm.k==='eng'?34:inner.length>2?27:32}" font-weight="900" fill="${nd.done?'#fff':nd.cur?arm.color:arm.glow}" ${nd.done||nd.cur||arm.k==='eng'?'':'opacity=".8"'}${nd.done?' stroke="rgba(0,0,0,.18)" stroke-width="1"':''}>${inner}</text>`}
+          :`<text x="${f1(cx)}" y="${f1(cy+(topic?12:10))}" text-anchor="middle" font-size="${topic?34:inner.length>2?27:32}" font-weight="900" fill="${nd.done?'#fff':nd.cur?arm.color:arm.glow}" ${nd.done||nd.cur||topic?'':'opacity=".8"'}${nd.done?' stroke="rgba(0,0,0,.18)" stroke-width="1"':''}>${inner}</text>`}
         ${(!mini&&nd.done)?`<path d="${starPath(cx+r*.72,cy-r*.72,13,5.5)}" fill="#ffd66b" stroke="#fff" stroke-width="1.5"/>`:''}
-        ${(!mini&&arm.k==='eng')?pill(cx+ux*(r+44),cy+uy*(r+30)+6,nd.label,22,nd.done||nd.cur?'rgba(20,12,60,.72)':'rgba(20,12,60,.5)',nd.done||nd.cur?'#fff':'rgba(255,255,255,.75)'):''}
-        ${(!mini&&arm.k==='eng'&&nd.stars)?`<text x="${cx}" y="${cy-r-10}" text-anchor="middle" font-size="18" fill="#ffd66b">${'★'.repeat(Math.min(3,Math.ceil(nd.stars/3)))}</text>`:''}
-        ${(!mini&&nd.cur&&arm.k!=='eng')?(()=>{// подпись цели — сбоку от дорожки, наружу от центра, чтобы не наезжать на соседние звёзды
+        ${(!mini&&topic)?pill(cx+ux*(r+44),cy+uy*(r+30)+6,nd.label,22,nd.done||nd.cur?'rgba(20,12,60,.72)':'rgba(20,12,60,.5)',nd.done||nd.cur?'#fff':'rgba(255,255,255,.75)'):''}
+        ${(!mini&&topic&&nd.stars)?`<text x="${cx}" y="${cy-r-10}" text-anchor="middle" font-size="18" fill="#ffd66b">${'★'.repeat(Math.min(3,Math.ceil(nd.stars/3)))}</text>`:''}
+        ${(!mini&&nd.cur&&!topic)?(()=>{// подпись цели — сбоку от дорожки, наружу от центра, чтобы не наезжать на соседние звёзды
           const pv=i?pts[i-1]:[500,500],nx=pts[i+1]||geo[arm.k].end;let tx=nx[0]-pv[0],ty=nx[1]-pv[1];const tl=Math.hypot(tx,ty)||1;let px=-ty/tl,py=tx/tl;
           if(px*ux+py*uy<0){px=-px;py=-py}return pill(cx+px*(r+70),cy+py*(r+34)+6,'цель · ещё '+nd.left,22,arm.glow,'#1b1446')})():''}
       </g>`});

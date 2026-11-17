@@ -9,7 +9,8 @@
 <meta property="og:description" content="Математика, китайский и английский. Каждый урок зажигает звезду на карте ученика.">
 <meta property="og:image" content="https://aleksarulezzz.ru/learning/og.png">
 <meta property="og:type" content="website">
-<meta name="theme-color" content="#1b1446">
+<meta name="theme-color" content="#f3f0ff">
+<script>try{var t=localStorage.getItem('zv-theme');if(t==='dark'||t==='light')document.documentElement.dataset.theme=t}catch(e){}</script>
 <link rel="canonical" href="https://aleksarulezzz.ru/learning/">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icons/icon-192.png">
@@ -277,6 +278,7 @@ main{padding:22px 28px 40px;max-width:1280px;width:100%;margin:0 auto}
   .c-prog,.c-lvl,.c-plan,.c-star,.c-coll,.c-map{grid-column:span 12}
   .hello h1{font-size:23px}.ava{width:54px;height:54px;font-size:30px}
   .top .pill{display:none}
+  .top .pill.themebtn{display:flex;padding:10px 12px}
   .c-hero{min-height:300px}
   .slide>:not(.hero-art){max-width:100%}
   .slide h2{font-size:28px}
@@ -290,6 +292,339 @@ main{padding:22px 28px 40px;max-width:1280px;width:100%;margin:0 auto}
   .screen-title h1{font-size:24px}
   .panel{padding:12px;gap:10px}.panel .pi{width:44px;height:44px;font-size:22px}.panel .pt b{font-size:15px}.panel .pt p{font-size:13px}.panel .btn{padding:10px 14px}
 }
+
+/* ===================================================================
+   Жидкое стекло и внутреннее свечение
+   Стекло: полупрозрачная заливка + размытие фона + светлая кромка сверху
+   + блик. Свечение: внутренние тени (inset) цвета предмета/ночи.
+   Всё на CSS, без картинок и скриптов, чтобы на телефоне было быстро.
+   =================================================================== */
+:root{
+  --glass:linear-gradient(160deg,rgba(255,255,255,.80) 0%,rgba(255,255,255,.58) 55%,rgba(246,242,255,.62) 100%);
+  --glass-sheen:radial-gradient(120% 70% at 0% 0%,rgba(255,255,255,.95) 0,rgba(255,255,255,0) 52%);
+  --glass-rim:inset 0 1px 0 rgba(255,255,255,.95),inset 0 0 0 1px rgba(255,255,255,.55),inset 0 -1px 0 rgba(123,92,255,.10);
+  --glass-glow:inset 0 0 28px rgba(255,255,255,.55),inset 0 -26px 44px -30px rgba(123,92,255,.30);
+  --night-glow:inset 0 1px 0 rgba(255,255,255,.22),inset 0 0 0 1px rgba(255,255,255,.07),inset 0 0 70px rgba(150,120,255,.32),inset 0 -50px 90px -50px rgba(110,200,255,.40);
+  --blur:blur(18px) saturate(170%);
+}
+
+/* цветные «туманности» за стеклом: стеклу нужно, что преломлять */
+body::before{content:"";position:fixed;inset:-10%;z-index:-1;pointer-events:none;
+  background:
+    radial-gradient(38% 30% at 82% 72%,rgba(255,170,200,.30),transparent 70%),
+    radial-gradient(34% 28% at 12% 78%,rgba(130,230,200,.26),transparent 70%),
+    radial-gradient(40% 32% at 55% 35%,rgba(170,150,255,.22),transparent 70%)}
+
+/* --- светлые карточки --- */
+.card{background:var(--glass-sheen),var(--glass);-webkit-backdrop-filter:var(--blur);backdrop-filter:var(--blur);
+  border:1px solid rgba(255,255,255,.75);box-shadow:var(--shadow),var(--glass-rim),var(--glass-glow)}
+.c-subj:hover{box-shadow:0 18px 40px rgba(60,40,160,.16),var(--glass-rim),var(--glass-glow)}
+.c-subj.math{box-shadow:var(--shadow),var(--glass-rim),inset 0 0 28px rgba(255,255,255,.55),inset 0 -30px 50px -32px rgba(47,164,255,.45)}
+.c-subj.zh{box-shadow:var(--shadow),var(--glass-rim),inset 0 0 28px rgba(255,255,255,.55),inset 0 -30px 50px -32px rgba(255,106,91,.40)}
+.c-subj.en{box-shadow:var(--shadow),var(--glass-rim),inset 0 0 28px rgba(255,255,255,.55),inset 0 -30px 50px -32px rgba(34,192,138,.42)}
+.c-lvl{background:var(--glass-sheen),radial-gradient(90% 80% at 100% 0%,rgba(190,160,255,.55),transparent 60%),linear-gradient(160deg,rgba(240,234,255,.85),rgba(214,200,255,.75));
+  box-shadow:var(--shadow),var(--glass-rim),inset 0 0 40px rgba(255,255,255,.6),inset 0 -36px 60px -34px rgba(123,92,255,.55)}
+
+/* --- тёмные «ночные» карточки: свечение изнутри --- */
+.c-hero{background:radial-gradient(55% 75% at 82% 50%,rgba(110,170,255,.38),transparent 65%),radial-gradient(60% 60% at 0% 100%,rgba(170,110,255,.30),transparent 70%),linear-gradient(135deg,var(--night) 0%,var(--night2) 60%,#4a2fa8 100%);box-shadow:var(--shadow),var(--night-glow)}
+.c-star{background:radial-gradient(55% 55% at 30% 55%,rgba(255,214,110,.30),transparent 70%),linear-gradient(160deg,#241a5e,#3b2a8f);box-shadow:var(--shadow),var(--night-glow)}
+.c-map{background:radial-gradient(50% 70% at 75% 60%,rgba(120,150,255,.30),transparent 70%),linear-gradient(160deg,var(--night),#2a1f6b);box-shadow:var(--shadow),var(--night-glow)}
+.c-game{background:radial-gradient(45% 70% at 88% 85%,rgba(255,170,240,.32),transparent 70%),linear-gradient(135deg,#2b2378,#5b3cc4);box-shadow:var(--shadow),var(--night-glow)}
+.c-hero,.c-star,.c-map,.c-game,.c-lvl{border:0}
+.cat{filter:drop-shadow(0 8px 18px rgba(0,0,0,.3)) drop-shadow(0 0 22px rgba(255,190,255,.45))}
+.mystar{filter:drop-shadow(0 0 18px rgba(255,214,110,.45))}
+.planet{filter:drop-shadow(0 0 14px rgba(160,120,255,.55))}
+
+/* --- картинки предметов: светятся изнутри --- */
+.subj-art{box-shadow:inset 0 2px 0 rgba(255,255,255,.95),inset 0 0 0 1px rgba(255,255,255,.7),inset 0 0 26px rgba(255,255,255,.75)}
+.math .subj-art{background:radial-gradient(60% 55% at 50% 45%,#fff 0,rgba(255,255,255,0) 70%),linear-gradient(140deg,var(--math-bg),#bfe2ff);box-shadow:inset 0 2px 0 #fff,inset 0 0 0 1px rgba(255,255,255,.7),inset 0 -18px 30px -12px rgba(47,164,255,.45)}
+.zh .subj-art{background:radial-gradient(60% 55% at 50% 45%,#fff 0,rgba(255,255,255,0) 70%),linear-gradient(140deg,var(--zh-bg),#ffd6c2);box-shadow:inset 0 2px 0 #fff,inset 0 0 0 1px rgba(255,255,255,.7),inset 0 -18px 30px -12px rgba(255,106,91,.40)}
+.en .subj-art{background:radial-gradient(60% 55% at 50% 45%,#fff 0,rgba(255,255,255,0) 70%),linear-gradient(140deg,var(--en-bg),#bff0d8);box-shadow:inset 0 2px 0 #fff,inset 0 0 0 1px rgba(255,255,255,.7),inset 0 -18px 30px -12px rgba(34,192,138,.45)}
+.math .subj-art{text-shadow:0 8px 22px rgba(47,164,255,.45)}
+.zh .subj-art{text-shadow:0 8px 22px rgba(255,106,91,.45)}
+.en .subj-art{text-shadow:0 8px 22px rgba(34,192,138,.45)}
+
+/* иконки предметов и логотип — «леденцы» */
+.subj-head .ico,.logo,.panel .pi{box-shadow:inset 0 1px 0 rgba(255,255,255,.65),inset 0 -6px 12px rgba(0,0,0,.14),inset 0 0 12px rgba(255,255,255,.25),0 6px 16px rgba(80,60,200,.25)}
+.math .ico{box-shadow:inset 0 1px 0 rgba(255,255,255,.65),inset 0 -6px 12px rgba(0,0,0,.14),0 6px 16px rgba(47,164,255,.40)}
+.zh .ico{box-shadow:inset 0 1px 0 rgba(255,255,255,.65),inset 0 -6px 12px rgba(0,0,0,.12),0 6px 16px rgba(255,106,91,.40)}
+.en .ico{box-shadow:inset 0 1px 0 rgba(255,255,255,.65),inset 0 -6px 12px rgba(0,0,0,.12),0 6px 16px rgba(34,192,138,.40)}
+.ava{background:radial-gradient(70% 60% at 35% 30%,#fff,#efe8ff);box-shadow:0 0 0 4px rgba(255,255,255,.9),0 8px 22px rgba(90,60,200,.2),inset 0 -8px 16px rgba(123,92,255,.22),inset 0 0 14px rgba(255,255,255,.9)}
+
+/* --- кнопки: жидкое стекло --- */
+.btn{position:relative;overflow:hidden;isolation:isolate;
+  background:linear-gradient(180deg,rgba(255,255,255,.98),rgba(238,233,255,.92));
+  box-shadow:0 8px 22px rgba(40,20,120,.22),inset 0 1px 0 #fff,inset 0 0 0 1px rgba(255,255,255,.6),inset 0 -4px 10px rgba(123,92,255,.20)}
+.btn::before{content:"";position:absolute;left:6%;right:6%;top:2px;height:48%;border-radius:999px;z-index:-1;pointer-events:none;
+  background:linear-gradient(180deg,rgba(255,255,255,.9),rgba(255,255,255,0))}
+.btn::after{content:"";position:absolute;top:0;bottom:0;left:-60%;width:40%;z-index:-1;pointer-events:none;transform:skewX(-20deg);
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.65),transparent);transition:left .6s ease}
+.btn:hover::after{left:120%}
+.btn.v{background:linear-gradient(180deg,#9c84ff,#6a4af2);color:#fff;
+  box-shadow:0 10px 24px rgba(110,80,255,.42),inset 0 1px 0 rgba(255,255,255,.55),inset 0 0 0 1px rgba(255,255,255,.18),inset 0 -6px 14px rgba(40,10,140,.35),inset 0 0 18px rgba(210,190,255,.45)}
+.btn.v::before{background:linear-gradient(180deg,rgba(255,255,255,.45),rgba(255,255,255,0))}
+.btn.ghost{background:rgba(255,255,255,.14);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.35),inset 0 0 0 1px rgba(255,255,255,.18),inset 0 0 16px rgba(255,255,255,.10)}
+.btn.ghost::before{background:linear-gradient(180deg,rgba(255,255,255,.22),rgba(255,255,255,0))}
+
+/* круглые и «таблеточные» элементы */
+.pill,.go,.back{background:linear-gradient(180deg,rgba(255,255,255,.92),rgba(244,240,255,.75));-webkit-backdrop-filter:var(--blur);backdrop-filter:var(--blur);
+  box-shadow:var(--shadow),inset 0 1px 0 #fff,inset 0 0 0 1px rgba(255,255,255,.6),inset 0 -3px 8px rgba(123,92,255,.14)}
+.mapctl button,.legend span,.framebar button{box-shadow:inset 0 1px 0 rgba(255,255,255,.3),inset 0 0 0 1px rgba(255,255,255,.12),inset 0 0 14px rgba(255,255,255,.08)}
+.side{background:linear-gradient(180deg,rgba(255,255,255,.62),rgba(255,255,255,.40));box-shadow:inset -1px 0 0 rgba(255,255,255,.8)}
+.nav button.on{background:linear-gradient(180deg,#fff,rgba(244,240,255,.85));box-shadow:var(--shadow),inset 0 1px 0 #fff,inset 0 -4px 10px rgba(123,92,255,.16)}
+
+/* --- строки, значки, полоски --- */
+.task{background:linear-gradient(180deg,rgba(255,255,255,.70),rgba(240,235,255,.55));box-shadow:inset 0 1px 0 rgba(255,255,255,.95),inset 0 0 0 1px rgba(255,255,255,.5),inset 0 -8px 16px -10px rgba(123,92,255,.25)}
+.task.done .box,.chk.on{box-shadow:0 0 10px rgba(123,92,255,.45),inset 0 1px 0 rgba(255,255,255,.55)}
+.math .chk.on{box-shadow:0 0 10px rgba(47,164,255,.55),inset 0 1px 0 rgba(255,255,255,.55)}
+.zh .chk.on{box-shadow:0 0 10px rgba(255,106,91,.5),inset 0 1px 0 rgba(255,255,255,.55)}
+.en .chk.on{box-shadow:0 0 10px rgba(34,192,138,.5),inset 0 1px 0 rgba(255,255,255,.55)}
+.task .xp{box-shadow:inset 0 1px 0 #fff,inset 0 -3px 6px rgba(255,180,0,.22),0 0 10px rgba(255,191,47,.25)}
+.streak{box-shadow:inset 0 1px 0 rgba(255,255,255,.9),inset 0 0 0 1px rgba(255,255,255,.5),inset 0 -14px 24px -14px rgba(255,140,40,.45)}
+.badge{background:radial-gradient(60% 55% at 50% 40%,#fff,rgba(255,255,255,0) 75%),linear-gradient(140deg,#f3efff,#e2d9ff);
+  box-shadow:inset 0 1px 0 #fff,inset 0 0 0 1px rgba(255,255,255,.7),inset 0 -12px 22px -10px rgba(123,92,255,.40);text-shadow:0 4px 14px rgba(123,92,255,.35)}
+.badge.lock{box-shadow:inset 0 1px 0 #fff;text-shadow:none}
+.bar,.minibar,.qbar{box-shadow:inset 0 1px 3px rgba(60,40,160,.12)}
+.bar i,.minibar i,.qbar i{box-shadow:inset 0 1px 0 rgba(255,255,255,.55),0 0 10px rgba(123,92,255,.35)}
+.ring svg{filter:drop-shadow(0 0 6px rgba(123,92,255,.35))}
+
+/* --- английский и квиз --- */
+.lesson{box-shadow:inset 0 1px 0 rgba(255,255,255,.95),inset 0 -8px 14px -8px rgba(34,192,138,.35)}
+.lesson.lock{box-shadow:inset 0 1px 0 rgba(255,255,255,.9)}
+.opt,.letter{background:linear-gradient(180deg,rgba(255,255,255,.95),rgba(246,243,255,.85));box-shadow:0 4px 12px rgba(60,40,160,.08),inset 0 1px 0 #fff,inset 0 -6px 12px -6px rgba(123,92,255,.20)}
+.opt.ok{background:linear-gradient(180deg,#effdf6,#d3f6e5);box-shadow:0 0 18px rgba(34,192,138,.35),inset 0 1px 0 #fff,inset 0 -8px 16px -8px rgba(34,192,138,.45)}
+.opt.bad{background:linear-gradient(180deg,#fff2f4,#ffdde2);box-shadow:0 0 18px rgba(255,91,110,.3),inset 0 1px 0 #fff}
+.say{box-shadow:inset 0 1px 0 #fff,inset 0 -6px 12px -6px rgba(34,192,138,.45)}
+
+/* --- карта, игра, окна --- */
+.mapwrap{box-shadow:var(--shadow),inset 0 0 120px rgba(130,100,255,.38),inset 0 1px 0 rgba(255,255,255,.2)}
+.gamebox{box-shadow:inset 0 0 100px rgba(150,120,255,.35),inset 0 1px 0 rgba(255,255,255,.2)}
+.panel{background:linear-gradient(180deg,rgba(255,255,255,.92),rgba(244,240,255,.80));-webkit-backdrop-filter:var(--blur);backdrop-filter:var(--blur);
+  box-shadow:0 10px 30px rgba(0,0,0,.3),inset 0 1px 0 #fff,inset 0 0 0 1px rgba(255,255,255,.6)}
+.modal .card{background:var(--glass-sheen),linear-gradient(160deg,rgba(255,255,255,.96),rgba(246,242,255,.92))}
+.toast{background:rgba(27,20,70,.82);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);box-shadow:0 10px 30px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.2),inset 0 0 20px rgba(150,120,255,.3)}
+
+/* телефоны: меньше размытия — экономим батарею и плавность прокрутки */
+@media (max-width:760px){
+  :root{--blur:blur(10px) saturate(150%)}
+  .bnav{background:linear-gradient(180deg,rgba(255,255,255,.88),rgba(244,240,255,.78));box-shadow:0 10px 30px rgba(60,40,160,.2),inset 0 1px 0 #fff,inset 0 0 0 1px rgba(255,255,255,.6)}
+  .bnav button.on{box-shadow:inset 0 1px 0 #fff,inset 0 -4px 10px rgba(123,92,255,.18)}
+}
+/* если в системе включено «уменьшить прозрачность» — делаем плотные плашки */
+@media (prefers-reduced-transparency:reduce){
+  .card{-webkit-backdrop-filter:none;backdrop-filter:none}
+  .card:not(.c-hero):not(.c-star):not(.c-map):not(.c-game):not(.c-lvl){background:#fff}
+  body::before{display:none}
+}
+@media (prefers-reduced-motion:reduce){.btn::after{display:none}}
+
+/* ===================================================================
+   Ночная тема: тёмное жидкое стекло, неоновые кромки, свечение изнутри
+   Всё на CSS: без картинок и скриптов, чтобы на телефоне было быстро.
+   =================================================================== */
+:root[data-theme="dark"]{
+  --bg:#0c0a2a; --ink:#f3f0ff; --muted:#b9b1e3; --soft:#8a82b8; --line:rgba(190,170,255,.16);
+  --card:rgba(40,30,110,.5);
+  --neon:#b9a2ff; --lime:#d4ff5c; --lime2:#9ae22a;
+  --glass:linear-gradient(160deg,rgba(78,60,190,.42) 0%,rgba(36,26,104,.46) 55%,rgba(22,16,70,.55) 100%);
+  --sheen:radial-gradient(120% 60% at 0% 0%,rgba(255,255,255,.14) 0,rgba(255,255,255,0) 50%);
+  --rim:inset 0 1px 0 rgba(255,255,255,.22),inset 0 0 0 1px rgba(185,162,255,.28);
+  --halo:0 0 0 1px rgba(150,120,255,.25),0 0 28px rgba(130,100,255,.30),0 18px 40px rgba(5,2,30,.55);
+  --inglow:inset 0 0 40px rgba(140,110,255,.22),inset 0 -40px 70px -40px rgba(120,190,255,.35);
+  --blur:blur(18px) saturate(160%);
+  --shadow:0 0 0 1px rgba(150,120,255,.22),0 0 22px rgba(130,100,255,.25),0 12px 30px rgba(5,2,30,.5);
+}
+html[data-theme="dark"]{background:#0c0a2a}
+[data-theme="dark"] body{color:var(--ink);background:
+  radial-gradient(900px 600px at 8% -5%,rgba(124,80,255,.45) 0,transparent 60%),
+  radial-gradient(800px 520px at 105% 10%,rgba(40,140,255,.35) 0,transparent 60%),
+  radial-gradient(700px 500px at 70% 110%,rgba(220,70,200,.28) 0,transparent 60%),
+  linear-gradient(180deg,#120d3a,#0a0824);background-attachment:fixed}
+/* звёздная пыль на фоне */
+[data-theme="dark"] body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.7;
+  background-image:
+    radial-gradient(1.4px 1.4px at 20px 30px,#fff,transparent),
+    radial-gradient(1px 1px at 120px 80px,#cfc4ff,transparent),
+    radial-gradient(1.6px 1.6px at 200px 160px,#fff,transparent),
+    radial-gradient(1px 1px at 60px 200px,#a9d8ff,transparent),
+    radial-gradient(1.2px 1.2px at 170px 20px,#fff,transparent);
+  background-size:240px 240px}
+[data-theme="dark"] .muted{color:var(--muted)}
+
+/* --- карточки: тёмное стекло с неоновой кромкой --- */
+[data-theme="dark"] .card{background:var(--sheen),var(--glass);-webkit-backdrop-filter:var(--blur);backdrop-filter:var(--blur);
+  border:1px solid rgba(190,170,255,.32);box-shadow:var(--halo),var(--rim),var(--inglow)}
+[data-theme="dark"] .c-subj:hover{transform:translateY(-4px);box-shadow:0 0 0 1px rgba(190,170,255,.5),0 0 40px rgba(150,120,255,.5),0 22px 44px rgba(5,2,30,.6),var(--rim),var(--inglow)}
+[data-theme="dark"] .c-subj.math{border-color:rgba(90,190,255,.55);box-shadow:0 0 0 1px rgba(80,180,255,.25),0 0 30px rgba(60,170,255,.35),0 18px 40px rgba(5,2,30,.55),var(--rim),inset 0 0 40px rgba(60,170,255,.16),inset 0 -50px 70px -40px rgba(60,170,255,.45)}
+[data-theme="dark"] .c-subj.zh{border-color:rgba(255,140,110,.55);box-shadow:0 0 0 1px rgba(255,120,90,.25),0 0 30px rgba(255,110,90,.32),0 18px 40px rgba(5,2,30,.55),var(--rim),inset 0 0 40px rgba(255,120,90,.14),inset 0 -50px 70px -40px rgba(255,120,90,.42)}
+[data-theme="dark"] .c-subj.en{border-color:rgba(70,230,160,.55);box-shadow:0 0 0 1px rgba(60,220,150,.25),0 0 30px rgba(50,220,150,.32),0 18px 40px rgba(5,2,30,.55),var(--rim),inset 0 0 40px rgba(50,220,150,.14),inset 0 -50px 70px -40px rgba(50,220,150,.42)}
+[data-theme="dark"] .c-hero{border:1px solid rgba(190,170,255,.4);background:radial-gradient(55% 80% at 80% 50%,rgba(90,170,255,.55),transparent 65%),radial-gradient(60% 70% at 0% 100%,rgba(190,90,255,.45),transparent 70%),linear-gradient(135deg,#1d1460 0%,#2e1f86 60%,#5434c4 100%);box-shadow:var(--halo),var(--rim),inset 0 0 80px rgba(150,120,255,.35)}
+[data-theme="dark"] .c-lvl{border:1px solid rgba(190,170,255,.4);background:var(--sheen),radial-gradient(90% 80% at 100% 0%,rgba(200,120,255,.45),transparent 60%),linear-gradient(160deg,rgba(100,70,220,.55),rgba(40,28,120,.6))}
+[data-theme="dark"] .c-star{border:1px solid rgba(255,214,110,.4);background:radial-gradient(55% 60% at 28% 58%,rgba(255,206,90,.42),transparent 70%),linear-gradient(160deg,#241a5e,#3b2a8f);box-shadow:0 0 0 1px rgba(255,200,90,.2),0 0 30px rgba(255,190,80,.28),0 18px 40px rgba(5,2,30,.55),var(--rim),inset 0 0 60px rgba(255,200,90,.16)}
+[data-theme="dark"] .c-map{border:1px solid rgba(120,190,255,.4);background:radial-gradient(50% 70% at 75% 60%,rgba(90,150,255,.45),transparent 70%),linear-gradient(160deg,#16104a,#2a1f6b)}
+[data-theme="dark"] .c-game{border:1px solid rgba(255,150,240,.42);background:radial-gradient(45% 70% at 88% 85%,rgba(255,130,230,.48),transparent 70%),linear-gradient(135deg,#2b2378,#5b3cc4);box-shadow:0 0 0 1px rgba(255,130,230,.2),0 0 30px rgba(255,120,220,.28),0 18px 40px rgba(5,2,30,.55),var(--rim),inset 0 0 60px rgba(255,140,230,.18)}
+[data-theme="dark"] .cat{filter:drop-shadow(0 8px 18px rgba(0,0,0,.4)) drop-shadow(0 0 26px rgba(255,170,255,.6))}
+[data-theme="dark"] .mystar{filter:drop-shadow(0 0 24px rgba(255,214,110,.65))}
+[data-theme="dark"] .planet{filter:drop-shadow(0 0 18px rgba(190,140,255,.75))}
+[data-theme="dark"] .hero-art{filter:drop-shadow(0 0 30px rgba(110,190,255,.55))}
+[data-theme="dark"] .c-map .preview{filter:drop-shadow(0 0 8px rgba(150,200,255,.5))}
+
+/* --- картинки предметов: цветные светящиеся окна --- */
+[data-theme="dark"] .subj-art{border:1px solid rgba(255,255,255,.18)}
+[data-theme="dark"] .math .subj-art{background:radial-gradient(60% 55% at 50% 50%,rgba(130,210,255,.75) 0,rgba(60,150,255,.25) 55%,transparent 80%),linear-gradient(140deg,#123a8a,#0c1f5a);box-shadow:inset 0 1px 0 rgba(255,255,255,.35),inset 0 0 30px rgba(80,180,255,.55),0 0 22px rgba(60,170,255,.35)}
+[data-theme="dark"] .zh .subj-art{background:radial-gradient(60% 55% at 50% 50%,rgba(255,190,140,.75) 0,rgba(255,110,80,.28) 55%,transparent 80%),linear-gradient(140deg,#7a2235,#3e1236);box-shadow:inset 0 1px 0 rgba(255,255,255,.35),inset 0 0 30px rgba(255,120,90,.55),0 0 22px rgba(255,110,90,.32)}
+[data-theme="dark"] .en .subj-art{background:radial-gradient(60% 55% at 50% 50%,rgba(160,255,200,.7) 0,rgba(40,200,140,.28) 55%,transparent 80%),linear-gradient(140deg,#0f5a4c,#0b2e3a);box-shadow:inset 0 1px 0 rgba(255,255,255,.35),inset 0 0 30px rgba(60,230,160,.5),0 0 22px rgba(50,220,150,.32)}
+[data-theme="dark"] .subj-art{text-shadow:0 0 24px rgba(255,255,255,.55)}
+
+/* иконки, логотип, аватар — светящиеся «леденцы» */
+[data-theme="dark"] .subj-head .ico,[data-theme="dark"] .logo,[data-theme="dark"] .panel .pi{box-shadow:inset 0 1px 0 rgba(255,255,255,.6),inset 0 -6px 12px rgba(0,0,0,.2),0 0 18px rgba(150,120,255,.55)}
+[data-theme="dark"] .math .ico{box-shadow:inset 0 1px 0 rgba(255,255,255,.6),inset 0 -6px 12px rgba(0,0,0,.2),0 0 18px rgba(60,170,255,.7)}
+[data-theme="dark"] .zh .ico{box-shadow:inset 0 1px 0 rgba(255,255,255,.6),inset 0 -6px 12px rgba(0,0,0,.2),0 0 18px rgba(255,110,90,.65)}
+[data-theme="dark"] .en .ico{box-shadow:inset 0 1px 0 rgba(255,255,255,.6),inset 0 -6px 12px rgba(0,0,0,.2),0 0 18px rgba(50,220,150,.65)}
+[data-theme="dark"] .ava{background:radial-gradient(70% 60% at 35% 30%,#6c52e6,#2a1d7a);box-shadow:0 0 0 2px rgba(190,170,255,.7),0 0 26px rgba(150,120,255,.65),inset 0 0 18px rgba(200,180,255,.45)}
+[data-theme="dark"] .hello h1{text-shadow:0 0 24px rgba(170,140,255,.45)}
+[data-theme="dark"] .slide h2,[data-theme="dark"] .c-map h3,[data-theme="dark"] .c-game h3,[data-theme="dark"] .lvlname{text-shadow:0 0 22px rgba(190,170,255,.55)}
+
+/* --- кнопки --- */
+[data-theme="dark"] .btn{position:relative;overflow:hidden;isolation:isolate;color:#1a1440;
+  background:linear-gradient(180deg,#e8ff8a,var(--lime) 45%,var(--lime2));
+  box-shadow:0 0 0 1px rgba(220,255,140,.55),0 0 26px rgba(190,255,80,.55),0 8px 20px rgba(5,2,30,.45),inset 0 1px 0 rgba(255,255,255,.8),inset 0 -5px 10px rgba(60,120,0,.3)}
+[data-theme="dark"] .btn::before{content:"";position:absolute;left:6%;right:6%;top:2px;height:46%;border-radius:999px;z-index:-1;pointer-events:none;background:linear-gradient(180deg,rgba(255,255,255,.75),rgba(255,255,255,0))}
+[data-theme="dark"] .btn::after{content:"";position:absolute;top:0;bottom:0;left:-60%;width:40%;z-index:-1;pointer-events:none;transform:skewX(-20deg);background:linear-gradient(90deg,transparent,rgba(255,255,255,.7),transparent);transition:left .6s ease}
+[data-theme="dark"] .btn:hover{transform:scale(1.04);box-shadow:0 0 0 1px rgba(220,255,140,.7),0 0 38px rgba(190,255,80,.75),0 8px 20px rgba(5,2,30,.45),inset 0 1px 0 rgba(255,255,255,.8),inset 0 -5px 10px rgba(60,120,0,.3)}
+[data-theme="dark"] .btn:hover::after{left:120%}
+[data-theme="dark"] .btn.v{color:#fff;background:linear-gradient(180deg,#a991ff,#7556ff 50%,#5a3ae6);
+  box-shadow:0 0 0 1px rgba(200,180,255,.55),0 0 26px rgba(140,110,255,.6),0 8px 20px rgba(5,2,30,.45),inset 0 1px 0 rgba(255,255,255,.55),inset 0 -6px 14px rgba(30,10,120,.4)}
+[data-theme="dark"] .btn.v::before{background:linear-gradient(180deg,rgba(255,255,255,.45),rgba(255,255,255,0))}
+[data-theme="dark"] .btn.ghost{color:#fff;background:rgba(255,255,255,.1);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.3),inset 0 0 0 1px rgba(190,170,255,.4),0 0 16px rgba(150,120,255,.3)}
+[data-theme="dark"] .btn.ghost::before{background:linear-gradient(180deg,rgba(255,255,255,.2),rgba(255,255,255,0))}
+
+/* круглые и «таблеточные» */
+[data-theme="dark"] .pill,[data-theme="dark"] .go,[data-theme="dark"] .back{color:var(--ink);background:linear-gradient(180deg,rgba(90,70,200,.55),rgba(40,30,110,.6));-webkit-backdrop-filter:var(--blur);backdrop-filter:var(--blur);
+  box-shadow:0 0 0 1px rgba(190,170,255,.4),0 0 16px rgba(140,110,255,.35),inset 0 1px 0 rgba(255,255,255,.25)}
+[data-theme="dark"] .mapctl button,[data-theme="dark"] .legend span,[data-theme="dark"] .framebar button{box-shadow:inset 0 1px 0 rgba(255,255,255,.3),inset 0 0 0 1px rgba(190,170,255,.3),0 0 12px rgba(140,110,255,.3)}
+
+/* боковое меню и нижняя панель */
+[data-theme="dark"] .side{background:linear-gradient(180deg,rgba(30,22,90,.75),rgba(16,12,52,.8));border-right:1px solid rgba(190,170,255,.2);box-shadow:inset -1px 0 0 rgba(255,255,255,.05),8px 0 30px rgba(5,2,30,.35)}
+[data-theme="dark"] .nav button{color:var(--muted)}
+[data-theme="dark"] .nav button:hover{background:rgba(160,130,255,.12);color:#fff}
+[data-theme="dark"] .nav button.on{color:#fff;background:linear-gradient(180deg,rgba(130,100,255,.55),rgba(80,55,200,.45));box-shadow:0 0 0 1px rgba(200,180,255,.55),0 0 22px rgba(140,110,255,.55),inset 0 1px 0 rgba(255,255,255,.3)}
+
+/* --- строки, значки, полоски --- */
+[data-theme="dark"] .topic{border-bottom-color:rgba(190,170,255,.18)}
+[data-theme="dark"] .chk{border-color:rgba(190,170,255,.45)}
+[data-theme="dark"] .task{background:linear-gradient(180deg,rgba(110,85,230,.28),rgba(60,42,160,.24));box-shadow:inset 0 1px 0 rgba(255,255,255,.14),inset 0 0 0 1px rgba(190,170,255,.22)}
+[data-theme="dark"] .task .box{border-color:rgba(190,170,255,.55)}
+[data-theme="dark"] .task.done .box{background:var(--lime2);border-color:var(--lime);color:#1a1440;box-shadow:0 0 12px rgba(190,255,80,.6)}
+[data-theme="dark"] .chk.on{box-shadow:0 0 12px rgba(150,120,255,.6),inset 0 1px 0 rgba(255,255,255,.5)}
+[data-theme="dark"] .math .chk.on{box-shadow:0 0 12px rgba(60,170,255,.75)}
+[data-theme="dark"] .zh .chk.on{box-shadow:0 0 12px rgba(255,110,90,.7)}
+[data-theme="dark"] .en .chk.on{box-shadow:0 0 12px rgba(50,220,150,.7)}
+[data-theme="dark"] .task .xp{color:#ffe28a;background:rgba(255,190,47,.16);box-shadow:inset 0 0 0 1px rgba(255,200,80,.45),0 0 12px rgba(255,190,47,.3)}
+[data-theme="dark"] .streak{color:#fff;background:linear-gradient(90deg,rgba(255,140,60,.28),rgba(255,90,120,.22));box-shadow:inset 0 0 0 1px rgba(255,170,90,.45),inset 0 0 24px rgba(255,150,60,.25),0 0 18px rgba(255,140,60,.25)}
+[data-theme="dark"] .streak small{color:#ffd9b8}
+[data-theme="dark"] .badge{background:radial-gradient(60% 55% at 50% 45%,rgba(200,180,255,.45),transparent 75%),linear-gradient(140deg,rgba(90,70,200,.5),rgba(40,28,110,.55));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.25),inset 0 0 0 1px rgba(190,170,255,.4),inset 0 0 20px rgba(160,130,255,.35),0 0 14px rgba(140,110,255,.3);text-shadow:0 0 16px rgba(255,255,255,.6)}
+[data-theme="dark"] .badge.lock{background:rgba(255,255,255,.04);box-shadow:inset 0 0 0 1px rgba(190,170,255,.15);text-shadow:none;opacity:.3}
+[data-theme="dark"] .bar,[data-theme="dark"] .minibar,[data-theme="dark"] .qbar{background:rgba(255,255,255,.1);box-shadow:inset 0 1px 3px rgba(0,0,0,.35)}
+[data-theme="dark"] .bar i,[data-theme="dark"] .qbar i{box-shadow:0 0 12px rgba(160,130,255,.75),inset 0 1px 0 rgba(255,255,255,.5)}
+[data-theme="dark"] .math .minibar i{box-shadow:0 0 10px rgba(60,170,255,.8)}
+[data-theme="dark"] .zh .minibar i{box-shadow:0 0 10px rgba(255,110,90,.8)}
+[data-theme="dark"] .en .minibar i{box-shadow:0 0 10px rgba(50,220,150,.8)}
+[data-theme="dark"] .ring circle:first-child{stroke:rgba(255,255,255,.1)}
+[data-theme="dark"] .ring svg{filter:drop-shadow(0 0 8px rgba(160,130,255,.7))}
+
+/* --- английский и квиз --- */
+[data-theme="dark"] .lesson{color:var(--ink);background:linear-gradient(180deg,rgba(50,200,140,.25),rgba(20,110,90,.25));box-shadow:inset 0 1px 0 rgba(255,255,255,.18),inset 0 0 0 1px rgba(80,230,170,.35)}
+[data-theme="dark"] .lesson:not(.lock):hover{background:linear-gradient(180deg,rgba(50,220,150,.4),rgba(20,130,100,.35));box-shadow:inset 0 0 0 1px rgba(100,255,190,.6),0 0 16px rgba(50,220,150,.45)}
+[data-theme="dark"] .lesson.lock{background:rgba(255,255,255,.05);box-shadow:inset 0 0 0 1px rgba(190,170,255,.15)}
+[data-theme="dark"] .opt,[data-theme="dark"] .letter{color:var(--ink);background:linear-gradient(180deg,rgba(100,80,220,.4),rgba(45,32,125,.45));border:1px solid rgba(190,170,255,.35);box-shadow:inset 0 1px 0 rgba(255,255,255,.18),inset 0 0 18px rgba(150,120,255,.2)}
+[data-theme="dark"] .opt:hover{border-color:rgba(220,200,255,.8);box-shadow:0 0 18px rgba(150,120,255,.5),inset 0 1px 0 rgba(255,255,255,.2)}
+[data-theme="dark"] .opt.ok{background:linear-gradient(180deg,rgba(60,230,160,.45),rgba(20,130,100,.45));border-color:#5effb8;box-shadow:0 0 22px rgba(60,230,160,.6),inset 0 1px 0 rgba(255,255,255,.3)}
+[data-theme="dark"] .opt.bad{background:linear-gradient(180deg,rgba(255,90,120,.45),rgba(140,30,70,.45));border-color:#ff8aa0;box-shadow:0 0 22px rgba(255,90,120,.55)}
+[data-theme="dark"] .slot{border-bottom-color:rgba(190,170,255,.5)}
+[data-theme="dark"] .say{color:#b5ffd9;background:rgba(50,220,150,.18);box-shadow:inset 0 0 0 1px rgba(80,230,170,.45),0 0 14px rgba(50,220,150,.3)}
+
+/* --- карта, игра, окна --- */
+[data-theme="dark"] .mapwrap{box-shadow:var(--halo),inset 0 0 140px rgba(130,100,255,.45),inset 0 0 0 1px rgba(190,170,255,.3)}
+[data-theme="dark"] .gamebox{box-shadow:0 0 0 1px rgba(190,170,255,.3),0 0 28px rgba(130,100,255,.3),inset 0 0 110px rgba(150,120,255,.4)}
+[data-theme="dark"] .panel{color:var(--ink);background:linear-gradient(180deg,rgba(70,52,180,.85),rgba(30,22,90,.88));-webkit-backdrop-filter:var(--blur);backdrop-filter:var(--blur);
+  box-shadow:0 0 0 1px rgba(190,170,255,.4),0 0 30px rgba(130,100,255,.4),inset 0 1px 0 rgba(255,255,255,.2)}
+[data-theme="dark"] .modal .card{background:var(--sheen),linear-gradient(160deg,#3a2a9a,#1c1458)}
+[data-theme="dark"] .avas button{background:rgba(255,255,255,.08);box-shadow:inset 0 0 0 1px rgba(190,170,255,.25)}
+[data-theme="dark"] .avas button.on{background:rgba(140,110,255,.35);border-color:var(--lime);box-shadow:0 0 18px rgba(190,255,80,.45)}
+[data-theme="dark"] .toast{background:rgba(40,28,120,.9);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);box-shadow:0 0 0 1px rgba(190,170,255,.4),0 0 26px rgba(130,100,255,.5)}
+[data-theme="dark"] .parents a{color:var(--lime)}
+
+/* телефоны: меньше размытия — плавная прокрутка и меньше расход батареи */
+@media (max-width:760px){
+  :root[data-theme="dark"]{--blur:blur(10px) saturate(140%)}
+  [data-theme="dark"] .bnav{background:linear-gradient(180deg,rgba(40,30,110,.88),rgba(20,15,62,.92));box-shadow:0 0 0 1px rgba(190,170,255,.35),0 0 26px rgba(130,100,255,.4),inset 0 1px 0 rgba(255,255,255,.18)}
+  [data-theme="dark"] .bnav button{color:var(--muted)}
+  [data-theme="dark"] .bnav button.on{color:#fff;background:rgba(130,100,255,.4);box-shadow:0 0 16px rgba(140,110,255,.5),inset 0 0 0 1px rgba(200,180,255,.5)}
+}
+@media (prefers-reduced-transparency:reduce){
+  [data-theme="dark"] .card,[data-theme="dark"] .pill,[data-theme="dark"] .go,[data-theme="dark"] .back,[data-theme="dark"] .panel{-webkit-backdrop-filter:none;backdrop-filter:none}
+  [data-theme="dark"] .card:not(.c-hero):not(.c-star):not(.c-map):not(.c-game):not(.c-lvl){background:#22195e}
+}
+@media (prefers-reduced-motion:reduce){[data-theme="dark"] .btn::after{display:none}}
+
+.planet-art{width:100%;height:100%;display:block;overflow:visible}
+.subj-art>.planet-art{position:absolute;inset:4px;width:calc(100% - 8px);height:calc(100% - 8px)}
+.c-subj:hover .planet-art{transform:rotate(-4deg) scale(1.04);transition:transform .4s}
+.planet-art{transition:transform .4s}
+
+/* ===== Стекло v2: прозрачность, стеклянная кромка, свет изнутри (обе темы) ===== */
+:root{
+  --glass:linear-gradient(160deg,rgba(255,255,255,.58) 0%,rgba(255,255,255,.30) 55%,rgba(240,234,255,.40) 100%);
+  --blur:blur(22px) saturate(185%);
+}
+/* кромка стекла: светлая сверху-слева, цветная снизу-справа */
+.card::after,.btn .edge{content:"";position:absolute;inset:0;border-radius:inherit;padding:1.5px;pointer-events:none;
+  background:linear-gradient(145deg,rgba(255,255,255,.95),rgba(255,255,255,.25) 35%,rgba(255,255,255,0) 60%,rgba(160,130,255,.6));
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude}
+.c-subj.math::after{background:linear-gradient(145deg,rgba(255,255,255,.95),rgba(255,255,255,.2) 35%,rgba(255,255,255,0) 60%,rgba(47,164,255,.75))}
+.c-subj.zh::after{background:linear-gradient(145deg,rgba(255,255,255,.95),rgba(255,255,255,.2) 35%,rgba(255,255,255,0) 60%,rgba(255,106,91,.7))}
+.c-subj.en::after{background:linear-gradient(145deg,rgba(255,255,255,.95),rgba(255,255,255,.2) 35%,rgba(255,255,255,0) 60%,rgba(34,192,138,.7))}
+.card{border-color:transparent}
+[data-theme="dark"] .card::after{background:linear-gradient(145deg,rgba(255,255,255,.55),rgba(200,180,255,.15) 35%,rgba(255,255,255,0) 60%,rgba(185,150,255,.8))}
+
+/* иконки предметов: стеклянные кубики со светом внутри */
+.subj-head .ico{-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);text-shadow:0 0 10px rgba(255,255,255,.9),0 1px 2px rgba(0,0,0,.2)}
+.math .ico{background:radial-gradient(70% 60% at 50% 60%,rgba(190,235,255,.85),transparent 70%),linear-gradient(160deg,rgba(110,195,255,.78),rgba(40,100,255,.55));
+  box-shadow:inset 0 1.5px 0 rgba(255,255,255,.9),inset 0 0 0 1px rgba(255,255,255,.4),inset 0 -8px 14px rgba(20,60,200,.35),0 0 20px rgba(47,164,255,.5)}
+.zh .ico{background:radial-gradient(70% 60% at 50% 60%,rgba(255,225,190,.85),transparent 70%),linear-gradient(160deg,rgba(255,150,110,.8),rgba(240,70,70,.55));
+  box-shadow:inset 0 1.5px 0 rgba(255,255,255,.9),inset 0 0 0 1px rgba(255,255,255,.4),inset 0 -8px 14px rgba(170,30,40,.3),0 0 20px rgba(255,106,91,.45)}
+.en .ico{background:radial-gradient(70% 60% at 50% 60%,rgba(200,255,225,.85),transparent 70%),linear-gradient(160deg,rgba(80,225,165,.8),rgba(20,160,140,.55));
+  box-shadow:inset 0 1.5px 0 rgba(255,255,255,.9),inset 0 0 0 1px rgba(255,255,255,.4),inset 0 -8px 14px rgba(10,110,90,.3),0 0 20px rgba(34,192,138,.45)}
+.logo{background:radial-gradient(70% 60% at 50% 60%,rgba(220,205,255,.8),transparent 70%),linear-gradient(150deg,rgba(150,120,255,.85),rgba(80,110,255,.6));
+  box-shadow:inset 0 1.5px 0 rgba(255,255,255,.9),inset 0 0 0 1px rgba(255,255,255,.4),inset 0 -8px 14px rgba(40,20,160,.35),0 0 24px rgba(123,92,255,.55)}
+
+/* окна с планетами: прозрачные, свет идёт из центра */
+.subj-art{-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.math .subj-art{background:radial-gradient(55% 55% at 50% 52%,rgba(255,255,255,.75),rgba(150,215,255,.25) 60%,transparent 85%),linear-gradient(140deg,rgba(220,240,255,.55),rgba(150,205,255,.35))}
+.zh .subj-art{background:radial-gradient(55% 55% at 50% 52%,rgba(255,255,255,.75),rgba(255,190,160,.25) 60%,transparent 85%),linear-gradient(140deg,rgba(255,236,226,.55),rgba(255,190,165,.35))}
+.en .subj-art{background:radial-gradient(55% 55% at 50% 52%,rgba(255,255,255,.75),rgba(160,240,200,.25) 60%,transparent 85%),linear-gradient(140deg,rgba(225,252,238,.55),rgba(160,235,200,.35))}
+
+/* кнопки: прозрачное стекло вместо глянцевого пластика */
+.btn{color:var(--ink);background:linear-gradient(180deg,rgba(255,255,255,.78),rgba(235,228,255,.42));-webkit-backdrop-filter:blur(12px) saturate(180%);backdrop-filter:blur(12px) saturate(180%);
+  box-shadow:0 8px 24px rgba(40,20,120,.22),inset 0 1.5px 0 rgba(255,255,255,.95),inset 0 0 0 1px rgba(255,255,255,.55),inset 0 -6px 14px rgba(150,120,255,.28),inset 0 0 18px rgba(255,255,255,.35)}
+.btn.v{background:radial-gradient(80% 90% at 50% 100%,rgba(200,180,255,.6),transparent 70%),linear-gradient(180deg,rgba(150,125,255,.85),rgba(100,70,240,.68));
+  box-shadow:0 10px 26px rgba(110,80,255,.42),0 0 22px rgba(140,110,255,.35),inset 0 1.5px 0 rgba(255,255,255,.75),inset 0 0 0 1px rgba(255,255,255,.3),inset 0 -6px 14px rgba(40,10,140,.3)}
+html:not([data-theme="dark"]) .c-hero .btn,html:not([data-theme="dark"]) .c-map .btn,html:not([data-theme="dark"]) .c-game .btn{color:#fff;background:linear-gradient(180deg,rgba(255,255,255,.34),rgba(255,255,255,.12));
+  box-shadow:0 8px 24px rgba(5,2,30,.35),0 0 20px rgba(180,160,255,.35),inset 0 1.5px 0 rgba(255,255,255,.8),inset 0 0 0 1px rgba(255,255,255,.4),inset 0 -6px 14px rgba(170,140,255,.35),inset 0 0 18px rgba(255,255,255,.15)}
+html:not([data-theme="dark"]) .c-hero .btn::before,html:not([data-theme="dark"]) .c-map .btn::before,html:not([data-theme="dark"]) .c-game .btn::before{background:linear-gradient(180deg,rgba(255,255,255,.5),rgba(255,255,255,0))}
+
+/* таблетки, строки, значки — прозрачнее и светятся изнутри */
+.pill,.go,.back{background:linear-gradient(180deg,rgba(255,255,255,.65),rgba(244,240,255,.35))}
+.task{background:linear-gradient(180deg,rgba(255,255,255,.5),rgba(240,235,255,.25));box-shadow:inset 0 1.5px 0 rgba(255,255,255,.95),inset 0 0 0 1px rgba(255,255,255,.55),inset 0 -10px 18px -10px rgba(123,92,255,.35)}
+.badge{background:radial-gradient(55% 55% at 50% 50%,rgba(255,255,255,.95),rgba(220,205,255,.35) 70%,transparent),linear-gradient(140deg,rgba(243,239,255,.6),rgba(215,200,255,.4));
+  box-shadow:inset 0 1.5px 0 #fff,inset 0 0 0 1px rgba(255,255,255,.65),inset 0 -12px 22px -10px rgba(123,92,255,.45),0 0 14px rgba(123,92,255,.18)}
+.streak{background:linear-gradient(90deg,rgba(255,236,200,.7),rgba(255,220,200,.45))}
+.c-lvl{background:var(--glass-sheen),radial-gradient(90% 80% at 100% 0%,rgba(190,160,255,.5),transparent 60%),linear-gradient(160deg,rgba(240,234,255,.55),rgba(214,200,255,.45))}
+@media (max-width:760px){:root{--blur:blur(12px) saturate(160%)}}
 </style>
 </head>
 <body>
@@ -298,7 +633,7 @@ main{padding:22px 28px 40px;max-width:1280px;width:100%;margin:0 auto}
     <div class="logo" title="Звездочёт"><svg viewBox="0 0 24 24" fill="#fff"><path d="M12 2l2.6 6.3L21 9l-5 4.4L17.5 20 12 16.6 6.5 20 8 13.4 3 9l6.4-.7z"/></svg></div>
     <nav class="nav" id="nav"></nav>
     <div class="spacer"></div>
-    <nav class="nav"><button data-go="parents"><span class="ic">👨‍👩‍👧</span>Родителям</button></nav>
+    <nav class="nav"><button data-theme-toggle title="Светлая или тёмная тема"><span class="ic tt-ic">🌙</span><span class="tt-l">Тёмная</span></button><button data-go="parents"><span class="ic">👨‍👩‍👧</span>Родителям</button></nav>
   </aside>
   <main id="main"></main>
 </div>
@@ -468,6 +803,17 @@ function renderNav(){
   document.querySelectorAll('.side nav:last-of-type button').forEach(b=>b.classList.toggle('on',route==='parents'));
 }
 document.addEventListener('click',e=>{const b=e.target.closest('[data-go]');if(b){e.preventDefault();go(b.dataset.go)}});
+/* светлая / тёмная тема: выбор запоминается на этом устройстве */
+function applyTheme(t){const r=document.documentElement;if(t==='dark')r.dataset.theme='dark';else r.dataset.theme='light';
+  try{localStorage.setItem('zv-theme',t)}catch(e){}
+  const m=document.querySelector('meta[name=theme-color]');if(m)m.content=t==='dark'?'#120d3a':'#f3f0ff';syncThemeBtns()}
+function syncThemeBtns(){const d=document.documentElement.dataset.theme==='dark';
+  document.querySelectorAll('.tt-ic').forEach(i=>i.textContent=d?'☀️':'🌙');
+  document.querySelectorAll('.tt-l').forEach(i=>i.textContent=d?'Светлая':'Тёмная')}
+document.addEventListener('click',e=>{if(e.target.closest('[data-theme-toggle]'))applyTheme(document.documentElement.dataset.theme==='dark'?'light':'dark')});
+new MutationObserver(syncThemeBtns).observe(document.getElementById('main'),{childList:true});
+syncThemeBtns();
+if(document.documentElement.dataset.theme==='dark'){const m=document.querySelector('meta[name=theme-color]');if(m)m.content='#120d3a'}
 function go(r,arg){route=r;renderNav();const M=document.getElementById('main');window.scrollTo(0,0);
   ({home:renderHome,map:renderMap,subjects:renderSubjects,collection:renderCollection,game:renderGame,parents:renderParents,english:renderEnglish}[r]||renderHome)(M,arg);
   try{history.replaceState(null,'','#'+r)}catch(e){}
@@ -488,19 +834,99 @@ function celebrateIfGrew(){const x=snapshot();const was=hub.seen||[];const now=x
   const fresh=now.filter(i=>!was.includes(i));if(fresh.length){toast('Новая находка: '+BADGES[fresh[0]][0]+' '+BADGES[fresh[0]][1]);hub.seen=now;saveHub()}}
 
 /* ====================== главная ====================== */
+/* ====================== иллюстрации: объёмные планеты предметов ====================== */
+// Рисуем SVG: шар с освещением слева сверху, тень терминатора, рельеф внутри шара,
+// атмосфера по краю, блик, кольцо/спутники. Каждый вызов даёт уникальные id градиентов.
+let _pl=0;
+const PLANETS={
+ math:{a:'#bfeaff',b:'#4fb6ff',c:'#1f4fd1',d:'#0d1f6e',atm:'#8fdcff',name:'Планета Чисел'},
+ zh:{a:'#ffe1b0',b:'#ff8a4c',c:'#d8323f',d:'#5a0f2a',atm:'#ffb36b',name:'Планета Иероглифов'},
+ en:{a:'#d6ffe6',b:'#45d99a',c:'#14946f',d:'#063a3a',atm:'#9be7b5',name:'Планета Слов'}
+};
+function planetSVG(k,{cls='planet-art',moons=true}={}){
+  const P=PLANETS[k],u='p'+(++_pl)+k,cx=100,cy=108,r=58;
+  const defs=`<defs>
+   <radialGradient id="${u}b" cx=".34" cy=".3" r=".85"><stop offset="0" stop-color="${P.a}" stop-opacity=".95"/><stop offset=".35" stop-color="${P.b}" stop-opacity=".72"/><stop offset=".75" stop-color="${P.c}" stop-opacity=".62"/><stop offset="1" stop-color="${P.d}" stop-opacity=".8"/></radialGradient>
+   <radialGradient id="${u}k" cx=".5" cy=".55" r=".5"><stop offset="0" stop-color="#fff" stop-opacity=".95"/><stop offset=".35" stop-color="${P.atm}" stop-opacity=".7"/><stop offset="1" stop-color="${P.atm}" stop-opacity="0"/></radialGradient>
+   <radialGradient id="${u}f" cx=".5" cy=".5" r=".5"><stop offset=".7" stop-color="#fff" stop-opacity="0"/><stop offset=".93" stop-color="${P.atm}" stop-opacity=".55"/><stop offset="1" stop-color="#fff" stop-opacity=".95"/></radialGradient>
+   <radialGradient id="${u}q" cx=".72" cy=".78" r=".4"><stop offset="0" stop-color="${P.a}" stop-opacity=".85"/><stop offset="1" stop-color="${P.a}" stop-opacity="0"/></radialGradient>
+   <filter id="${u}bl" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="9"/></filter>
+   <radialGradient id="${u}s" cx=".78" cy=".82" r=".75"><stop offset="0" stop-color="#05021e" stop-opacity=".45"/><stop offset=".55" stop-color="#05021e" stop-opacity=".08"/><stop offset="1" stop-color="#05021e" stop-opacity="0"/></radialGradient>
+   <radialGradient id="${u}g" cx=".5" cy=".5" r=".5"><stop offset=".72" stop-color="${P.atm}" stop-opacity="0"/><stop offset=".86" stop-color="${P.atm}" stop-opacity=".55"/><stop offset="1" stop-color="${P.atm}" stop-opacity="0"/></radialGradient>
+   <radialGradient id="${u}h" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#fff" stop-opacity=".9"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+   <linearGradient id="${u}x" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff"/><stop offset=".45" stop-color="${P.a}"/><stop offset="1" stop-color="${P.b}"/></linearGradient>
+   <linearGradient id="${u}r" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="${P.atm}" stop-opacity=".15"/><stop offset=".5" stop-color="#fff" stop-opacity=".95"/><stop offset="1" stop-color="${P.atm}" stop-opacity=".15"/></linearGradient>
+   <clipPath id="${u}c"><circle cx="${cx}" cy="${cy}" r="${r}"/></clipPath></defs>`;
+  let surf='',back='',front='',top='';
+  if(k==='math'){
+    // кристальные грани и полосы
+    surf=`<path d="M40 92 Q100 70 160 92 L160 104 Q100 82 40 104Z" fill="#fff" opacity=".18"/>
+      <path d="M44 130 Q100 112 158 132 L156 142 Q100 122 46 140Z" fill="#0d1f6e" opacity=".25"/>
+      <path d="M70 60 L96 84 L78 104 L56 86Z" fill="#fff" opacity=".22"/><path d="M118 118 L140 132 L128 150 L108 138Z" fill="#cfefff" opacity=".25"/>
+      <path d="M86 150 L100 140 L112 156 L96 166Z" fill="#fff" opacity=".15"/>`;
+    top=`<g transform="translate(96 54)"><path d="M0 0 L8 -26 L16 0Z" fill="url(#${u}x)"/><path d="M8 -26 L16 0 L10 2Z" fill="${P.c}" opacity=".45"/></g>
+      <g transform="translate(78 58) rotate(-22)"><path d="M0 0 L6 -18 L12 0Z" fill="url(#${u}x)"/><path d="M6 -18 L12 0 L7 1Z" fill="${P.c}" opacity=".45"/></g>
+      <g transform="translate(116 58) rotate(20)"><path d="M0 0 L5 -15 L10 0Z" fill="url(#${u}x)"/><path d="M5 -15 L10 0 L6 1Z" fill="${P.c}" opacity=".45"/></g>`;
+    back=`<path d="M22 118 A80 20 -14 0 1 178 82" fill="none" stroke="url(#${u}r)" stroke-width="7" stroke-linecap="round" opacity=".55"/>`;
+    front=`<path d="M178 82 A80 20 -14 0 1 22 118" fill="none" stroke="url(#${u}r)" stroke-width="7" stroke-linecap="round"/>`;
+    if(moons)front+=`<g font-family="Nunito,sans-serif" font-weight="900" text-anchor="middle">
+      <g transform="translate(30 50)"><circle r="15" fill="url(#${u}x)"/><circle r="15" fill="none" stroke="#fff" stroke-opacity=".8" stroke-width="1.5"/><text y="6" font-size="17" fill="${P.c}">7</text></g>
+      <g transform="translate(172 150)"><circle r="12" fill="url(#${u}x)"/><text y="5" font-size="14" fill="${P.c}">+</text></g>
+      <g transform="translate(166 34)"><rect x="-11" y="-11" width="22" height="22" rx="6" fill="url(#${u}x)" transform="rotate(14)"/><text y="5" font-size="14" fill="${P.c}">π</text></g></g>`;
+  }else if(k==='zh'){
+    surf=`<path d="M48 100 Q70 92 84 104 T120 98 T158 108" fill="none" stroke="#ffd36b" stroke-width="3" opacity=".9"/>
+      <path d="M54 136 Q78 126 96 140 T150 132" fill="none" stroke="#ffb03b" stroke-width="2.5" opacity=".8"/>
+      <path d="M84 104 L80 122 L92 136" fill="none" stroke="#ffd36b" stroke-width="2" opacity=".7"/>
+      <circle cx="122" cy="84" r="9" fill="#5a0f2a" opacity=".35"/><circle cx="70" cy="152" r="7" fill="#5a0f2a" opacity=".35"/><circle cx="140" cy="150" r="5" fill="#5a0f2a" opacity=".35"/>`;
+    top=`<path d="M78 58 L92 34 L104 34 L120 58Z" fill="${P.c}"/><path d="M92 34 L104 34 L120 58 L104 58Z" fill="${P.d}" opacity=".45"/>
+      <path d="M92 34 Q98 26 104 34" fill="#ffd36b"/><path d="M95 36 L92 50 M101 36 L104 46" stroke="#ffd36b" stroke-width="3" stroke-linecap="round"/>
+      <circle cx="98" cy="22" r="7" fill="#ffd36b" opacity=".6"/><circle cx="106" cy="12" r="5" fill="#ffb36b" opacity=".45"/><circle cx="92" cy="8" r="4" fill="#ffb36b" opacity=".3"/>`;
+    if(moons)front=`<g transform="translate(164 64)"><line x1="0" y1="-26" x2="0" y2="-16" stroke="#ffd36b" stroke-width="2"/>
+      <rect x="-14" y="-16" width="28" height="5" rx="2" fill="#ffd36b"/><ellipse cx="0" cy="2" rx="17" ry="15" fill="#ff4a3d"/><ellipse cx="0" cy="2" rx="17" ry="15" fill="url(#${u}h)" opacity=".5"/>
+      <path d="M-9 -10 Q-14 2 -9 14 M0 -13 V17 M9 -10 Q14 2 9 14" stroke="#c2202c" stroke-width="1.6" fill="none"/>
+      <rect x="-14" y="15" width="28" height="5" rx="2" fill="#ffd36b"/><line x1="0" y1="20" x2="0" y2="30" stroke="#ffd36b" stroke-width="2"/>
+      <text y="7" text-anchor="middle" font-size="14" font-weight="900" fill="#fff6c8" font-family="sans-serif">福</text></g>
+      <g transform="translate(34 160)"><circle r="11" fill="#ffb36b"/><circle r="11" fill="url(#${u}h)" opacity=".5"/><text y="5" text-anchor="middle" font-size="12" font-weight="900" fill="#8a1d2b" font-family="sans-serif">中</text></g>`;
+  }else{
+    surf=`<path d="M42 96 Q62 84 86 94 Q110 104 128 88 Q146 76 160 92 L160 120 Q140 108 120 120 Q96 134 70 118 Q54 110 42 118Z" fill="#0e7a5c" opacity=".45"/>
+      <path d="M50 140 Q80 128 110 144 Q130 152 154 136" fill="none" stroke="#bff5ff" stroke-width="5" stroke-linecap="round" opacity=".55"/>
+      <ellipse cx="128" cy="72" rx="14" ry="7" fill="#7fe0ff" opacity=".55"/><ellipse cx="72" cy="158" rx="10" ry="5" fill="#7fe0ff" opacity=".5"/>
+      <path d="M58 76 q8 -6 16 0 q8 -6 16 0" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" opacity=".65"/>`;
+    const tree=(x,y,s)=>`<g transform="translate(${x} ${y}) scale(${s})"><rect x="-2" y="-2" width="4" height="8" fill="#6b3d1f"/><path d="M-11 0 L0 -26 L11 0Z" fill="#1aa874"/><path d="M0 -26 L11 0 L3 0Z" fill="#0b6b4c" opacity=".6"/><path d="M-8 -10 L0 -30 L8 -10Z" fill="#3fd894"/></g>`;
+    top=tree(84,54,1)+tree(100,50,1.25)+tree(116,55,.9)+tree(70,61,.7)+tree(130,61,.7);
+    if(moons)front=`<g transform="translate(160 56)"><path d="M-22 -14 h44 a8 8 0 0 1 8 8 v16 a8 8 0 0 1 -8 8 h-30 l-10 9 v-9 h-4 a8 8 0 0 1 -8 -8 v-16 a8 8 0 0 1 8 -8z" fill="#fff"/>
+      <text y="7" text-anchor="middle" font-size="17" font-weight="900" fill="${P.c}" font-family="Nunito,sans-serif">ABC</text></g>
+      <g transform="translate(36 158)"><circle r="12" fill="#ffe27a"/><circle r="12" fill="url(#${u}h)" opacity=".5"/><path d="M-5 -1 a5 5 0 0 0 10 0" stroke="#9a6b00" stroke-width="2" fill="none" stroke-linecap="round"/><circle cx="-4" cy="-4" r="1.6" fill="#9a6b00"/><circle cx="4" cy="-4" r="1.6" fill="#9a6b00"/></g>`;
+  }
+  return `<svg class="${cls}" viewBox="0 0 200 200" aria-label="${P.name}" role="img">${defs}
+   <circle cx="${cx}" cy="${cy}" r="${r+6}" fill="${P.b}" opacity=".55" filter="url(#${u}bl)"/>
+   <circle cx="${cx}" cy="${cy}" r="${r+16}" fill="url(#${u}g)"/>${back}${top}
+   <circle cx="${cx}" cy="${cy}" r="${r*.62}" fill="url(#${u}k)"/>
+   <circle cx="${cx}" cy="${cy}" r="${r}" fill="url(#${u}b)"/>
+   <g clip-path="url(#${u}c)" opacity=".85">${surf}</g>
+   <g clip-path="url(#${u}c)"><circle cx="${cx}" cy="${cy}" r="${r*.45}" fill="url(#${u}k)" opacity=".55"/><circle cx="${cx}" cy="${cy}" r="${r}" fill="url(#${u}s)"/><circle cx="${cx}" cy="${cy}" r="${r}" fill="url(#${u}q)"/></g>
+   <circle cx="${cx}" cy="${cy}" r="${r}" fill="url(#${u}f)"/>
+   <path d="M${cx-r*.82} ${cy-r*.2} A${r*.86} ${r*.86} 0 0 1 ${cx+r*.1} ${cy-r*.84}" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".85"/>
+   <ellipse cx="${cx-22}" cy="${cy-26}" rx="18" ry="11" fill="url(#${u}h)" transform="rotate(-30 ${cx-22} ${cy-26})"/>
+   <circle cx="${cx-30}" cy="${cy-14}" r="3" fill="#fff" opacity=".9"/>
+   ${front}</svg>`;
+}
 const SLIDES=[
  {tag:'🧮 Тема недели',h:'Тайны чисел',p:'Логика, хитрые задачи и олимпиадные загадки. Каждая решённая задача — новая звезда на карте.',btn:'Решать',k:'math',art:'math'},
  {tag:'🏮 Иероглиф недели',h:'Путешествие в Китай',p:'Учим слова, тоны и иероглифы. Дракон ждёт тебя на Планете Иероглифов!',btn:'Учить',k:'zh',art:'zh'},
  {tag:'💬 Новая планета',h:'Hello, English!',p:'12 тем: животные, цвета, еда, космос и ракеты. Слушай, выбирай и собирай слова.',btn:'Начать',k:'en',art:'en'}
 ];
 function heroArt(k){
-  const c={math:['#4fb6ff','#9bdcff','∑ π ÷'],zh:['#ff7a5c','#ffc38f','中 学 山'],en:['#2fd39a','#a6f0c6','A b C']}[k];
-  return `<svg class="hero-art" viewBox="0 0 300 260" preserveAspectRatio="xMidYMid slice"><defs><radialGradient id="ha${k}" cx=".35" cy=".35"><stop offset="0" stop-color="#fff"/><stop offset=".3" stop-color="${c[1]}"/><stop offset="1" stop-color="${c[0]}"/></radialGradient></defs>
-   <circle cx="180" cy="130" r="92" fill="${c[0]}" opacity=".18"/><circle cx="180" cy="130" r="68" fill="url(#ha${k})"/>
-   <ellipse cx="180" cy="130" rx="118" ry="24" fill="none" stroke="${c[1]}" stroke-width="6" opacity=".7" transform="rotate(-18 180 130)"/>
-   <text x="180" y="145" text-anchor="middle" font-size="40" font-weight="900" fill="#fff" font-family="Nunito">${c[2]}</text>
-   <circle cx="62" cy="52" r="10" fill="#ffe27a"/><circle cx="270" cy="230" r="6" fill="#fff" opacity=".7"/><circle cx="40" cy="210" r="4" fill="#fff"/>
-   <path d="${starPath(270,40,14,6)}" fill="#ffe27a"/><path d="${starPath(90,230,9,4)}" fill="#fff" opacity=".8"/></svg>`;
+  const g={math:'#4fb6ff',zh:'#ff7a5c',en:'#2fd39a'}[k];const u='hs'+(++_pl);
+  const inner=planetSVG(k).replace('<svg ','<svg x="40" y="10" width="250" height="250" ');
+  return `<svg class="hero-art" viewBox="0 0 300 260" preserveAspectRatio="xMidYMid slice"><defs><radialGradient id="${u}"><stop offset="0" stop-color="${g}" stop-opacity=".55"/><stop offset="1" stop-color="${g}" stop-opacity="0"/></radialGradient></defs>
+   <circle cx="165" cy="140" r="130" fill="url(#${u})"/>
+   <ellipse cx="165" cy="140" rx="150" ry="40" fill="none" stroke="#fff" stroke-opacity=".12" stroke-width="1.5" stroke-dasharray="3 7" transform="rotate(-14 165 140)"/>
+   ${inner}
+   <circle cx="34" cy="48" r="9" fill="#ffe27a"/><circle cx="34" cy="48" r="16" fill="#ffe27a" opacity=".18"/>
+   <path d="${starPath(272,34,12,5)}" fill="#ffe27a"/><path d="${starPath(30,214,8,3.5)}" fill="#fff" opacity=".85"/>
+   <circle cx="282" cy="236" r="3" fill="#fff" opacity=".8"/><circle cx="250" cy="14" r="2" fill="#fff"/><circle cx="14" cy="120" r="2" fill="#fff" opacity=".7"/>
+   <path d="M210 30 l26 -14" stroke="#fff" stroke-opacity=".6" stroke-width="2" stroke-linecap="round"/><circle cx="210" cy="30" r="2.5" fill="#fff"/></svg>`;
 }
 let slideTimer;
 function renderHome(M){
@@ -515,7 +941,7 @@ function renderHome(M){
   const greet=['Сегодня откроем новые звёзды?','Куда полетим сегодня?','Карта ждёт новых открытий!'][new Date().getDay()%3];
   const subj=(k,name,ic,art,topics,foot,pctv)=>`<div class="card c-subj ${k}" data-subj="${k}">
      <div class="subj-head"><div class="ico">${ic}</div><h3>${name}</h3><div class="go">›</div></div>
-     <div class="subj-body"><div class="subj-art">${art}</div><div class="topics">${topics.map(([n,on])=>`<div class="topic">${n}<span class="chk ${on?'on':''}">${on?'✓':''}</span></div>`).join('')}</div></div>
+     <div class="subj-body"><div class="subj-art">${planetSVG(k)}</div><div class="topics">${topics.map(([n,on])=>`<div class="topic">${n}<span class="chk ${on?'on':''}">${on?'✓':''}</span></div>`).join('')}</div></div>
      <div class="subj-foot"><div class="minibar"><i style="width:${Math.round(pctv*100)}%"></i></div><span class="muted">${foot}</span></div></div>`;
   const nm=MATH_STEPS.find(v=>v>x.m.solved),nz=ZH_STEPS.find(v=>v>x.z.words);
   const enNext=UNITS.find(u=>(en.units[u.id]||[]).filter(Boolean).length<3);
@@ -526,6 +952,7 @@ function renderHome(M){
     <div class="grow"></div>
     <div class="pill" title="Звёздные очки"><span class="n">⭐</span>${x.xp}</div>
     <div class="pill" title="Дней подряд"><span class="n">🔥</span>${x.streak}</div>
+    <button class="pill themebtn" data-theme-toggle title="Светлая или тёмная тема" aria-label="Сменить тему"><span class="n tt-ic">🌙</span></button>
   </div>
   <div class="grid">
     <div class="card c-hero"><div class="sky" id="sky"></div>
@@ -635,7 +1062,7 @@ function renderSubjects(M){
   M.querySelectorAll('[data-subj]').forEach(el=>el.onclick=()=>openSubject(el.dataset.subj));
 }
 function bigSubj(k,n,ic,art,desc,stat){return `<div class="card c-subj ${k}" data-subj="${k}"><div class="subj-head"><div class="ico">${ic}</div><h3>${n}</h3><div class="go">›</div></div>
-  <div class="subj-art" style="width:100%;height:150px;margin:14px 0;font-size:80px">${art}</div><p class="muted">${desc}</p><p style="margin-top:10px;font-weight:900">${stat}</p></div>`}
+  <div class="subj-art" style="width:100%;height:150px;margin:14px 0;font-size:80px">${planetSVG(k)}</div><p class="muted">${desc}</p><p style="margin-top:10px;font-weight:900">${stat}</p></div>`}
 
 /* ====================== коллекция ====================== */
 function renderCollection(M){const x=snapshot();hub.seen=x.badges.map((b,i)=>b?i:-1).filter(i=>i>=0);saveHub();
